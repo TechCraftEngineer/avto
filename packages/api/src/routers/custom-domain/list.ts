@@ -1,8 +1,8 @@
-import { ORPCError } from "@orpc/server";
 import { db } from "@qbs-autonaim/db/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
+import { verifyWorkspaceAccess } from "../../utils/verify-workspace-access";
 
 export const list = protectedProcedure
   .input(
@@ -12,17 +12,11 @@ export const list = protectedProcedure
     }),
   )
   .handler(async ({ input, context }) => {
-    const member = await db.query.workspaceMember.findFirst({
-      where: (member, { eq, and }) =>
-        and(
-          eq(member.workspaceId, input.workspaceId),
-          eq(member.userId, context.session.user.id),
-        ),
-    });
-
-    if (!member) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
-    }
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
+      input.workspaceId,
+      context.session.user.id,
+    );
 
     return await db.query.customDomain.findMany({
       where: (domain, { eq, and }) => {

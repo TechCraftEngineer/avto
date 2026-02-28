@@ -23,44 +23,66 @@ import {
   SelectValue,
 } from "@qbs-autonaim/ui/components/select";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@qbs-autonaim/ui/components/toggle-group";
 import { cn } from "@qbs-autonaim/ui/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { CalendarIcon, Plus } from "lucide-react";
+import {
+  Bell,
+  CalendarIcon,
+  CircleSlash,
+  Clock,
+  Mail,
+  MessageCircle,
+  MessageSquare,
+  MoreHorizontal,
+  Phone,
+  Plus,
+  Send,
+  StickyNote,
+  UserRound,
+  Users,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useORPC } from "~/orpc/react";
 
 const INTERACTION_TYPE_OPTIONS = [
-  { value: "call", label: "Звонок" },
-  { value: "email_sent", label: "Письмо отправлено" },
-  { value: "meeting", label: "Встреча" },
-  { value: "message_sent", label: "Сообщение отправлено" },
-  { value: "note", label: "Заметка" },
-  { value: "followup_sent", label: "Напоминание" },
+  { value: "call", label: "Звонок", icon: Phone },
+  { value: "email_sent", label: "Письмо", icon: Mail },
+  { value: "meeting", label: "Встреча", icon: Users },
+  { value: "message_sent", label: "Сообщение", icon: MessageSquare },
+  { value: "note", label: "Заметка", icon: StickyNote },
+  { value: "followup_sent", label: "Напоминание", icon: Bell },
 ] as const;
+
+const CHANNEL_NONE = "__none__";
 
 const CHANNEL_OPTIONS = [
-  { value: "phone", label: "Телефон" },
-  { value: "email", label: "Email" },
-  { value: "telegram", label: "Telegram" },
-  { value: "whatsapp", label: "WhatsApp" },
-  { value: "in_person", label: "Личная встреча" },
-  { value: "other", label: "Другое" },
+  { value: CHANNEL_NONE, label: "Не указан", icon: CircleSlash },
+  { value: "phone", label: "Телефон", icon: Phone },
+  { value: "email", label: "Email", icon: Mail },
+  { value: "telegram", label: "Telegram", icon: Send },
+  { value: "whatsapp", label: "WhatsApp", icon: MessageCircle },
+  { value: "in_person", label: "Лично", icon: UserRound },
+  { value: "other", label: "Другое", icon: MoreHorizontal },
 ] as const;
 
-const TIME_SLOTS = [
-  "09:00",
-  "10:00",
-  "11:00",
-  "12:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
-  "18:00",
-];
+const HOURS = Array.from({ length: 24 }, (_, i) =>
+  i.toString().padStart(2, "0"),
+);
+const MINUTES = ["00", "30"];
+
+function roundToNearest30(hhmm: string): string {
+  const [h, m] = hhmm.split(":").map(Number);
+  const rounded = m < 15 ? 0 : m < 45 ? 30 : 0;
+  const hour = m >= 45 ? (h + 1) % 24 : h;
+  return `${hour.toString().padStart(2, "0")}:${rounded.toString().padStart(2, "0")}`;
+}
 
 interface AddInteractionDialogProps {
   responseId: string;
@@ -80,8 +102,11 @@ export function AddInteractionDialog({
   const [open, setOpen] = useState(false);
   const [interactionType, setInteractionType] = useState<string>("call");
   const [happenedAt, setHappenedAt] = useState<Date>(() => new Date());
-  const [timeSlot, setTimeSlot] = useState<string>("14:00");
-  const [channel, setChannel] = useState<string>("");
+  const [timeValue, setTimeValue] = useState<string>(() =>
+    roundToNearest30(format(new Date(), "HH:mm")),
+  );
+  const [timeOpen, setTimeOpen] = useState(false);
+  const [channel, setChannel] = useState<string>(CHANNEL_NONE);
   const [note, setNote] = useState("");
 
   const { mutate, isPending } = useMutation(
@@ -95,8 +120,8 @@ export function AddInteractionDialog({
         setOpen(false);
         setInteractionType("call");
         setHappenedAt(new Date());
-        setTimeSlot("14:00");
-        setChannel("");
+        setTimeValue(roundToNearest30(format(new Date(), "HH:mm")));
+        setChannel(CHANNEL_NONE);
         setNote("");
         onSuccess?.();
       },
@@ -111,7 +136,7 @@ export function AddInteractionDialog({
   );
 
   const handleSubmit = () => {
-    const [hours = 0, minutes = 0] = timeSlot.split(":").map(Number);
+    const [hours = 0, minutes = 0] = timeValue.split(":").map(Number);
     const happenedAtDate = new Date(happenedAt);
     happenedAtDate.setHours(hours, minutes, 0, 0);
 
@@ -121,9 +146,10 @@ export function AddInteractionDialog({
       interactionType:
         interactionType as (typeof INTERACTION_TYPE_OPTIONS)[number]["value"],
       happenedAt: happenedAtDate,
-      channel: channel
-        ? (channel as (typeof CHANNEL_OPTIONS)[number]["value"])
-        : undefined,
+      channel:
+        channel && channel !== CHANNEL_NONE
+          ? (channel as (typeof CHANNEL_OPTIONS)[number]["value"])
+          : undefined,
       note: note || undefined,
     });
   };
@@ -148,19 +174,36 @@ export function AddInteractionDialog({
 
         <div className="space-y-4">
           <div>
-            <Label>Тип</Label>
-            <Select value={interactionType} onValueChange={setInteractionType}>
-              <SelectTrigger className="mt-1">
-                <SelectValue placeholder="Выберите тип" />
-              </SelectTrigger>
-              <SelectContent>
-                {INTERACTION_TYPE_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
+            <Label className="mb-2 block">Тип</Label>
+            <ToggleGroup
+              type="single"
+              value={interactionType}
+              onValueChange={(v) => v && setInteractionType(v)}
+              variant="outline"
+              size="sm"
+              spacing={1}
+              className={cn(
+                "flex flex-wrap gap-1.5 rounded-lg border border-input bg-muted/40 p-1.5",
+              )}
+            >
+              {INTERACTION_TYPE_OPTIONS.map((opt) => {
+                const Icon = opt.icon;
+                return (
+                  <ToggleGroupItem
+                    key={opt.value}
+                    value={opt.value}
+                    className={cn(
+                      "gap-1.5 px-3",
+                      "data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary/30 data-[state=on]:shadow-sm",
+                    )}
+                    aria-label={opt.label}
+                  >
+                    <Icon className="size-4 shrink-0" />
                     {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                  </ToggleGroupItem>
+                );
+              })}
+            </ToggleGroup>
           </div>
 
           <div className="space-y-2">
@@ -193,36 +236,93 @@ export function AddInteractionDialog({
                   />
                 </PopoverContent>
               </Popover>
-              <Select value={timeSlot} onValueChange={setTimeSlot}>
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {TIME_SLOTS.map((slot) => (
-                    <SelectItem key={slot} value={slot}>
-                      {slot}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={timeOpen} onOpenChange={setTimeOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-[120px] justify-start text-left font-normal",
+                      !timeValue && "text-muted-foreground",
+                    )}
+                  >
+                    <Clock className="mr-2 h-4 w-4 shrink-0" />
+                    {timeValue || "Время"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-3" align="start">
+                  <div className="flex items-center gap-2">
+                    <Select
+                      value={timeValue.split(":")[0]}
+                      onValueChange={(h) =>
+                        setTimeValue(`${h}:${timeValue.split(":")[1] ?? "00"}`)
+                      }
+                    >
+                      <SelectTrigger className="w-[72px]" aria-label="Часы">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {HOURS.map((h) => (
+                          <SelectItem key={h} value={h}>
+                            {h}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <span className="text-muted-foreground font-medium">:</span>
+                    <Select
+                      value={timeValue.split(":")[1] ?? "00"}
+                      onValueChange={(m) =>
+                        setTimeValue(`${timeValue.split(":")[0] ?? "00"}:${m}`)
+                      }
+                    >
+                      <SelectTrigger className="w-[72px]" aria-label="Минуты">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {MINUTES.map((m) => (
+                          <SelectItem key={m} value={m}>
+                            {m}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
           <div>
-            <Label>Канал</Label>
-            <Select value={channel} onValueChange={setChannel}>
-              <SelectTrigger className="mt-1">
-                <SelectValue placeholder="Не указан" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Не указан</SelectItem>
-                {CHANNEL_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
+            <Label className="mb-2 block">Канал</Label>
+            <ToggleGroup
+              type="single"
+              value={channel}
+              onValueChange={(v) => v && setChannel(v)}
+              variant="outline"
+              size="sm"
+              spacing={1}
+              className={cn(
+                "flex flex-wrap gap-1.5 rounded-lg border border-input bg-muted/40 p-1.5",
+              )}
+            >
+              {CHANNEL_OPTIONS.map((opt) => {
+                const Icon = opt.icon;
+                return (
+                  <ToggleGroupItem
+                    key={opt.value}
+                    value={opt.value}
+                    className={cn(
+                      "gap-1.5 px-3",
+                      "data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary/30 data-[state=on]:shadow-sm",
+                    )}
+                    aria-label={opt.label}
+                  >
+                    <Icon className="size-4 shrink-0" />
                     {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                  </ToggleGroupItem>
+                );
+              })}
+            </ToggleGroup>
           </div>
 
           <div>

@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import {
   and,
   eq,
@@ -34,7 +35,7 @@ export const addComment = protectedProcedure
       .limit(1);
 
     if (!candidate) {
-      throw new Error("Candidate not found");
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден" });
     }
 
     const [vacancyRecord] = await context.db
