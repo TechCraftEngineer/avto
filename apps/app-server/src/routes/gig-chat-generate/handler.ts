@@ -36,22 +36,14 @@ export async function handleGigChatGenerate(c: Context) {
       );
     }
 
-    const validationResult = gigChatRequestSchema.safeParse(body);
+    const rawWorkspaceId =
+      body && typeof body === "object" && "workspaceId" in body
+        ? (body as { workspaceId?: unknown }).workspaceId
+        : undefined;
+    const workspaceIdForLimit =
+      typeof rawWorkspaceId === "string" ? rawWorkspaceId : "unknown";
 
-    if (!validationResult.success) {
-      return c.json(
-        {
-          error: "Ошибка валидации",
-          details: validationResult.error.flatten(),
-        },
-        400,
-      );
-    }
-
-    const { workspaceId, message, currentDocument, conversationHistory } =
-      validationResult.data;
-
-    const rateLimitKey = `gig-chat:${session.user.id}:${workspaceId}`;
+    const rateLimitKey = `gig-chat:${session.user.id}:${workspaceIdForLimit}`;
     const rateLimitResult = getRateLimiter().check(rateLimitKey, 10, 60_000);
     if (!rateLimitResult.allowed) {
       const resetInSeconds = Math.max(
@@ -71,6 +63,21 @@ export async function handleGigChatGenerate(c: Context) {
         },
       );
     }
+
+    const validationResult = gigChatRequestSchema.safeParse(body);
+
+    if (!validationResult.success) {
+      return c.json(
+        {
+          error: "Ошибка валидации",
+          details: validationResult.error.flatten(),
+        },
+        400,
+      );
+    }
+
+    const { workspaceId, message, currentDocument, conversationHistory } =
+      validationResult.data;
 
     const workspaceData = await db.query.workspace.findFirst({
       where: eq(workspace.id, workspaceId),

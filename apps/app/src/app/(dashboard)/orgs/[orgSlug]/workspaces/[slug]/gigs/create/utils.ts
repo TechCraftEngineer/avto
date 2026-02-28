@@ -140,8 +140,9 @@ export function computeAssistantMessageFromChanges(
     prev.estimatedDuration;
 
   const changes: string[] = [];
-  if (doc.title && doc.title.trim() !== prev.title.trim())
-    changes.push("название");
+  const newTitle = (doc.title ?? "").trim();
+  const oldTitle = (prev.title ?? "").trim();
+  if (newTitle && newTitle !== oldTitle) changes.push("название");
   if (
     doc.description?.trim() &&
     doc.description.trim() !== prev.description.trim()
@@ -159,6 +160,8 @@ export function computeAssistantMessageFromChanges(
     changes.push("навыки");
   if (
     doc.budgetRange &&
+    Number.isFinite(normBudgetMin) &&
+    Number.isFinite(normBudgetMax) &&
     (normBudgetMin !== prev.budgetMin || normBudgetMax !== prev.budgetMax)
   )
     changes.push("бюджет");

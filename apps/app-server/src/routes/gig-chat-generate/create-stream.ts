@@ -6,7 +6,11 @@ import {
 import { streamText } from "@qbs-autonaim/lib/ai";
 import { buildGigPrompt } from "./build-prompt";
 import { parseGigAIResponse } from "./parse-ai-response";
-import type { GigAIResponse, GigDocument } from "./types";
+import {
+  GIG_CHAT_MESSAGE_MAX_LENGTH,
+  type GigAIResponse,
+  type GigDocument,
+} from "./types";
 
 const GIG_FIELD_LIMITS = {
   title: 200,
@@ -86,7 +90,10 @@ export function createGigStream(params: CreateGigStreamParams): ReadableStream {
   const { message, currentDocument, conversationHistory, companySettings } =
     params;
 
-  const sanitizedMessage = truncateText(sanitizePromptText(message), 5000);
+  const sanitizedMessage = truncateText(
+    sanitizePromptText(message),
+    GIG_CHAT_MESSAGE_MAX_LENGTH,
+  );
   const sanitizedHistory = conversationHistory
     ? conversationHistory
         .slice(0, 10)

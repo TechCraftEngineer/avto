@@ -11,30 +11,20 @@ import {
   response as responseTable,
   vacancy,
 } from "@qbs-autonaim/db/schema";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
-import { protectedProcedure } from "../../orpc";
-import { verifyWorkspaceAccess } from "../../utils/verify-workspace-access";
+import { workspaceInputSchema, workspaceProcedure } from "../../orpc";
 
-const inputSchema = z.object({
-  candidateId: z.string().uuid("ID кандидата должен быть UUID"),
-  vacancyId: z.string().uuid("ID вакансии должен быть UUID"),
-  workspaceId: workspaceIdSchema,
-});
+const attachInputSchema = workspaceInputSchema.merge(
+  z.object({
+    candidateId: z.string().uuid("ID кандидата должен быть UUID"),
+    vacancyId: z.string().uuid("ID вакансии должен быть UUID"),
+  }),
+);
 
-export const attachToVacancy = protectedProcedure
-  .input(inputSchema)
+export const attachToVacancy = workspaceProcedure
+  .input(attachInputSchema)
   .handler(async ({ context, input }) => {
-    const userId = context.session.user.id;
-
-    // 1. Проверяем доступ к workspace
-    await verifyWorkspaceAccess(
-      context.workspaceRepository,
-      input.workspaceId,
-      userId,
-    );
-
-    // 2. Проверяем, что вакансия существует и принадлежит workspace
+    // 1. Проверяем, что вакансия существует и принадлежит workspace
     const vacancyRow = await context.db.query.vacancy.findFirst({
       where: and(
         eq(vacancy.id, input.vacancyId),
