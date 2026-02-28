@@ -43,7 +43,7 @@ function ProgressCircle({
         strokeDashoffset={offset}
         strokeLinecap="round"
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        className="transition-[stroke-dashoffset] duration-300"
+        className="motion-safe:transition-[stroke-dashoffset] motion-safe:duration-300 motion-reduce:transition-none"
       />
     </svg>
   );

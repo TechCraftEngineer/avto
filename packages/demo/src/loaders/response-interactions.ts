@@ -77,7 +77,8 @@ export async function loadResponseInteractions(
     throw new Error(`loadResponseInteractions: неверные аргументы — ${msg}`);
   }
 
-  const { responses: validResponses } = parsed.data;
+  const { responses: validResponses, recruiterId: validRecruiterId } =
+    parsed.data;
 
   console.log("\n📋 Загружаем хронологию взаимодействий для откликов...");
 
@@ -108,7 +109,7 @@ export async function loadResponseInteractions(
         interactionType: demo.type,
         source: demo.source,
         happenedAt,
-        createdByUserId: demo.source === "manual" ? recruiterId : null,
+        createdByUserId: demo.source === "manual" ? validRecruiterId : null,
         channel: demo.channel ?? null,
         note: demo.note ?? null,
       });
@@ -125,7 +126,8 @@ export async function loadResponseInteractions(
             interactionType: extra.type,
             source: extra.source,
             happenedAt,
-            createdByUserId: extra.source === "manual" ? recruiterId : null,
+            createdByUserId:
+              extra.source === "manual" ? validRecruiterId : null,
             channel: (extra.channel ?? null) as InteractionChannel | null,
             note: extra.note ?? null,
           });

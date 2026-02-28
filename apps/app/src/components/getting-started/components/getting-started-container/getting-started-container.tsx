@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@qbs-autonaim/ui/components/dropdown-menu";
+import { Button } from "@qbs-autonaim/ui/components/button";
 import {
   Popover,
   PopoverContent,
@@ -13,11 +8,11 @@ import {
 } from "@qbs-autonaim/ui/components/popover";
 import { ProgressCircle } from "@qbs-autonaim/ui/components/progress-circle";
 import {
-  IconCheck,
-  IconChevronDown,
-  IconCircleDotted,
-  IconDots,
-} from "@tabler/icons-react";
+  ArrowUpRight,
+  CheckCircle2,
+  ChevronDown,
+  CircleDashed,
+} from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -33,7 +28,6 @@ export function GettingStartedContainer() {
   } = useGettingStarted();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [showDismissMenu, setShowDismissMenu] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -66,17 +60,11 @@ export function GettingStartedContainer() {
         <PopoverTrigger asChild>
           <motion.button
             type="button"
-            initial={
-              prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9 }
-            }
-            animate={
-              prefersReducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }
-            }
-            exit={
-              prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9 }
-            }
+            initial={prefersReducedMotion ? {} : { scale: 0.9 }}
+            animate={prefersReducedMotion ? {} : { scale: 1 }}
+            exit={prefersReducedMotion ? {} : { scale: 0.9 }}
             transition={animationConfig}
-            className="animate-slide-up-fade flex h-8 items-center justify-center gap-1.5 rounded-full border border-neutral-950 bg-neutral-950 px-3 text-xs font-medium leading-tight text-white shadow-md transition-all [--offset:10px] hover:bg-neutral-800 hover:ring-4 hover:ring-neutral-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-neutral-200 active:scale-95 dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950 dark:hover:bg-neutral-200 dark:hover:ring-neutral-800 dark:focus-visible:ring-neutral-800"
+            className="animate-slide-up-fade flex h-8 items-center justify-center gap-1.5 rounded-full border border-black bg-black px-3 text-xs font-medium leading-tight text-white shadow-md transition-all [--offset:10px] hover:bg-neutral-800 hover:ring-4 hover:ring-neutral-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-neutral-200 active:scale-[0.98] dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950 dark:hover:bg-neutral-200 dark:hover:ring-neutral-800 dark:focus-visible:ring-neutral-800"
             style={{
               touchAction: "manipulation",
               WebkitTapHighlightColor: "transparent",
@@ -88,8 +76,8 @@ export function GettingStartedContainer() {
             <span>Начало работы</span>
             <ProgressCircle
               progress={progressPercentage / 100}
-              className="text-white/80 [--track-color:#fff3]"
-              strokeWidth={2.5}
+              className="size-3 text-white/80 [--track-color:#fff3]"
+              strokeWidth={3}
             />
           </motion.button>
         </PopoverTrigger>
@@ -100,7 +88,7 @@ export function GettingStartedContainer() {
           sideOffset={8}
         >
           {/* Header */}
-          <div className="rounded-t-xl bg-neutral-950 p-4 text-white dark:bg-neutral-50 dark:text-neutral-950">
+          <div className="rounded-t-xl bg-black p-4 text-white dark:bg-neutral-50 dark:text-neutral-950">
             <div className="flex items-start justify-between gap-2">
               <div>
                 <span className="text-base font-medium">Начало работы</span>
@@ -108,95 +96,58 @@ export function GettingStartedContainer() {
                   Познакомьтесь с платформой, выполнив следующие задачи
                 </p>
               </div>
-              <div className="flex items-center gap-1">
-                {/* Dismiss Menu */}
-                <DropdownMenu
-                  open={showDismissMenu}
-                  onOpenChange={setShowDismissMenu}
-                >
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      type="button"
-                      className="rounded-md px-1 py-1 text-neutral-400 transition-colors hover:bg-white/20 active:text-white dark:text-neutral-600 dark:hover:bg-black/10"
-                      aria-label="Опции"
-                    >
-                      <IconDots className="size-4" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="end"
-                    className="w-auto"
-                    sideOffset={8}
-                  >
-                    <DropdownMenuItem
-                      onClick={() => {
-                        dismissWidget(true);
-                        setShowDismissMenu(false);
-                        setIsOpen(false);
-                      }}
-                      disabled={isUpdating}
-                      className="cursor-pointer"
-                    >
-                      Не показывать больше
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-
-                {/* Close Button */}
-                <button
-                  type="button"
-                  onClick={() => setIsOpen(false)}
-                  className="rounded-md px-1 py-1 text-neutral-400 transition-colors hover:bg-white/20 active:text-white dark:text-neutral-600 dark:hover:bg-black/10"
-                  aria-label="Закрыть"
-                >
-                  <IconChevronDown className="size-4" />
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="rounded-md px-1 py-1 text-neutral-400 transition-colors hover:bg-white/20 active:text-white dark:text-neutral-600 dark:hover:bg-black/10"
+                aria-label="Закрыть"
+              >
+                <ChevronDown className="size-4" />
+              </button>
             </div>
           </div>
 
           {/* Tasks */}
           <div className="p-3">
-            <div className="divide-y divide-neutral-200 rounded-lg border border-neutral-200 bg-white dark:divide-neutral-800 dark:border-neutral-800">
+            <div className="grid divide-y divide-neutral-200 rounded-lg border border-neutral-200 bg-white dark:divide-neutral-800 dark:border-neutral-800 dark:bg-neutral-950">
               {steps.map((step) => (
                 <Link
                   key={step.id}
                   href={step.href}
                   onClick={() => {
-                    setIsOpen(false);
+                    setTimeout(() => setIsOpen(false), 500);
                     step.action?.();
                   }}
                   className="group flex items-center justify-between gap-3 p-3 transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900 sm:gap-10"
                 >
                   <div className="flex items-center gap-2">
                     {step.completed ? (
-                      <IconCheck className="size-5 text-green-500" />
+                      <CheckCircle2 className="size-5 shrink-0 text-green-500" />
                     ) : (
-                      <IconCircleDotted className="size-5 text-neutral-400" />
+                      <CircleDashed className="size-5 shrink-0 text-neutral-400" />
                     )}
                     <p className="text-sm text-neutral-800 dark:text-neutral-200">
                       {step.title}
                     </p>
                   </div>
-                  <div className="mr-5">
-                    <svg
-                      className="size-4 text-neutral-500 transition-transform group-hover:translate-x-1"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
+                  <div className="mr-5 shrink-0">
+                    <ArrowUpRight className="size-4 text-neutral-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </div>
                 </Link>
               ))}
             </div>
+
+            <Button
+              variant="outline"
+              onClick={() => {
+                dismissWidget(true);
+                setIsOpen(false);
+              }}
+              disabled={isUpdating}
+              className="mt-3 h-7 rounded-lg bg-black/4 duration-75 hover:bg-black/7 active:scale-[0.98] dark:bg-white/6 dark:hover:bg-white/10"
+            >
+              Скрыть подсказки
+            </Button>
           </div>
         </PopoverContent>
       </Popover>

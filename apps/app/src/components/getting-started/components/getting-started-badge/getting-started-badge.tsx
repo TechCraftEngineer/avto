@@ -9,11 +9,14 @@ import { useGettingStarted } from "~/hooks/use-getting-started";
 interface GettingStartedBadgeProps {
   onClick?: () => void;
   className?: string;
+  /** Должен соответствовать состоянию диалога/попапа, открыт ли он */
+  isExpanded?: boolean;
 }
 
 export function GettingStartedBadge({
   onClick,
   className,
+  isExpanded = false,
 }: GettingStartedBadgeProps) {
   const { progressPercentage, shouldShowWidget } = useGettingStarted();
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -70,7 +73,7 @@ export function GettingStartedBadge({
         WebkitTapHighlightColor: "transparent",
       }}
       aria-haspopup="dialog"
-      aria-expanded="false"
+      aria-expanded={isExpanded}
       aria-label={`Начало работы: ${progressPercentage}% завершено`}
     >
       <span>Начало работы</span>
