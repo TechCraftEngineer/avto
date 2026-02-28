@@ -131,11 +131,19 @@ export const updateWelcomeSent = async (
     metadata: { chatId },
   });
 
-  await logResponseInteraction({
-    db,
-    responseId,
-    interactionType: "welcome_sent",
-    source: "auto",
-    channel: interactionChannel,
-  });
+  try {
+    await logResponseInteraction({
+      db,
+      responseId,
+      interactionType: "welcome_sent",
+      source: "auto",
+      channel: interactionChannel,
+    });
+  } catch (err) {
+    console.error(
+      "[updateWelcomeSent] Ошибка логирования взаимодействия:",
+      { responseId, interactionType: "welcome_sent" },
+      err,
+    );
+  }
 };

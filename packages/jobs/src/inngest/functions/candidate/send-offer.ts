@@ -112,13 +112,21 @@ ${offerDetails.message ? `\n${offerDetails.message}\n` : ""}
     });
 
     await step.run("log-interaction", async () => {
-      await logResponseInteraction({
-        db,
-        responseId,
-        interactionType: "offer_sent",
-        source: "auto",
-        channel: "telegram",
-      });
+      try {
+        await logResponseInteraction({
+          db,
+          responseId,
+          interactionType: "offer_sent",
+          source: "auto",
+          channel: "telegram",
+        });
+      } catch (err) {
+        console.error(
+          "[send-offer] Ошибка логирования взаимодействия:",
+          { responseId, interactionType: "offer_sent" },
+          err,
+        );
+      }
     });
 
     return { success: true, responseId, messageId: result.messageId };

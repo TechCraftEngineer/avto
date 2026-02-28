@@ -156,7 +156,12 @@ export function InteractionsTab({ responseId }: InteractionsTabProps) {
 
   if (isError) {
     return (
-      <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-6 text-center">
+      <div
+        className="rounded-lg border border-destructive/50 bg-destructive/5 p-6 text-center"
+        role="alert"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         <XCircle className="h-12 w-12 mx-auto mb-3 text-destructive opacity-50" />
         <p className="text-sm text-destructive font-medium">
           Не удалось загрузить хронологию

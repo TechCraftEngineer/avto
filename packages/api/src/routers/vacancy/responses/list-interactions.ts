@@ -13,6 +13,7 @@ import {
   workspaceAccessMiddleware,
   workspaceInputSchema,
 } from "../../../orpc";
+import { ensureFound } from "../../../utils/ensure-found";
 
 export const listInteractions = protectedProcedure
   .input(
@@ -20,37 +21,32 @@ export const listInteractions = protectedProcedure
   )
   .use(workspaceAccessMiddleware)
   .handler(async ({ context, input }) => {
-    const response = await context.db.query.response.findFirst({
-      where: eq(responseTable.id, input.responseId),
-    });
+    const response = ensureFound(
+      await context.db.query.response.findFirst({
+        where: eq(responseTable.id, input.responseId),
+      }),
+      "Отклик не найден",
+    );
 
-    if (!response) {
-      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден" });
-    }
-
-    let entityWorkspaceId: string | null = null;
+    let entityWorkspaceId: string;
 
     if (response.entityType === "vacancy") {
-      const vacancy = await context.db.query.vacancy.findFirst({
-        where: eq(vacancyTable.id, response.entityId),
-        columns: { workspaceId: true },
-      });
-      if (!vacancy) {
-        throw new ORPCError("NOT_FOUND", {
-          message: "Вакансия не найдена",
-        });
-      }
+      const vacancy = ensureFound(
+        await context.db.query.vacancy.findFirst({
+          where: eq(vacancyTable.id, response.entityId),
+          columns: { workspaceId: true },
+        }),
+        "Вакансия не найдена",
+      );
       entityWorkspaceId = vacancy.workspaceId;
     } else if (response.entityType === "gig") {
-      const gig = await context.db.query.gig.findFirst({
-        where: eq(gigTable.id, response.entityId),
-        columns: { workspaceId: true },
-      });
-      if (!gig) {
-        throw new ORPCError("NOT_FOUND", {
-          message: "Гиг не найден",
-        });
-      }
+      const gig = ensureFound(
+        await context.db.query.gig.findFirst({
+          where: eq(gigTable.id, response.entityId),
+          columns: { workspaceId: true },
+        }),
+        "Гиг не найден",
+      );
       entityWorkspaceId = gig.workspaceId;
     } else {
       throw new ORPCError("BAD_REQUEST", {
