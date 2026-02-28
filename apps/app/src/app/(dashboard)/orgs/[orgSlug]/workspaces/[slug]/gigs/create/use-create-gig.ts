@@ -11,10 +11,8 @@ import { useWorkspace } from "~/hooks/use-workspace";
 import { useORPC } from "~/orpc/react";
 
 import { type FormValues, formSchema, type GigDraft } from "./components/types";
-import type { WizardState } from "./components/wizard-types";
 import {
   aiDocumentSchema,
-  buildWizardMessage,
   computeAssistantMessageFromChanges,
   mergeDocToDraft,
 } from "./utils";
@@ -23,6 +21,7 @@ export interface ConversationMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
+  quickReplies?: string[];
 }
 
 export interface UseCreateGigOptions {
@@ -48,13 +47,12 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
   const { workspace, isLoading: isWorkspaceLoading } = useWorkspace();
 
   const isMountedRef = React.useRef(true);
-  const wizardStateRef = React.useRef<WizardState | null>(null);
 
   const [draft, setDraft] = React.useState<GigDraft>(initialDraft);
   const [showForm, setShowForm] = React.useState(false);
-  const [pendingAssistantMessage, setPendingAssistantMessage] = React.useState<
-    string | null
-  >(null);
+  const [conversationMessages, setConversationMessages] = React.useState<
+    ConversationMessage[]
+  >([]);
 
   React.useEffect(() => {
     return () => {
@@ -95,11 +93,10 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
   );
 
   const onDocumentUpdate = React.useCallback((doc: GigDocument) => {
-    setDraft((prev) => mergeDocToDraft(doc, prev, wizardStateRef.current));
+    setDraft((prev) => mergeDocToDraft(doc, prev, null));
   }, []);
 
   const {
-    quickReplies,
     status: gigChatStatus,
     error: gigChatError,
     sendMessage,
@@ -109,90 +106,29 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
   });
 
   const isGenerating =
-    gigChatStatus === "loading" || gigChatStatus === "streaming";
+    gigChatStatus === "loading" ||
+    gigChatStatus === "streaming" ||
+    isWorkspaceLoading;
 
-  const handleWizardComplete = React.useCallback(
-    async (wizardStateParam: WizardState) => {
+  const handleSendMessage = React.useCallback(
+    async (message: string) => {
       if (!workspace?.id) {
         toast.error("Workspace не загружен. Попробуйте обновить страницу.");
         return;
       }
 
-      wizardStateRef.current = wizardStateParam;
+      const userMsg: ConversationMessage = {
+        id: crypto.randomUUID(),
+        role: "user",
+        content: message,
+      };
+      setConversationMessages((prev) => [...prev, userMsg]);
 
-      setDraft((prev) => ({
-        ...prev,
-        type: wizardStateParam.category?.id || "OTHER",
-        budgetMin: wizardStateParam.budget?.min,
-        budgetMax: wizardStateParam.budget?.max,
-        estimatedDuration: wizardStateParam.timeline?.days
-          ? String(wizardStateParam.timeline.days)
-          : "",
+      const history = [...conversationMessages, userMsg].slice(-10);
+      const historyForApi = history.map(({ role, content }) => ({
+        role,
+        content,
       }));
-
-      const message = buildWizardMessage(wizardStateParam);
-
-      try {
-        const result = await sendMessage(message, {
-          budgetRange:
-            wizardStateParam.budget?.min && wizardStateParam.budget?.max
-              ? `${wizardStateParam.budget.min}-${wizardStateParam.budget.max} ₽`
-              : undefined,
-          timeline: wizardStateParam.timeline?.days
-            ? String(wizardStateParam.timeline.days)
-            : undefined,
-        });
-
-        if (!isMountedRef.current) return;
-
-        const doc = result ?? {};
-        const parsed = aiDocumentSchema.safeParse(doc);
-
-        if (!parsed.success) {
-          console.error(
-            "[gig-create] AI response validation failed:",
-            parsed.error,
-          );
-          toast.warning(
-            "AI вернул неполный ответ. Используются данные из визарда.",
-          );
-        } else {
-          toast.success("ТЗ сгенерировано! Проверьте и создайте задание.");
-        }
-
-        const assistantMessage = `Готово! Сгенерировал ТЗ${parsed.success && parsed.data.title ? ` "${parsed.data.title}"` : ""}. Можете уточнить детали или попросить изменения.`;
-        setPendingAssistantMessage(assistantMessage);
-      } catch (err) {
-        if (!isMountedRef.current) return;
-        console.error("[gig-create] Generation error:", err);
-        toast.error(err instanceof Error ? err.message : "Ошибка генерации");
-        if (gigChatError) toast.error(gigChatError);
-
-        setDraft({
-          title: "Новое задание",
-          description: message,
-          type: wizardStateParam.category?.id || "OTHER",
-          deliverables: "",
-          requiredSkills: "",
-          budgetMin: wizardStateParam.budget?.min,
-          budgetMax: wizardStateParam.budget?.max,
-          estimatedDuration: wizardStateParam.timeline?.days
-            ? String(wizardStateParam.timeline.days)
-            : "",
-        });
-      }
-    },
-    [workspace?.id, sendMessage, gigChatError],
-  );
-
-  const handleChatMessage = React.useCallback(
-    async (message: string, history: ConversationMessage[]) => {
-      if (!workspace?.id) {
-        console.warn("[gig-create] handleChatMessage called without workspace");
-        return;
-      }
-
-      const beforeDraft = draft;
 
       try {
         const result = await sendMessage(
@@ -208,41 +144,54 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
                 : undefined,
             timeline: draft.estimatedDuration,
           },
-          history.slice(-10).map(({ role, content }) => ({ role, content })),
+          historyForApi,
         );
 
         if (!isMountedRef.current) return;
 
-        const doc = result ?? {};
-        const parsed = aiDocumentSchema.safeParse(doc);
+        if (!result) {
+          setConversationMessages((prev) => prev.slice(0, -1));
+          return;
+        }
 
-        if (parsed.success) {
-          const assistantMessage = computeAssistantMessageFromChanges(
-            parsed.data,
-            beforeDraft,
-          );
-          setPendingAssistantMessage(assistantMessage);
-        } else {
-          console.error(
-            "[gig-create] Chat message validation failed:",
-            parsed.error,
-          );
+        const parsed = aiDocumentSchema.safeParse(result.document);
+        const assistantContent =
+          result.message ||
+          (parsed.success
+            ? computeAssistantMessageFromChanges(parsed.data, draft)
+            : "Готово. Можете уточнить детали.");
+
+        const assistantMsg: ConversationMessage = {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: assistantContent,
+          quickReplies: result.quickReplies,
+        };
+        setConversationMessages((prev) => [...prev, assistantMsg]);
+
+        if (!parsed.success) {
+          console.warn("[gig-create] AI document validation:", parsed.error);
           toast.warning(
-            "AI вернул неполный ответ. Попробуйте переформулировать запрос.",
+            "AI вернул неполный ответ. Попробуйте уточнить запрос.",
           );
-          setPendingAssistantMessage(
-            "Извините, не смог обработать запрос. Попробуйте переформулировать.",
-          );
+        } else if (result.document?.title) {
+          toast.success("ТЗ обновлено. Можно создавать задание.");
         }
       } catch (err) {
         if (!isMountedRef.current) return;
-        console.error("[gig-create] Chat message error:", err);
+        setConversationMessages((prev) => prev.slice(0, -1));
+        console.error("[gig-create] Send message error:", err);
         toast.error(err instanceof Error ? err.message : "Ошибка обновления");
-        setPendingAssistantMessage("Произошла ошибка. Попробуйте ещё раз.");
+        if (gigChatError) toast.error(gigChatError);
       }
     },
-    [workspace?.id, draft, sendMessage],
+    [workspace?.id, draft, sendMessage, conversationMessages, gigChatError],
   );
+
+  const handleReset = React.useCallback(() => {
+    setConversationMessages([]);
+    setDraft(initialDraft);
+  }, []);
 
   const handleCreate = React.useCallback(() => {
     if (!workspace?.id) {
@@ -303,23 +252,26 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
     setShowForm((prev) => !prev);
   }, [form, draft]);
 
-  const handleAssistantMessageConsumed = React.useCallback(() => {
-    setPendingAssistantMessage(null);
-  }, []);
+  const chatMessages = React.useMemo(() => {
+    return conversationMessages.map((m) => ({
+      id: m.id,
+      role: m.role,
+      content: m.content,
+      quickReplies: m.quickReplies,
+    }));
+  }, [conversationMessages]);
 
   return {
     draft,
     form,
-    quickReplies,
-    pendingAssistantMessage,
-    handleAssistantMessageConsumed,
+    chatMessages,
     isGenerating: isGenerating || isWorkspaceLoading,
     isCreating,
     showForm,
     setShowForm,
     workspace,
-    handleWizardComplete,
-    handleChatMessage,
+    handleSendMessage,
+    handleReset,
     handleCreate,
     onSubmit,
     syncForm,

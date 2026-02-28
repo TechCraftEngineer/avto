@@ -7,6 +7,18 @@ export interface CompanySettings {
   botRole?: string;
 }
 
+function isDocumentEmpty(doc: GigDocument | undefined): boolean {
+  if (!doc) return true;
+  return !(
+    doc.title?.trim() ||
+    doc.description?.trim() ||
+    doc.deliverables?.trim() ||
+    doc.requiredSkills?.trim() ||
+    doc.budgetRange?.trim() ||
+    doc.timeline?.trim()
+  );
+}
+
 export function buildGigPrompt(
   message: string,
   currentDocument?: GigDocument,
@@ -27,7 +39,9 @@ export function buildGigPrompt(
       `Ты — эксперт по созданию технических заданий для компании "${companySettings.companyName}".`,
     );
   } else {
-    parts.push("Ты — эксперт по созданию технических заданий.");
+    parts.push(
+      "Ты — эксперт по созданию разовых заданий (gigs). Веди диалог пошагово.",
+    );
   }
 
   if (companySettings?.companyDescription) {
@@ -35,18 +49,44 @@ export function buildGigPrompt(
     parts.push(`Контекст: ${companySettings.companyDescription}`);
   }
 
+  parts.push("");
+  parts.push(
+    "ЗАДАЧА: Помоги пользователю создать разовое задание. Веди диалог пошагово — после каждого ответа пользователя обновляй документ и задавай следующий логичный вопрос.",
+  );
+  parts.push("");
+  parts.push("ПРАВИЛА ПОШАГОВОГО ДИАЛОГА:");
+  parts.push(
+    "1. ШАГ 1 (что нужно): из первого сообщения извлеки суть задачи, заполни title, description, deliverables. Задай уточняющий вопрос или переходи к бюджету.",
+  );
+  parts.push(
+    "2. ШАГ 2 (бюджет): если не указан — спроси «Какой бюджет планируете?» и предложи варианты в quickReplies (например: «до 5 000 ₽», «5 000 – 15 000 ₽», «15 000 – 50 000 ₽»).",
+  );
+  parts.push(
+    "3. ШАГ 3 (сроки): когда бюджет есть — спроси «Когда нужен результат?» (срочно, неделя, 2 недели, месяц, гибкие сроки).",
+  );
+  parts.push(
+    "4. ШАГ 4 (детали): когда есть title, deliverables, бюджет, сроки — предложи уточнить детали или сообщи что ТЗ готово.",
+  );
+  parts.push(
+    "5. Сохраняй уже заполненные поля. Не перезаписывай без явного запроса пользователя.",
+  );
+  parts.push(
+    "6. quickReplies — 2–5 КОНКРЕТНЫХ вариантов как в quiz: пользователь может нажать кнопку ИЛИ написать свой вариант. Примеры: для «что нужно» — «Лендинг», «Telegram-бот»; для бюджета — «до 5 000 ₽», «5 000 – 15 000 ₽»; для сроков — «Срочно (1-3 дня)», «Неделя», «2 недели». Каждый вариант = готовый ответ, который можно отправить одним кликом.",
+  );
+  parts.push("");
+
   if (conversationHistory?.length) {
-    parts.push("");
-    parts.push("История диалога:");
+    parts.push("ИСТОРИЯ ДИАЛОГА:");
     for (const msg of conversationHistory) {
       const role = msg.role === "user" ? "Пользователь" : "Ассистент";
       parts.push(`${role}: ${msg.content}`);
     }
+    parts.push("");
   }
 
-  if (currentDocument) {
-    parts.push("");
-    parts.push("Текущий документ:");
+  const docEmpty = isDocumentEmpty(currentDocument);
+  if (currentDocument && !docEmpty) {
+    parts.push("ТЕКУЩИЙ ДОКУМЕНТ:");
     if (currentDocument.title) parts.push(`Название: ${currentDocument.title}`);
     if (currentDocument.description)
       parts.push(`Описание: ${currentDocument.description}`);
@@ -58,37 +98,34 @@ export function buildGigPrompt(
       parts.push(`Бюджет: ${currentDocument.budgetRange}`);
     if (currentDocument.timeline)
       parts.push(`Сроки: ${currentDocument.timeline}`);
+    parts.push("");
+  } else {
+    parts.push("ТЕКУЩИЙ ДОКУМЕНТ: (пусто — первый шаг)");
+    parts.push("");
   }
 
-  parts.push("");
-  parts.push(`Новое сообщение пользователя:\n${message}`);
-
+  parts.push(`СООБЩЕНИЕ ПОЛЬЗОВАТЕЛЯ:\n${message}`);
   parts.push("");
   parts.push(
-    "Обнови документ задания на основе сообщения пользователя. Определи тип проекта и предложи релевантные следующие шаги.",
+    "Обнови документ на основе сообщения. Определи шаг, задай короткий вопрос и предложи 2–5 quiz-вариантов в quickReplies. Пользователь выберет вариант или напишет своё.",
   );
   parts.push("");
-  parts.push("Верни JSON:");
+  parts.push("ФОРМАТ ОТВЕТА (строго JSON):");
   parts.push("{");
-  parts.push('  "title": "...",');
-  parts.push('  "description": "...",');
-  parts.push('  "deliverables": "...",');
-  parts.push('  "requiredSkills": "...",');
-  parts.push('  "budgetRange": "...",');
-  parts.push('  "timeline": "...",');
   parts.push(
-    '  "quickReplies": ["Конкретный вариант 1", "Конкретный вариант 2"]',
+    '  "message": "Твой ответ пользователю — следующий вопрос или подтверждение",',
   );
+  parts.push('  "quickReplies": ["Вариант 1", "Вариант 2", "Вариант 3"],');
+  parts.push('  "document": {');
+  parts.push('    "title": "Название задания",');
+  parts.push('    "description": "Описание",');
+  parts.push('    "deliverables": "Что нужно сделать",');
+  parts.push('    "requiredSkills": "Навыки",');
+  parts.push('    "budgetRange": "5 000 – 15 000 ₽",');
+  parts.push('    "timeline": "1-2 недели"');
+  parts.push("  }");
   parts.push("}");
   parts.push("");
-  parts.push("Важно:");
-  parts.push(
-    "- Сохраняй существующую информацию, если пользователь не просит её изменить",
-  );
-  parts.push(
-    "- quickReplies должны быть конкретными и релевантными для типа проекта (2-5 слов)",
-  );
-  parts.push("- Верни только валидный JSON");
-
+  parts.push("Верни ТОЛЬКО валидный JSON.");
   return parts.join("\n");
 }

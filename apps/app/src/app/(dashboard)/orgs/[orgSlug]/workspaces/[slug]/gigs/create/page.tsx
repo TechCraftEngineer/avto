@@ -7,7 +7,7 @@ import { PageHeader } from "~/components/layout";
 import { env } from "~/env";
 
 import { GigForm, GigPreview, ProgressCard } from "./components";
-import { WizardChat } from "./components/wizard-chat";
+import { GigConversationChat } from "./components/gig-conversation-chat";
 import { useCreateGig } from "./use-create-gig";
 
 interface PageProps {
@@ -20,15 +20,14 @@ export default function CreateGigPage({ params }: PageProps) {
     draft,
     form,
     quickReplies,
-    pendingAssistantMessage,
-    handleAssistantMessageConsumed,
+    chatMessages,
     isGenerating,
     isCreating,
     showForm,
     setShowForm,
     workspace,
-    handleWizardComplete,
-    handleChatMessage,
+    handleSendMessage,
+    handleReset,
     handleCreate,
     onSubmit,
     syncForm,
@@ -39,7 +38,7 @@ export default function CreateGigPage({ params }: PageProps) {
       <PageHeader
         title="Создание задания"
         description="Создание нового разового задания"
-        tooltipContent={`Создайте разовое задание с помощью пошагового мастера. Укажите тип задания, требования и бюджет — AI поможет сформулировать описание.\n\n[Подробнее в документации](${env.NEXT_PUBLIC_DOCS_URL}/candidates/gig)`}
+        tooltipContent={`Опишите задание своими словами — AI проведёт вас по шагам (тип задачи, бюджет, сроки) и сформирует ТЗ.\n\n[Подробнее в документации](${env.NEXT_PUBLIC_DOCS_URL}/candidates/gig)`}
       >
         <Link
           href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs`}
@@ -51,13 +50,11 @@ export default function CreateGigPage({ params }: PageProps) {
       </PageHeader>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <WizardChat
-          onComplete={handleWizardComplete}
+        <GigConversationChat
+          messages={chatMessages}
           isGenerating={isGenerating}
-          onChatMessage={handleChatMessage}
-          quickReplies={quickReplies}
-          pendingAssistantMessage={pendingAssistantMessage}
-          onAssistantMessageConsumed={handleAssistantMessageConsumed}
+          onSendMessage={handleSendMessage}
+          onReset={handleReset}
         />
 
         <div className="space-y-6">

@@ -5,8 +5,14 @@ import { z } from "zod";
 
 const MIN_REQUEST_INTERVAL = 2000;
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 const payloadSchema = z.object({
-  workspaceId: z.string().min(1, "Укажите рабочее пространство"),
+  workspaceId: z
+    .string()
+    .min(1, "Укажите рабочее пространство")
+    .refine((id) => UUID_REGEX.test(id), "Некорректный ID workspace"),
   message: z
     .string()
     .trim()
@@ -46,9 +52,16 @@ const streamChunkSchema = z.object({
   quickReplies: z.array(z.string()).optional(),
   done: z.boolean().optional(),
   error: z.string().optional(),
+  /** Сообщение ассистента пользователю */
   message: z.string().optional(),
   partial: z.boolean().optional(),
 });
+
+export interface GigChatSendResult {
+  document: GigDocument;
+  message?: string;
+  quickReplies?: string[];
+}
 
 export interface GigDocument {
   title?: string;
@@ -82,7 +95,7 @@ export interface UseGigChatReturn {
       role: "user" | "assistant";
       content: string;
     }>,
-  ) => Promise<GigDocument | null>;
+  ) => Promise<GigChatSendResult | null>;
 }
 
 /**
@@ -112,8 +125,13 @@ export function useGigChat({
         role: "user" | "assistant";
         content: string;
       }>,
-    ): Promise<GigDocument | null> => {
+    ): Promise<GigChatSendResult | null> => {
       if (!content.trim()) return null;
+      if (!workspaceId || !UUID_REGEX.test(workspaceId)) {
+        setError("Workspace не загружен. Подождите или обновите страницу.");
+        setStatus("idle");
+        return null;
+      }
 
       const now = Date.now();
       if (now - lastRequestTimeRef.current < MIN_REQUEST_INTERVAL) {
@@ -202,6 +220,8 @@ export function useGigChat({
         const decoder = new TextDecoder();
         let accumulatedText = "";
         let finalDocument: GigDocument | null = null;
+        let finalMessage: string | undefined;
+        let finalReplies: string[] = [];
         let hadStreamError = false;
 
         while (true) {
@@ -223,10 +243,10 @@ export function useGigChat({
             } catch {
               continue;
             }
-            const chunk = streamChunkSchema.safeParse(parsed);
-            if (!chunk.success) continue;
+            const parsedChunk = streamChunkSchema.safeParse(parsed);
+            if (!parsedChunk.success) continue;
 
-            const doc = chunk.data.document;
+            const doc = parsedChunk.data.document;
             if (doc) {
               const sanitizedDoc: GigDocument = {
                 title: doc.title,
@@ -245,22 +265,27 @@ export function useGigChat({
               onDocumentUpdate?.(merged);
             }
 
-            const replies = chunk.data.quickReplies;
+            const replies = parsedChunk.data.quickReplies;
             if (Array.isArray(replies) && replies.length > 0) {
               const sanitized = replies.filter(
                 (r): r is string => typeof r === "string",
               );
               setQuickReplies(sanitized);
+              finalReplies = sanitized;
             }
 
-            if (chunk.data.done) {
-              const finalDoc = chunk.data.document;
+            if (typeof parsedChunk.data.message === "string") {
+              finalMessage = parsedChunk.data.message;
+            }
+
+            if (parsedChunk.data.done) {
+              const finalDoc = parsedChunk.data.document;
               finalDocument = {
                 ...(finalDocument ?? currentDocument ?? {}),
                 ...(finalDoc ?? {}),
               };
-              if (typeof chunk.data.error === "string") {
-                setError(chunk.data.error);
+              if (typeof parsedChunk.data.error === "string") {
+                setError(parsedChunk.data.error);
                 setStatus("error");
                 hadStreamError = true;
               }
@@ -269,7 +294,12 @@ export function useGigChat({
         }
 
         if (!hadStreamError) setStatus("idle");
-        return finalDocument ?? { ...(currentDocument ?? document) };
+        const doc = finalDocument ?? { ...(currentDocument ?? document) };
+        return {
+          document: doc,
+          message: finalMessage,
+          quickReplies: finalReplies.length > 0 ? finalReplies : undefined,
+        };
       } catch (err) {
         if (timeoutIdRef.current != null) {
           clearTimeout(timeoutIdRef.current);
