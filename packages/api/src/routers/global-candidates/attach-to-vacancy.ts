@@ -29,7 +29,7 @@ export const attachToVacancy = protectedProcedure
   .input(attachInputSchema)
   .use(workspaceAccessMiddleware)
   .handler(async ({ context, input }) => {
-    // 1. Проверяем, что вакансия существует и принадлежит workspace (workspaceProcedure уже проверил доступ)
+    // 1. Проверяем, что вакансия существует и принадлежит workspace
     const vacancyRow = await context.db.query.vacancy.findFirst({
       where: and(
         eq(vacancy.id, input.vacancyId),

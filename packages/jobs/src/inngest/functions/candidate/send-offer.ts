@@ -109,7 +109,9 @@ ${offerDetails.message ? `\n${offerDetails.message}\n` : ""}
         eventType: "OFFER_SENT",
         metadata: { offerDetails },
       });
+    });
 
+    await step.run("log-interaction", async () => {
       await logResponseInteraction({
         db,
         responseId,

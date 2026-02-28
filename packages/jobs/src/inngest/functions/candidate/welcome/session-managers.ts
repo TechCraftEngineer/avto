@@ -9,7 +9,7 @@ import { removeNullBytes } from "@qbs-autonaim/lib";
 import type { CommunicationChannel } from "./types";
 
 /**
- * Maps CommunicationChannel to InterviewChannel
+ * Maps CommunicationChannel to InterviewChannel (for interviewSession)
  */
 const mapChannel = (
   channel: CommunicationChannel,
@@ -18,7 +18,24 @@ const mapChannel = (
     case "TELEGRAM":
       return "telegram";
     default:
-      return "web"; // HH and other channels default to web
+      return "web"; // HH and WEB_CHAT default to web
+  }
+};
+
+/**
+ * Maps CommunicationChannel to InteractionChannel (for logResponseInteraction)
+ */
+const mapToInteractionChannel = (
+  channel: CommunicationChannel,
+): "telegram" | "web_chat" | "other" => {
+  switch (channel) {
+    case "TELEGRAM":
+      return "telegram";
+    case "WEB_CHAT":
+      return "web_chat";
+    case "HH":
+    default:
+      return "other"; // HH and unknown channels
   }
 };
 
@@ -95,7 +112,13 @@ export const saveInterviewSession = async (
 /**
  * Обновляет статус отправки приветствия
  */
-export const updateWelcomeSent = async (responseId: string, chatId: string) => {
+export const updateWelcomeSent = async (
+  responseId: string,
+  chatId: string,
+  channel: CommunicationChannel,
+) => {
+  const interactionChannel = mapToInteractionChannel(channel);
+
   await db
     .update(response)
     .set({ welcomeSentAt: new Date() })
@@ -113,6 +136,6 @@ export const updateWelcomeSent = async (responseId: string, chatId: string) => {
     responseId,
     interactionType: "welcome_sent",
     source: "auto",
-    channel: "telegram",
+    channel: interactionChannel,
   });
 };
