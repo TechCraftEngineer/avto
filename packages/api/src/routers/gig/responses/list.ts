@@ -56,6 +56,9 @@ export const list = protectedProcedure
       with: {
         screening: true,
         interviewScoring: true,
+        pipelineStage: {
+          columns: { id: true, label: true, position: true, color: true },
+        },
       },
       orderBy: [desc(responseTable.createdAt)],
       limit: input.limit + 1, // Fetch one extra to determine if there's a next page

@@ -29,6 +29,13 @@
       "when": 1772270671474,
       "tag": "0003_milky_lady_bullseye",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1772310712745,
+      "tag": "0004_daffy_master_chief",
+      "breakpoints": true
     }
   ]
 }

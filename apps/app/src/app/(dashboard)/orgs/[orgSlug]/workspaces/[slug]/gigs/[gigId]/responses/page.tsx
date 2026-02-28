@@ -17,6 +17,11 @@ import {
   TableHeader,
   TableRow,
 } from "@qbs-autonaim/ui/components/table";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@qbs-autonaim/ui/components/toggle-group";
+import { IconLayoutKanban, IconTable } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -27,6 +32,7 @@ import {
   ConfirmDialog,
   EmptyState,
   GigResponseActionButtons,
+  GigResponsesKanban,
   MessageDialog,
   ResponseHeader,
   ResponsesFilters,
@@ -127,6 +133,7 @@ export default function GigResponsesPage({ params }: PageProps) {
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
 
+  const [viewMode, setViewMode] = React.useState<"table" | "board">("table");
   const [filters, setFilters] = React.useState<ResponseFiltersState>({
     searchQuery: "",
     statusFilter: "all",
@@ -216,10 +223,14 @@ export default function GigResponsesPage({ params }: PageProps) {
     enabled: !!workspace?.id,
   });
 
-  // Fetch responses
+  // Fetch responses (higher limit for board view)
   const { data: responses, isLoading } = useQuery({
     ...orpc.gig.responses.list.queryOptions({
-      input: { gigId, workspaceId: workspace?.id ?? "" },
+      input: {
+        gigId,
+        workspaceId: workspace?.id ?? "",
+        limit: viewMode === "board" ? 50 : 20,
+      },
     }),
     enabled: !!workspace?.id,
   });
@@ -479,7 +490,26 @@ export default function GigResponsesPage({ params }: PageProps) {
 
       <div className="space-y-4 sm:space-y-5">
         {/* Header */}
-        <ResponseHeader gigTitle={gig.title} totalResponses={stats.total} />
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <ResponseHeader gigTitle={gig.title} totalResponses={stats.total} />
+          <ToggleGroup
+            type="single"
+            value={viewMode}
+            onValueChange={(v) => v && setViewMode(v as "table" | "board")}
+            variant="outline"
+            size="sm"
+            className="rounded-lg"
+          >
+            <ToggleGroupItem value="table" aria-label="Таблица">
+              <IconTable className="size-4" />
+              <span className="hidden sm:inline">Таблица</span>
+            </ToggleGroupItem>
+            <ToggleGroupItem value="board" aria-label="Доска">
+              <IconLayoutKanban className="size-4" />
+              <span className="hidden sm:inline">Доска</span>
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
 
         {/* Filters and actions */}
         <Card className="border shadow-sm overflow-hidden">
@@ -528,7 +558,7 @@ export default function GigResponsesPage({ params }: PageProps) {
           </CardContent>
         </Card>
 
-        {/* Table */}
+        {/* Table or Board */}
         {filteredResponses.length === 0 ? (
           <EmptyState
             hasFilters={Boolean(
@@ -542,6 +572,21 @@ export default function GigResponsesPage({ params }: PageProps) {
                 filters.scoreMax !== null,
             )}
           />
+        ) : viewMode === "board" ? (
+          <Card className="kanban-page flex min-h-0 flex-1 flex-col overflow-hidden border-border bg-card shadow-sm">
+            <CardContent className="flex flex-1 flex-col overflow-hidden p-4">
+              <GigResponsesKanban
+                responses={filteredResponses}
+                isLoading={isLoading}
+                orgSlug={orgSlug}
+                workspaceSlug={workspaceSlug}
+                workspaceId={workspace?.id ?? ""}
+                gigId={gigId}
+                entityId={gigId}
+                sortKey={JSON.stringify(filters)}
+              />
+            </CardContent>
+          </Card>
         ) : (
           <ResponsesTable
             responses={filteredResponses}

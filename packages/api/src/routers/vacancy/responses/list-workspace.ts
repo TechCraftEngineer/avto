@@ -141,6 +141,7 @@ export const listWorkspace = protectedProcedure
             .select({
               id: responseTable.id,
               entityId: responseTable.entityId,
+              pipelineStageId: responseTable.pipelineStageId,
               candidateName: responseTable.candidateName,
               photoFileId: responseTable.photoFileId,
               birthDate: responseTable.birthDate,
@@ -173,6 +174,7 @@ export const listWorkspace = protectedProcedure
           columns: {
             id: true,
             entityId: true,
+            pipelineStageId: true,
             candidateName: true,
             photoFileId: true,
             birthDate: true,

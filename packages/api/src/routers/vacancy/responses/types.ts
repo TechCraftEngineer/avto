@@ -13,6 +13,7 @@ import type {
 export interface RawResponseBase {
   id: string;
   entityId: string;
+  pipelineStageId: string | null;
   candidateName: string | null;
   photoFileId: string | null;
   birthDate: Date | null;

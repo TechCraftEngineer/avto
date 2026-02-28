@@ -8,6 +8,7 @@ export { GeneralTab } from "./components/general-tab";
 export { IntegrationCard } from "./components/integration-card";
 export { IntegrationCategorySection } from "./components/integration-category-section";
 export { IntegrationDialog } from "./components/integration-dialog";
+export { PipelineStagesSettings } from "./components/pipeline-stages-settings/pipeline-stages-settings";
 export { SecurityTab } from "./components/security-tab";
 export { SettingsSidebar } from "./components/settings-sidebar";
 export { TelegramSessionsCard } from "./components/telegram-sessions-card";

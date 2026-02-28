@@ -33,6 +33,9 @@ const stageToStatusMap = {
   },
 } as const;
 
+/**
+ * @deprecated Use pipeline.moveResponse for ResponsesKanban. Kept for candidate-pipeline legacy support.
+ */
 export const updateStage = protectedProcedure
   .input(
     z.object({
