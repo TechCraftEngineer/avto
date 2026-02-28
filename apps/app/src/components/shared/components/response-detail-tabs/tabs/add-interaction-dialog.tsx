@@ -121,7 +121,9 @@ export function AddInteractionDialog({
       interactionType:
         interactionType as (typeof INTERACTION_TYPE_OPTIONS)[number]["value"],
       happenedAt: happenedAtDate,
-      channel: channel || undefined,
+      channel: channel
+        ? (channel as (typeof CHANNEL_OPTIONS)[number]["value"])
+        : undefined,
       note: note || undefined,
     });
   };
