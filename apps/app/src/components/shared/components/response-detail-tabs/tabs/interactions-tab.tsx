@@ -137,7 +137,12 @@ export function InteractionsTab({ responseId }: InteractionsTabProps) {
   const { workspace } = useWorkspace();
   const orpc = useORPC();
 
-  const { data: items, isLoading } = useQuery(
+  const {
+    data: items,
+    isLoading,
+    isError,
+    error,
+  } = useQuery(
     orpc.vacancy.responses.listInteractions.queryOptions({
       input: {
         responseId,
@@ -149,12 +154,31 @@ export function InteractionsTab({ responseId }: InteractionsTabProps) {
 
   const timelineItems = (items ?? []) as TimelineItem[];
 
+  if (isError) {
+    return (
+      <div
+        className="rounded-lg border border-destructive/50 bg-destructive/5 p-6 text-center"
+        role="alert"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        <XCircle className="h-12 w-12 mx-auto mb-3 text-destructive opacity-50" />
+        <p className="text-sm text-destructive font-medium">
+          Не удалось загрузить хронологию
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {error instanceof Error ? error.message : "Неизвестная ошибка"}
+        </p>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="space-y-3">
         {Array.from({ length: 5 }, (_, index) => (
           <div
-            key={`interactions-skeleton-${index}-${Date.now()}`}
+            key={`interactions-skeleton-${index}`}
             className="flex gap-3 animate-pulse"
           >
             <div className="w-8 h-8 rounded-full bg-muted" />

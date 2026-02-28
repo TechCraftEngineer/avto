@@ -210,13 +210,21 @@ export const sendCandidateWelcomeBatchFunction = inngest.createFunction(
                   })
                   .where(eq(response.id, responseItem.id));
 
-                await logResponseInteraction({
-                  db,
-                  responseId: responseItem.id,
-                  interactionType: "welcome_sent",
-                  source: "auto",
-                  channel: "other",
-                });
+                try {
+                  await logResponseInteraction({
+                    db,
+                    responseId: responseItem.id,
+                    interactionType: "welcome_sent",
+                    source: "auto",
+                    channel: "other",
+                  });
+                } catch (err) {
+                  console.error(
+                    "[send-welcome-batch] Ошибка логирования welcome_sent (hh):",
+                    { responseId: responseItem.id },
+                    err,
+                  );
+                }
 
                 return {
                   responseId: responseItem.id,
@@ -336,13 +344,21 @@ export const sendCandidateWelcomeBatchFunction = inngest.createFunction(
               })
               .where(eq(response.id, responseItem.id));
 
-            await logResponseInteraction({
-              db,
-              responseId: responseItem.id,
-              interactionType: "welcome_sent",
-              source: "auto",
-              channel: "telegram",
-            });
+            try {
+              await logResponseInteraction({
+                db,
+                responseId: responseItem.id,
+                interactionType: "welcome_sent",
+                source: "auto",
+                channel: "telegram",
+              });
+            } catch (err) {
+              console.error(
+                "[send-welcome-batch] Ошибка логирования welcome_sent (telegram):",
+                { responseId: responseItem.id },
+                err,
+              );
+            }
 
             console.log(
               `✅ Приветствие отправлено: ${responseItem.id} (@${responseItem.telegramUsername})`,

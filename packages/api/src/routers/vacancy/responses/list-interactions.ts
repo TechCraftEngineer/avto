@@ -1,47 +1,60 @@
 import { ORPCError } from "@orpc/server";
 import { desc, eq } from "@qbs-autonaim/db";
 import {
+  gig as gigTable,
   responseHistory,
   responseInteractionLog,
   response as responseTable,
   vacancy as vacancyTable,
 } from "@qbs-autonaim/db/schema";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
-import { protectedProcedure } from "../../../orpc";
+import {
+  protectedProcedure,
+  workspaceAccessMiddleware,
+  workspaceInputSchema,
+} from "../../../orpc";
+import { ensureFound } from "../../../utils/ensure-found";
 
 export const listInteractions = protectedProcedure
-  .input(z.object({ responseId: z.uuid(), workspaceId: workspaceIdSchema }))
+  .input(
+    workspaceInputSchema.merge(z.object({ responseId: z.string().uuid() })),
+  )
+  .use(workspaceAccessMiddleware)
   .handler(async ({ context, input }) => {
-    const access = await context.workspaceRepository.checkAccess(
-      input.workspaceId,
-      context.session.user.id,
+    const response = ensureFound(
+      await context.db.query.response.findFirst({
+        where: eq(responseTable.id, input.responseId),
+      }),
+      "Отклик не найден",
     );
 
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Нет доступа к этому workspace",
+    let entityWorkspaceId: string;
+
+    if (response.entityType === "vacancy") {
+      const vacancy = ensureFound(
+        await context.db.query.vacancy.findFirst({
+          where: eq(vacancyTable.id, response.entityId),
+          columns: { workspaceId: true },
+        }),
+        "Вакансия не найдена",
+      );
+      entityWorkspaceId = vacancy.workspaceId;
+    } else if (response.entityType === "gig") {
+      const gig = ensureFound(
+        await context.db.query.gig.findFirst({
+          where: eq(gigTable.id, response.entityId),
+          columns: { workspaceId: true },
+        }),
+        "Гиг не найден",
+      );
+      entityWorkspaceId = gig.workspaceId;
+    } else {
+      throw new ORPCError("BAD_REQUEST", {
+        message: `Хронология для типа "${response.entityType}" пока не поддерживается`,
       });
     }
 
-    const response = await context.db.query.response.findFirst({
-      where: eq(responseTable.id, input.responseId),
-    });
-
-    if (!response) {
-      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден" });
-    }
-
-    const vacancy = await context.db.query.vacancy.findFirst({
-      where: eq(vacancyTable.id, response.entityId),
-      columns: { workspaceId: true },
-    });
-
-    if (!vacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
-    }
-
-    if (vacancy.workspaceId !== input.workspaceId) {
+    if (entityWorkspaceId !== input.workspaceId) {
       throw new ORPCError("FORBIDDEN", {
         message: "Нет доступа к этому отклику",
       });
@@ -51,12 +64,16 @@ export const listInteractions = protectedProcedure
       context.db.query.responseHistory.findMany({
         where: eq(responseHistory.responseId, input.responseId),
         orderBy: [desc(responseHistory.createdAt)],
-        with: { user: true },
+        with: {
+          user: { columns: { id: true, name: true } },
+        },
       }),
       context.db.query.responseInteractionLog.findMany({
         where: eq(responseInteractionLog.responseId, input.responseId),
         orderBy: [desc(responseInteractionLog.happenedAt)],
-        with: { createdByUser: true },
+        with: {
+          createdByUser: { columns: { id: true, name: true } },
+        },
       }),
     ]);
 

@@ -89,13 +89,21 @@ export const sendMessage = protectedProcedure
         });
       }
 
-      await logResponseInteraction({
-        db: context.db,
-        responseId: input.responseId,
-        interactionType: "message_sent",
-        source: "auto",
-        channel: "kwork",
-      });
+      try {
+        await logResponseInteraction({
+          db: context.db,
+          responseId: input.responseId,
+          interactionType: "message_sent",
+          source: "auto",
+          channel: "kwork",
+        });
+      } catch (err) {
+        console.error(
+          "[send-message] Ошибка логирования взаимодействия:",
+          { responseId: input.responseId, interactionType: "message_sent" },
+          err,
+        );
+      }
     } else if (response.telegramUsername) {
       // TODO: Integrate with telegram sending system for non-Kwork responses
     } else {

@@ -29,6 +29,7 @@ import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { CalendarIcon, Plus } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { useORPC } from "~/orpc/react";
 
 const INTERACTION_TYPE_OPTIONS = [
@@ -98,6 +99,13 @@ export function AddInteractionDialog({
         setChannel("");
         setNote("");
         onSuccess?.();
+      },
+      onError: (error) => {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Не удалось добавить взаимодействие";
+        toast.error(message);
       },
     }),
   );

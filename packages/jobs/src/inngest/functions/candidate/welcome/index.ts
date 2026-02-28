@@ -314,7 +314,11 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
 
       // Обновляем welcomeSentAt только после успешной отправки
       await step.run("update-welcome-sent", async () => {
-        return updateWelcomeSent(responseId, firstSuccessfulResult.chatId);
+        return updateWelcomeSent(
+          responseId,
+          firstSuccessfulResult.chatId,
+          firstSuccessfulResult.channel,
+        );
       });
 
       return {

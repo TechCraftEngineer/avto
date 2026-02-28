@@ -1,6 +1,7 @@
 import { ORPCError } from "@orpc/server";
 import { eq } from "@qbs-autonaim/db";
 import {
+  gig as gigTable,
   interactionChannelValues,
   responseInteractionLog,
   response as responseTable,
@@ -50,16 +51,37 @@ export const createInteraction = protectedProcedure
       throw new ORPCError("NOT_FOUND", { message: "Отклик не найден" });
     }
 
-    const vacancy = await context.db.query.vacancy.findFirst({
-      where: eq(vacancyTable.id, response.entityId),
-      columns: { workspaceId: true },
-    });
+    let entityWorkspaceId: string | null = null;
 
-    if (!vacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
+    if (response.entityType === "vacancy") {
+      const vacancy = await context.db.query.vacancy.findFirst({
+        where: eq(vacancyTable.id, response.entityId),
+        columns: { workspaceId: true },
+      });
+      if (!vacancy) {
+        throw new ORPCError("NOT_FOUND", {
+          message: "Вакансия не найдена",
+        });
+      }
+      entityWorkspaceId = vacancy.workspaceId;
+    } else if (response.entityType === "gig") {
+      const gig = await context.db.query.gig.findFirst({
+        where: eq(gigTable.id, response.entityId),
+        columns: { workspaceId: true },
+      });
+      if (!gig) {
+        throw new ORPCError("NOT_FOUND", {
+          message: "Гиг не найден",
+        });
+      }
+      entityWorkspaceId = gig.workspaceId;
+    } else {
+      throw new ORPCError("BAD_REQUEST", {
+        message: `Ручные взаимодействия для типа "${response.entityType}" пока не поддерживаются`,
+      });
     }
 
-    if (vacancy.workspaceId !== input.workspaceId) {
+    if (entityWorkspaceId !== input.workspaceId) {
       throw new ORPCError("FORBIDDEN", {
         message: "Нет доступа к этому отклику",
       });

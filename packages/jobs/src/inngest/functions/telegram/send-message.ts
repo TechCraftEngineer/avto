@@ -119,13 +119,21 @@ export const sendTelegramMessageFunction = inngest.createFunction(
           .set({ lastUsedAt: new Date() })
           .where(eq(telegramSession.id, tgSession.id));
 
-        await logResponseInteraction({
-          db,
-          responseId: resp.id,
-          interactionType: "message_sent",
-          source: "auto",
-          channel: "telegram",
-        });
+        try {
+          await logResponseInteraction({
+            db,
+            responseId: resp.id,
+            interactionType: "message_sent",
+            source: "auto",
+            channel: "telegram",
+          });
+        } catch (err) {
+          console.error(
+            "[send-telegram-message] Ошибка логирования взаимодействия:",
+            { responseId: resp.id, interactionType: "message_sent" },
+            err,
+          );
+        }
 
         console.log("✅ Сообщение отправлено в Telegram", {
           messageId,
