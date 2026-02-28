@@ -3,9 +3,15 @@
 import { useCallback, useRef, useState } from "react";
 import { z } from "zod";
 
+const MIN_REQUEST_INTERVAL = 2000;
+
 const payloadSchema = z.object({
-  workspaceId: z.string().min(1),
-  message: z.string().min(1).max(2000),
+  workspaceId: z.string().min(1, "Укажите рабочее пространство"),
+  message: z
+    .string()
+    .trim()
+    .min(1, "Введите сообщение")
+    .max(2000, "Сообщение не должно превышать 2000 символов"),
   context: z
     .object({
       title: z.string().optional(),
@@ -20,10 +26,10 @@ const payloadSchema = z.object({
     .array(
       z.object({
         role: z.enum(["user", "assistant"]),
-        content: z.string().min(1),
+        content: z.string().trim().min(1, "Сообщение не должно быть пустым"),
       }),
     )
-    .max(20),
+    .max(20, "Не более 20 сообщений в истории"),
 });
 
 const streamChunkSchema = z.object({
@@ -96,6 +102,7 @@ export function useGigChat({
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const timeoutIdRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastRequestTimeRef = useRef<number>(0);
 
   const sendMessage = useCallback(
     async (
@@ -107,6 +114,13 @@ export function useGigChat({
       }>,
     ): Promise<GigDocument | null> => {
       if (!content.trim()) return null;
+
+      const now = Date.now();
+      if (now - lastRequestTimeRef.current < MIN_REQUEST_INTERVAL) {
+        setError("Подождите перед следующим запросом");
+        return null;
+      }
+      lastRequestTimeRef.current = now;
 
       setError(null);
       setStatus("loading");
@@ -188,6 +202,7 @@ export function useGigChat({
         const decoder = new TextDecoder();
         let accumulatedText = "";
         let finalDocument: GigDocument | null = null;
+        let hadStreamError = false;
 
         while (true) {
           const { done, value } = await reader.read();
@@ -214,25 +229,12 @@ export function useGigChat({
             const doc = chunk.data.document;
             if (doc) {
               const sanitizedDoc: GigDocument = {
-                title: typeof doc.title === "string" ? doc.title : undefined,
-                description:
-                  typeof doc.description === "string"
-                    ? doc.description
-                    : undefined,
-                deliverables:
-                  typeof doc.deliverables === "string"
-                    ? doc.deliverables
-                    : undefined,
-                requiredSkills:
-                  typeof doc.requiredSkills === "string"
-                    ? doc.requiredSkills
-                    : undefined,
-                budgetRange:
-                  typeof doc.budgetRange === "string"
-                    ? doc.budgetRange
-                    : undefined,
-                timeline:
-                  typeof doc.timeline === "string" ? doc.timeline : undefined,
+                title: doc.title,
+                description: doc.description,
+                deliverables: doc.deliverables,
+                requiredSkills: doc.requiredSkills,
+                budgetRange: doc.budgetRange,
+                timeline: doc.timeline,
               };
               const merged: GigDocument = {
                 ...(finalDocument ?? {}),
@@ -252,26 +254,21 @@ export function useGigChat({
             }
 
             if (chunk.data.done) {
-              const finalDoc = chunk.data.document;
-              finalDocument =
-                finalDocument ??
-                (finalDoc as GigDocument | undefined) ??
-                currentDocument ??
-                {};
-              if (finalDoc) {
-                finalDocument = {
-                  ...finalDocument,
-                  ...(finalDoc as GigDocument),
-                };
-              }
+              const finalDoc = chunk.data.document as GigDocument | undefined;
+              finalDocument = {
+                ...(finalDocument ?? currentDocument ?? {}),
+                ...(finalDoc ?? {}),
+              };
               if (typeof chunk.data.error === "string") {
                 setError(chunk.data.error);
+                setStatus("error");
+                hadStreamError = true;
               }
             }
           }
         }
 
-        setStatus("idle");
+        if (!hadStreamError) setStatus("idle");
         return finalDocument ?? { ...(currentDocument ?? document) };
       } catch (err) {
         if (timeoutIdRef.current != null) {

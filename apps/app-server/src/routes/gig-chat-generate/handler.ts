@@ -51,6 +51,27 @@ export async function handleGigChatGenerate(c: Context) {
     const { workspaceId, message, currentDocument, conversationHistory } =
       validationResult.data;
 
+    const rateLimitKey = `gig-chat:${session.user.id}:${workspaceId}`;
+    const rateLimitResult = getRateLimiter().check(rateLimitKey, 10, 60_000);
+    if (!rateLimitResult.allowed) {
+      const resetInSeconds = Math.max(
+        1,
+        Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000),
+      );
+      return c.json(
+        {
+          error: "Превышен лимит запросов",
+          retryAfter: resetInSeconds,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": resetInSeconds.toString(),
+          },
+        },
+      );
+    }
+
     const workspaceData = await db.query.workspace.findFirst({
       where: eq(workspace.id, workspaceId),
       with: {
@@ -80,26 +101,6 @@ export async function handleGigChatGenerate(c: Context) {
           botRole: botSettingsRow.botRole ?? undefined,
         }
       : null;
-
-    const rateLimitKey = `gig-chat:${session.user.id}:${workspaceId}`;
-    const rateLimitResult = getRateLimiter().check(rateLimitKey, 10, 60_000);
-    if (!rateLimitResult.allowed) {
-      const resetInSeconds = Math.ceil(
-        (rateLimitResult.resetAt - Date.now()) / 1000,
-      );
-      return c.json(
-        {
-          error: "Превышен лимит запросов",
-          retryAfter: resetInSeconds,
-        },
-        {
-          status: 429,
-          headers: {
-            "Retry-After": resetInSeconds.toString(),
-          },
-        },
-      );
-    }
 
     try {
       const stream = createGigStream({

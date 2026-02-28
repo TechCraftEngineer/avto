@@ -27,12 +27,16 @@ export const gigAIResponseSchema = z.object({
     })
     .optional(),
   message: z.string().optional(),
-  quickReplies: z.array(z.string()).optional(),
+  quickReplies: z.array(z.string().max(100)).max(5).optional(),
 });
 
 export const gigChatRequestSchema = z.object({
   workspaceId: z.string().uuid(),
-  message: z.string().min(1).max(2000),
+  message: z
+    .string()
+    .trim()
+    .min(1, "Сообщение не должно быть пустым")
+    .max(2000),
   currentDocument: z
     .object({
       title: z.string().max(200).optional(),
@@ -47,7 +51,7 @@ export const gigChatRequestSchema = z.object({
     .array(
       z.object({
         role: z.enum(["user", "assistant"]),
-        content: z.string().max(2000),
+        content: z.string().trim().min(1).max(2000),
       }),
     )
     .max(20)

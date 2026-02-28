@@ -38,8 +38,16 @@ export interface GigDraft {
 // Remove the unused optionalPositiveInt schema
 
 export const formSchema = z.object({
-  title: z.string().min(1, "Укажите название задания").max(500),
-  description: z.string(),
+  title: z
+    .string()
+    .trim()
+    .min(10, "Название должно содержать минимум 10 символов")
+    .max(100, "Название не должно превышать 100 символов"),
+  description: z
+    .string()
+    .trim()
+    .min(50, "Описание должно содержать минимум 50 символов")
+    .max(2000, "Описание не должно превышать 2000 символов"),
   type: z.enum([
     "DEVELOPMENT",
     "DESIGN",
@@ -53,13 +61,29 @@ export const formSchema = z.object({
     "CONSULTING",
     "OTHER",
   ]),
-  budgetMin: z.number().optional(),
-  budgetMax: z.number().optional(),
+  budgetMin: z
+    .number()
+    .min(1000, "Минимальный бюджет от 1000 ₽")
+    .max(1000000, "Максимальный бюджет до 1 000 000 ₽")
+    .optional(),
+  budgetMax: z
+    .number()
+    .min(1000, "Минимальный бюджет от 1000 ₽")
+    .max(1000000, "Максимальный бюджет до 1 000 000 ₽")
+    .optional(),
 
   deadline: z.string(),
-  estimatedDuration: z.string().max(100),
-  deliverables: z.string(),
-  requiredSkills: z.string(),
+  estimatedDuration: z.string().trim().max(100),
+  deliverables: z
+    .string()
+    .trim()
+    .min(1, "Укажите результаты")
+    .max(3000, "Результаты не должны превышать 3000 символов"),
+  requiredSkills: z
+    .string()
+    .trim()
+    .min(1, "Укажите навыки")
+    .max(1000, "Навыки не должны превышать 1000 символов"),
 
   // Ссылка на фриланс-платформу
   platformSource: z
