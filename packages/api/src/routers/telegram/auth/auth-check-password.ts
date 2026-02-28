@@ -6,6 +6,7 @@ import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
+import { createErrorHandler } from "../../../utils/error-handler";
 import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 import { normalizePhone } from "../utils";
 
@@ -21,6 +22,13 @@ export const checkPasswordRouter = protectedProcedure
     }),
   )
   .handler(async ({ input, context }) => {
+    const errorHandler = createErrorHandler(
+      context.auditLogger,
+      context.session.user.id,
+      context.ipAddress,
+      context.userAgent,
+    );
+
     await verifyWorkspaceAccess(
       context.workspaceRepository,
       input.workspaceId,
@@ -86,10 +94,9 @@ export const checkPasswordRouter = protectedProcedure
       if (error instanceof ORPCError) {
         throw error;
       }
-      console.error("Ошибка проверки пароля:", error);
-      throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: "Внутренняя ошибка сервера",
-        cause: error,
+      throw await errorHandler.handleInternalError(error as Error, {
+        operation: "check_password",
+        workspaceId: input.workspaceId,
       });
     }
   });

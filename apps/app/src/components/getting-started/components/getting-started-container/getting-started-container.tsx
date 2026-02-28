@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGettingStarted } from "~/hooks/use-getting-started";
 
 export function GettingStartedContainer() {
@@ -29,6 +29,15 @@ export function GettingStartedContainer() {
 
   const [isOpen, setIsOpen] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -99,7 +108,7 @@ export function GettingStartedContainer() {
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="rounded-md px-1 py-1 text-neutral-400 transition-colors hover:bg-white/20 active:text-white dark:text-neutral-600 dark:hover:bg-black/10"
+                className="rounded-md px-1 py-1 text-neutral-400 transition-colors hover:bg-white/20 active:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black dark:text-neutral-600 dark:hover:bg-black/10 dark:focus-visible:ring-offset-neutral-50"
                 aria-label="Закрыть"
               >
                 <ChevronDown className="size-4" />
@@ -115,8 +124,12 @@ export function GettingStartedContainer() {
                   key={step.id}
                   href={step.href}
                   onClick={() => {
-                    setTimeout(() => setIsOpen(false), 500);
                     step.action?.();
+                    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                    timeoutRef.current = setTimeout(() => {
+                      if (isMountedRef.current) setIsOpen(false);
+                      timeoutRef.current = null;
+                    }, 500);
                   }}
                   className="group flex items-center justify-between gap-3 p-3 transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900 sm:gap-10"
                 >

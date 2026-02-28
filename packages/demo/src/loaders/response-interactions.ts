@@ -141,7 +141,16 @@ export async function loadResponseInteractions(
     return 0;
   }
 
-  await db.insert(responseInteractionLog).values(toInsert);
+  try {
+    await db.insert(responseInteractionLog).values(toInsert);
+  } catch (err) {
+    console.error(
+      "[loadResponseInteractions] Ошибка записи в responseInteractionLog:",
+      err,
+      { toInsertCount: toInsert.length, operation: "insert" },
+    );
+    throw err;
+  }
 
   console.log(
     `✅ Загружено ${toInsert.length} записей хронологии взаимодействий`,

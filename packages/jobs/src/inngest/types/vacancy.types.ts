@@ -60,7 +60,7 @@ export const vacancyImportArchivedSelectedDataSchema = z.object({
 
 export const vacancyImportByUrlDataSchema = z.object({
   workspaceId: z.string().min(1, "ID рабочей области обязателен"),
-  url: z.url({ error: "Некорректная ссылка" }),
+  url: z.string().url({ error: "Некорректная ссылка" }),
   requestId: z.string().min(1, "ID запроса обязателен"),
 });
 
