@@ -13,6 +13,7 @@ import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -48,6 +49,7 @@ import {
   FileText,
   Globe,
   Languages,
+  Link2,
   Mail,
   MapPin,
   MessageCircle,
@@ -58,6 +60,7 @@ import {
   UserCheck,
   UserMinus,
   UserX,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -71,6 +74,7 @@ import {
   CANDIDATE_STATUS_COLORS,
   CANDIDATE_STATUS_LABELS,
 } from "../../types/types";
+import { AttachToVacancyDialog } from "../attach-to-vacancy-dialog";
 import { PersonalChatSection } from "../personal-chat-section";
 
 interface CandidateProfileDialogProps {
@@ -112,6 +116,7 @@ function ProfileContent({
   const queryClient = useQueryClient();
   const [notes, setNotes] = useState("");
   const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [isAttachDialogOpen, setIsAttachDialogOpen] = useState(false);
 
   // Получаем детальную информацию о кандидате
   const { data: candidateDetail, isLoading } = useQuery(
@@ -220,31 +225,55 @@ function ProfileContent({
               )}
             </div>
 
-            {/* Меню действий */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleStatusChange("ACTIVE")}>
-                  <UserCheck className="mr-2 h-4 w-4" />
-                  Активен
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleStatusChange("HIRED")}>
-                  <UserMinus className="mr-2 h-4 w-4" />
-                  Нанят
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => handleStatusChange("BLACKLISTED")}
-                  className="text-destructive focus:text-destructive"
+            {/* Меню действий и закрытие — сгруппированы в стиле shadcn */}
+            <div className="flex items-center gap-1 shrink-0">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 shrink-0"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                    <span className="sr-only">Меню действий</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setIsAttachDialogOpen(true)}>
+                    <Link2 className="mr-2 h-4 w-4" />
+                    Прикрепить к вакансии
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => handleStatusChange("ACTIVE")}
+                  >
+                    <UserCheck className="mr-2 h-4 w-4" />
+                    Активен
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleStatusChange("HIRED")}>
+                    <UserMinus className="mr-2 h-4 w-4" />
+                    Нанят
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => handleStatusChange("BLACKLISTED")}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <UserX className="mr-2 h-4 w-4" />В чёрный список
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DialogClose asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 shrink-0 opacity-70 hover:opacity-100"
                 >
-                  <UserX className="mr-2 h-4 w-4" />В чёрный список
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">Закрыть</span>
+                </Button>
+              </DialogClose>
+            </div>
           </div>
 
           {/* Статус */}
@@ -482,7 +511,15 @@ function ProfileContent({
           ) : (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <Building2 className="h-8 w-8 text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">Нет откликов</p>
+              <p className="text-sm text-muted-foreground mb-3">Нет откликов</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsAttachDialogOpen(true)}
+              >
+                <Link2 className="mr-2 h-4 w-4" />
+                Прикрепить к вакансии
+              </Button>
             </div>
           )}
         </TabsContent>
@@ -537,6 +574,12 @@ function ProfileContent({
           </div>
         </TabsContent>
       </Tabs>
+
+      <AttachToVacancyDialog
+        candidate={candidate}
+        open={isAttachDialogOpen}
+        onOpenChange={setIsAttachDialogOpen}
+      />
     </div>
   );
 }
@@ -557,7 +600,10 @@ export function CandidateProfileDialog({
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogContent
+          className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
+          showCloseButton={false}
+        >
           <DialogHeader className="sr-only">
             <DialogTitle>Профиль кандидата {candidate.fullName}</DialogTitle>
           </DialogHeader>
@@ -574,7 +620,10 @@ export function CandidateProfileDialog({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+      <SheetContent
+        className="w-full sm:max-w-lg overflow-y-auto"
+        showCloseButton={false}
+      >
         <SheetHeader className="sr-only">
           <SheetTitle>Профиль кандидата {candidate.fullName}</SheetTitle>
         </SheetHeader>
