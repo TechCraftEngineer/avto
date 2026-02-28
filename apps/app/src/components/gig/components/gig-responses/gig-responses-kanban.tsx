@@ -476,6 +476,9 @@ export function GigResponsesKanban({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  const columnsRef = useRef(columns);
+  columnsRef.current = columns;
+
   const handleCardClick = useCallback(
     (response: GigResponseListItem) => {
       router.push(
@@ -492,11 +495,12 @@ export function GigResponsesKanban({
       activeIndex: number;
       overContainer: string;
     }) => {
+      const cols = columnsRef.current;
       const { activeContainer, overContainer, event: dndEvent } = event;
       const activeId = String(dndEvent.active.id);
       const item =
-        columns[overContainer]?.find((r) => r.id === activeId) ??
-        columns[activeContainer]?.[event.activeIndex];
+        cols[overContainer]?.find((r) => r.id === activeId) ??
+        cols[activeContainer]?.[event.activeIndex];
       if (!item || activeContainer === overContainer) return;
 
       moveResponse({
@@ -504,7 +508,7 @@ export function GigResponsesKanban({
         pipelineStageId: overContainer,
       });
     },
-    [columns, moveResponse],
+    [moveResponse],
   );
 
   const settingsPipelineHref = `${paths.workspace.root(orgSlug, workspaceSlug)}/settings/pipeline`;

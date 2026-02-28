@@ -25,6 +25,7 @@ import { IconLayoutKanban, IconTable } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { toast } from "sonner";
 import {
@@ -129,11 +130,26 @@ export function ResponsesSkeleton() {
 
 export default function GigResponsesPage({ params }: PageProps) {
   const { orgSlug, slug: workspaceSlug, gigId } = React.use(params);
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const orpc = useORPC();
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
 
-  const [viewMode, setViewMode] = React.useState<"table" | "board">("table");
+  const viewMode = (
+    searchParams.get("view") === "board" || searchParams.get("view") === "table"
+      ? searchParams.get("view")
+      : "table"
+  ) as "table" | "board";
+
+  const setViewMode = React.useCallback(
+    (mode: "table" | "board") => {
+      const next = new URLSearchParams(searchParams);
+      next.set("view", mode);
+      router.replace(`?${next.toString()}`, { scroll: false });
+    },
+    [searchParams, router],
+  );
   const [filters, setFilters] = React.useState<ResponseFiltersState>({
     searchQuery: "",
     statusFilter: "all",

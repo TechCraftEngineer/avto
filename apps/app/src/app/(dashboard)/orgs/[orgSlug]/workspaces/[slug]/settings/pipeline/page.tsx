@@ -1,7 +1,18 @@
+import type { Metadata } from "next";
 import { PipelineStagesSettings } from "~/components/settings/components/pipeline-stages-settings/pipeline-stages-settings";
 
 interface PageProps {
   params: Promise<{ orgSlug: string; slug: string }>;
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { slug: workspaceSlug } = await params;
+  return {
+    title: `Этапы канбана — ${workspaceSlug}`,
+    description: "Настройте этапы для канбан-досок вакансий и заданий.",
+  };
 }
 
 export default async function PipelineSettingsPage({ params }: PageProps) {
@@ -17,7 +28,7 @@ export default async function PipelineSettingsPage({ params }: PageProps) {
         </p>
       </div>
 
-      <PipelineStagesSettings orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
+      <PipelineStagesSettings />
     </>
   );
 }

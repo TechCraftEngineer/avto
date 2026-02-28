@@ -95,6 +95,7 @@ export const response = pgTable(
     ...responseStatusColumns,
 
     // Этап канбана (nullable: при null используется legacy status)
+    // FK определена в миграции 0004_daffy_master_chief: ON DELETE SET NULL
     pipelineStageId: uuid("pipeline_stage_id"),
 
     // Временные метки

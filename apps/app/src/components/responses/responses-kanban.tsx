@@ -562,14 +562,12 @@ export function ResponsesKanban({
       overContainer: string;
     }) => {
       const { activeContainer, overContainer, event: dndEvent } = event;
+      const pipelineStageId = String(overContainer);
       const activeId = String(dndEvent.active.id);
-      // После оптимистичного обновления элемент уже в overContainer
       const item =
-        columns[overContainer]?.find((r) => r.id === activeId) ??
+        columns[pipelineStageId]?.find((r) => r.id === activeId) ??
         columns[activeContainer]?.[event.activeIndex];
       if (!item || activeContainer === overContainer) return;
-
-      const pipelineStageId = overContainer;
 
       moveResponse({
         responseId: item.id,

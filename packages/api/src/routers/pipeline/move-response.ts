@@ -79,6 +79,12 @@ export const moveResponse = protectedProcedure
       });
     }
 
+    if (stage.entityId !== null && stage.entityId !== response.entityId) {
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Этап привязан к другой сущности",
+      });
+    }
+
     const access = await context.workspaceRepository.checkAccess(
       workspaceId,
       context.session.user.id,

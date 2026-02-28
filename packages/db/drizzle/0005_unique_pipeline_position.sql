@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "pipeline_stages_workspace_entity_position_unique" ON "pipeline_stages" USING btree ("workspace_id","entity_type","entity_id","position");

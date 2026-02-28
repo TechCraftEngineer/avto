@@ -91,17 +91,18 @@ function SortableStageRow({
       style={style}
       className={cn(
         "flex items-center gap-2 rounded-lg border bg-background p-2",
-        isDragging && "opacity-80 shadow-md",
+        isDragging && "opacity-80 shadow-md select-none",
       )}
+      {...(isDragging ? { inert: true } : {})}
     >
       <button
         type="button"
-        className="touch-none cursor-grab text-muted-foreground hover:text-foreground active:cursor-grabbing"
+        className="touch-none cursor-grab text-muted-foreground hover:text-foreground active:cursor-grabbing min-w-6 min-h-6 p-2 -m-2 flex items-center justify-center sm:min-w-11 sm:min-h-11 sm:p-[10px] sm:-m-[10px]"
         {...attributes}
         {...listeners}
         aria-label="Перетащить для изменения порядка"
       >
-        <GripVertical className="size-4" />
+        <GripVertical className="size-4 shrink-0" />
       </button>
       <div
         className={cn(
@@ -381,13 +382,7 @@ function PipelineStagesTab({
   );
 }
 
-export function PipelineStagesSettings({
-  orgSlug: _orgSlug,
-  workspaceSlug: _workspaceSlug,
-}: {
-  orgSlug: string;
-  workspaceSlug: string;
-}) {
+export function PipelineStagesSettings() {
   const { workspace } = useWorkspace();
 
   if (!workspace?.id) {

@@ -26,12 +26,22 @@ export function GigResponseKanbanCard({
   onClick,
   isDragging = false,
 }: GigResponseKanbanCardProps) {
-  const score = response.interviewScoring
-    ? (response.interviewScoring.rating ??
-      Math.round(response.interviewScoring.score / 20))
-    : response.screening
-      ? response.screening.overallScore / 20
-      : null;
+  const score = (() => {
+    if (response.interviewScoring) {
+      const { rating, score: rawScore } = response.interviewScoring;
+      if (typeof rating === "number" && Number.isFinite(rating)) return rating;
+      if (typeof rawScore === "number" && Number.isFinite(rawScore))
+        return Math.round(rawScore / 20);
+      return null;
+    }
+    if (response.screening) {
+      const overallScore = response.screening.overallScore;
+      if (typeof overallScore === "number" && Number.isFinite(overallScore))
+        return overallScore / 20;
+      return null;
+    }
+    return null;
+  })();
   const coverPreview = response.coverLetter
     ? stripHtml(response.coverLetter).slice(0, 65)
     : null;
@@ -74,6 +84,7 @@ export function GigResponseKanbanCard({
 
       <button
         onClick={onClick}
+        aria-label={`Открыть отклик${response.candidateName ? ` от ${response.candidateName}` : ""}`}
         className="flex-1 p-3 cursor-pointer text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-b-lg min-w-0"
         type="button"
       >
