@@ -1,6 +1,48 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { z } from "zod";
+
+const payloadSchema = z.object({
+  workspaceId: z.string().min(1),
+  message: z.string().min(1).max(2000),
+  context: z
+    .object({
+      title: z.string().optional(),
+      description: z.string().optional(),
+      deliverables: z.string().optional(),
+      requiredSkills: z.string().optional(),
+      budgetRange: z.string().optional(),
+      timeline: z.string().optional(),
+    })
+    .optional(),
+  conversationHistory: z
+    .array(
+      z.object({
+        role: z.enum(["user", "assistant"]),
+        content: z.string().min(1),
+      }),
+    )
+    .max(20),
+});
+
+const streamChunkSchema = z.object({
+  document: z
+    .object({
+      title: z.string().optional(),
+      description: z.string().optional(),
+      deliverables: z.string().optional(),
+      requiredSkills: z.string().optional(),
+      budgetRange: z.string().optional(),
+      timeline: z.string().optional(),
+    })
+    .optional(),
+  quickReplies: z.array(z.string()).optional(),
+  done: z.boolean().optional(),
+  error: z.string().optional(),
+  message: z.string().optional(),
+  partial: z.boolean().optional(),
+});
 
 export interface GigDocument {
   title?: string;
@@ -53,6 +95,7 @@ export function useGigChat({
   const [status, setStatus] = useState<GigChatStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const timeoutIdRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const sendMessage = useCallback(
     async (
@@ -68,25 +111,51 @@ export function useGigChat({
       setError(null);
       setStatus("loading");
 
+      abortControllerRef.current?.abort();
+      if (timeoutIdRef.current != null) {
+        clearTimeout(timeoutIdRef.current);
+        timeoutIdRef.current = null;
+      }
+
       abortControllerRef.current = new AbortController();
-      const timeoutId = setTimeout(() => {
+      timeoutIdRef.current = setTimeout(() => {
         abortControllerRef.current?.abort();
       }, timeout);
+
+      const history = (conversationHistory ?? []).slice(0, 20);
+      const payload = {
+        workspaceId,
+        message: content,
+        context: currentDocument ?? document,
+        conversationHistory: history,
+      };
+      const validation = payloadSchema.safeParse(payload);
+      if (!validation.success) {
+        const msg = validation.error.issues
+          .map((issue: { message: string }) => issue.message)
+          .join("; ");
+        setError(msg);
+        setStatus("idle");
+        return null;
+      }
 
       try {
         const response = await fetch(apiEndpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            workspaceId,
-            message: content,
-            currentDocument: currentDocument ?? document,
-            conversationHistory: conversationHistory ?? [],
+            workspaceId: validation.data.workspaceId,
+            message: validation.data.message,
+            currentDocument: validation.data.context,
+            conversationHistory: validation.data.conversationHistory,
           }),
           signal: abortControllerRef.current.signal,
         });
 
-        clearTimeout(timeoutId);
+        if (timeoutIdRef.current != null) {
+          clearTimeout(timeoutIdRef.current);
+          timeoutIdRef.current = null;
+        }
 
         if (!response.ok) {
           let errorData: unknown;
@@ -133,35 +202,71 @@ export function useGigChat({
           for (const line of lines) {
             if (!line.startsWith("data: ")) continue;
             const data = line.slice(6);
+            let parsed: unknown;
             try {
-              const parsed = JSON.parse(data);
-
-              if (parsed.document) {
-                const merged: GigDocument = {
-                  ...(finalDocument ?? {}),
-                  ...parsed.document,
-                };
-                setDocument((prev) => ({ ...prev, ...parsed.document }));
-                finalDocument = merged;
-                onDocumentUpdate?.(merged);
-              }
-
-              if (parsed.quickReplies?.length) {
-                setQuickReplies(parsed.quickReplies);
-              }
-
-              if (parsed.done) {
-                finalDocument =
-                  finalDocument ?? parsed.document ?? currentDocument ?? {};
-                if (parsed.document) {
-                  finalDocument = { ...finalDocument, ...parsed.document };
-                }
-                if (parsed.error) {
-                  setError(parsed.error);
-                }
-              }
+              parsed = JSON.parse(data);
             } catch {
-              // Ignore parse errors for partial chunks
+              continue;
+            }
+            const chunk = streamChunkSchema.safeParse(parsed);
+            if (!chunk.success) continue;
+
+            const doc = chunk.data.document;
+            if (doc) {
+              const sanitizedDoc: GigDocument = {
+                title: typeof doc.title === "string" ? doc.title : undefined,
+                description:
+                  typeof doc.description === "string"
+                    ? doc.description
+                    : undefined,
+                deliverables:
+                  typeof doc.deliverables === "string"
+                    ? doc.deliverables
+                    : undefined,
+                requiredSkills:
+                  typeof doc.requiredSkills === "string"
+                    ? doc.requiredSkills
+                    : undefined,
+                budgetRange:
+                  typeof doc.budgetRange === "string"
+                    ? doc.budgetRange
+                    : undefined,
+                timeline:
+                  typeof doc.timeline === "string" ? doc.timeline : undefined,
+              };
+              const merged: GigDocument = {
+                ...(finalDocument ?? {}),
+                ...sanitizedDoc,
+              };
+              setDocument((prev) => ({ ...prev, ...sanitizedDoc }));
+              finalDocument = merged;
+              onDocumentUpdate?.(merged);
+            }
+
+            const replies = chunk.data.quickReplies;
+            if (Array.isArray(replies) && replies.length > 0) {
+              const sanitized = replies.filter(
+                (r): r is string => typeof r === "string",
+              );
+              setQuickReplies(sanitized);
+            }
+
+            if (chunk.data.done) {
+              const finalDoc = chunk.data.document;
+              finalDocument =
+                finalDocument ??
+                (finalDoc as GigDocument | undefined) ??
+                currentDocument ??
+                {};
+              if (finalDoc) {
+                finalDocument = {
+                  ...finalDocument,
+                  ...(finalDoc as GigDocument),
+                };
+              }
+              if (typeof chunk.data.error === "string") {
+                setError(chunk.data.error);
+              }
             }
           }
         }
@@ -169,7 +274,10 @@ export function useGigChat({
         setStatus("idle");
         return finalDocument ?? { ...(currentDocument ?? document) };
       } catch (err) {
-        clearTimeout(timeoutId);
+        if (timeoutIdRef.current != null) {
+          clearTimeout(timeoutIdRef.current);
+          timeoutIdRef.current = null;
+        }
 
         if (err instanceof Error && err.name === "AbortError") {
           setStatus("idle");

@@ -1,14 +1,13 @@
 import {
   formatDate,
+  getStatusLabel,
   HR_STATUS_CONFIG,
   type HRStatusKey,
   RESPONSE_STATUS_CONFIG,
   type StatusKey,
 } from "~/lib/shared/response-configs";
 
-export const getStatusLabel = (status: string) => {
-  return RESPONSE_STATUS_CONFIG[status as StatusKey]?.label ?? status;
-};
+export { getStatusLabel };
 
 export const getStatusVariant = (status: string) => {
   return RESPONSE_STATUS_CONFIG[status as StatusKey]?.variant ?? "default";

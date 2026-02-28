@@ -16,8 +16,11 @@ export function buildGigPrompt(
   const parts: string[] = [];
 
   if (companySettings?.botName && companySettings?.botRole) {
+    const companyPart = companySettings.companyName
+      ? ` компании "${companySettings.companyName}"`
+      : "";
     parts.push(
-      `Ты — ${companySettings.botName}, ${companySettings.botRole} компании "${companySettings.companyName}".`,
+      `Ты — ${companySettings.botName}, ${companySettings.botRole}${companyPart}.`,
     );
   } else if (companySettings?.companyName) {
     parts.push(

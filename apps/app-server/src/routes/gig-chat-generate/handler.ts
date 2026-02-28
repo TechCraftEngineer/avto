@@ -9,6 +9,7 @@ import {
   workspace,
   workspaceMember,
 } from "@qbs-autonaim/db/schema";
+import { getRateLimiter } from "@qbs-autonaim/lib";
 import type { Context } from "hono";
 import { getSession } from "../../auth";
 import { createGigStream } from "./create-stream";
@@ -29,7 +30,7 @@ export async function handleGigChatGenerate(c: Context) {
         {
           error: "Ошибка парсинга запроса",
           details:
-            parseError instanceof Error ? parseError.message : "Invalid JSON",
+            parseError instanceof Error ? parseError.message : "Неверный JSON",
         },
         400,
       );
@@ -64,7 +65,7 @@ export async function handleGigChatGenerate(c: Context) {
       !workspaceData.members ||
       workspaceData.members.length === 0
     ) {
-      return c.json({ error: "Нет доступа к workspace" }, 403);
+      return c.json({ error: "Нет доступа к рабочему пространству" }, 403);
     }
 
     const botSettingsRow = await db.query.botSettings.findFirst({
@@ -79,6 +80,26 @@ export async function handleGigChatGenerate(c: Context) {
           botRole: botSettingsRow.botRole ?? undefined,
         }
       : null;
+
+    const rateLimitKey = `gig-chat:${session.user.id}:${workspaceId}`;
+    const rateLimitResult = getRateLimiter().check(rateLimitKey, 10, 60_000);
+    if (!rateLimitResult.allowed) {
+      const resetInSeconds = Math.ceil(
+        (rateLimitResult.resetAt - Date.now()) / 1000,
+      );
+      return c.json(
+        {
+          error: "Превышен лимит запросов",
+          retryAfter: resetInSeconds,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": resetInSeconds.toString(),
+          },
+        },
+      );
+    }
 
     try {
       const stream = createGigStream({

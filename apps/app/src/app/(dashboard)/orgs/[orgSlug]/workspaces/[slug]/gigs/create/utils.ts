@@ -59,24 +59,69 @@ export function buildWizardMessage(wizard: WizardState): string {
   return parts.join("\n");
 }
 
+const BUDGET_MIN = 1000;
+const BUDGET_MAX = 1000000;
+const DURATION_MIN = 1;
+const DURATION_MAX = 365;
+
+function clampBudget(val: number | undefined): number | undefined {
+  if (val == null || !Number.isFinite(val)) return undefined;
+  return Math.max(BUDGET_MIN, Math.min(BUDGET_MAX, val));
+}
+
+function clampDuration(val: string | undefined): string | undefined {
+  if (!val) return undefined;
+  const num = Number.parseInt(val, 10);
+  if (!Number.isFinite(num)) return undefined;
+  const clamped = Math.max(DURATION_MIN, Math.min(DURATION_MAX, num));
+  return String(clamped);
+}
+
+function truncateStr(
+  val: string | undefined,
+  maxLen: number,
+): string | undefined {
+  if (!val) return undefined;
+  if (val.length <= maxLen) return val;
+  return val.slice(0, maxLen);
+}
+
 export function mergeDocToDraft(
   doc: GigDocument,
   prev: GigDraft,
   wizard?: WizardState | null,
 ): GigDraft {
   const budgetFromAI = parseBudgetRange(doc.budgetRange);
+  let budgetMin = clampBudget(budgetFromAI.budgetMin) ?? prev.budgetMin;
+  let budgetMax = clampBudget(budgetFromAI.budgetMax) ?? prev.budgetMax;
+  if (budgetMin != null && budgetMax != null && budgetMin > budgetMax) {
+    [budgetMin, budgetMax] = [budgetMax, budgetMin];
+  }
+
   const rawDuration = doc.timeline ?? wizard?.timeline?.days;
+  const parsedDuration = clampDuration(
+    rawDuration != null ? String(rawDuration) : undefined,
+  );
   const estimatedDuration =
-    rawDuration != null ? String(rawDuration) : prev.estimatedDuration;
+    parsedDuration ?? prev.estimatedDuration ?? undefined;
+
+  const title = truncateStr(doc.title || prev.title, 200) ?? prev.title;
+  const description =
+    truncateStr(doc.description || prev.description, 5000) ?? prev.description;
+
   return {
     ...prev,
-    title: doc.title || prev.title,
-    description: doc.description || prev.description,
-    deliverables: doc.deliverables || prev.deliverables,
-    requiredSkills: doc.requiredSkills || prev.requiredSkills,
-    budgetMin: budgetFromAI.budgetMin ?? prev.budgetMin,
-    budgetMax: budgetFromAI.budgetMax ?? prev.budgetMax,
-    estimatedDuration: estimatedDuration || prev.estimatedDuration,
+    title: title ?? prev.title,
+    description: description ?? prev.description,
+    deliverables:
+      truncateStr(doc.deliverables || prev.deliverables, 3000) ??
+      prev.deliverables,
+    requiredSkills:
+      truncateStr(doc.requiredSkills || prev.requiredSkills, 1000) ??
+      prev.requiredSkills,
+    budgetMin,
+    budgetMax,
+    estimatedDuration,
     type: wizard?.category?.id || prev.type,
   };
 }

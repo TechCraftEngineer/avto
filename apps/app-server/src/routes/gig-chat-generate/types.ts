@@ -15,10 +15,8 @@ export interface GigAIResponse {
   document?: GigDocument;
 }
 
-export const gigChatRequestSchema = z.object({
-  workspaceId: z.string().uuid(),
-  message: z.string().min(1).max(2000),
-  currentDocument: z
+export const gigAIResponseSchema = z.object({
+  document: z
     .object({
       title: z.string().optional(),
       description: z.string().optional(),
@@ -28,11 +26,28 @@ export const gigChatRequestSchema = z.object({
       timeline: z.string().optional(),
     })
     .optional(),
+  message: z.string().optional(),
+  quickReplies: z.array(z.string()).optional(),
+});
+
+export const gigChatRequestSchema = z.object({
+  workspaceId: z.string().uuid(),
+  message: z.string().min(1).max(2000),
+  currentDocument: z
+    .object({
+      title: z.string().max(200).optional(),
+      description: z.string().max(5000).optional(),
+      deliverables: z.string().max(3000).optional(),
+      requiredSkills: z.string().max(1000).optional(),
+      budgetRange: z.string().max(100).optional(),
+      timeline: z.string().max(100).optional(),
+    })
+    .optional(),
   conversationHistory: z
     .array(
       z.object({
         role: z.enum(["user", "assistant"]),
-        content: z.string(),
+        content: z.string().max(2000),
       }),
     )
     .max(20)
