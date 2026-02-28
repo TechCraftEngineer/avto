@@ -342,9 +342,15 @@ export function AddInteractionDialog({
             <Button variant="outline" onClick={() => setOpen(false)}>
               Отмена
             </Button>
-            <Button onClick={handleSubmit} disabled={isPending}>
-              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isPending ? "Сохранение…" : "Добавить"}
+            <Button
+              onClick={handleSubmit}
+              disabled={isPending}
+              className="gap-2"
+            >
+              {isPending && (
+                <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+              )}
+              Добавить
             </Button>
           </div>
         </div>

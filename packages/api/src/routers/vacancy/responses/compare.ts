@@ -7,36 +7,31 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
-import { protectedProcedure } from "../../../orpc";
+import {
+  protectedProcedure,
+  workspaceAccessMiddleware,
+  workspaceInputSchema,
+} from "../../../orpc";
+import { ensureFound } from "../../../utils/ensure-found";
 
 export const compare = protectedProcedure
   .input(
-    z.object({
-      vacancyId: z.uuid(),
-      workspaceId: workspaceIdSchema,
-      limit: z.number().min(1).max(50).default(10),
-    }),
+    workspaceInputSchema.merge(
+      z.object({
+        vacancyId: z.uuid(),
+        limit: z.number().min(1).max(50).default(10),
+      }),
+    ),
   )
+  .use(workspaceAccessMiddleware)
   .handler(async ({ context, input }) => {
-    const access = await context.workspaceRepository.checkAccess(
-      input.workspaceId,
-      context.session.user.id,
+    const vacancy = ensureFound(
+      await context.db.query.vacancy.findFirst({
+        where: eq(vacancyTable.id, input.vacancyId),
+        columns: { workspaceId: true },
+      }),
+      "Вакансия не найдена",
     );
-
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Нет доступа к этому workspace",
-      });
-    }
-
-    const vacancy = await context.db.query.vacancy.findFirst({
-      where: eq(vacancyTable.id, input.vacancyId),
-      columns: { workspaceId: true },
-    });
-
-    if (!vacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
-    }
 
     if (vacancy.workspaceId !== input.workspaceId) {
       throw new ORPCError("FORBIDDEN", {

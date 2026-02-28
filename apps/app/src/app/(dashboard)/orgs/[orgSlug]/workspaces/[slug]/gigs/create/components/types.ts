@@ -148,7 +148,10 @@ export const formSchema = z
         "WEB_LINK",
       ])
       .optional(),
-    platformUrl: z.url().optional(),
+    platformUrl: z.preprocess(
+      (arg) => (typeof arg === "string" ? arg.trim() || undefined : arg),
+      z.string().url().optional(),
+    ),
   })
   .superRefine((data, ctx) => {
     if (

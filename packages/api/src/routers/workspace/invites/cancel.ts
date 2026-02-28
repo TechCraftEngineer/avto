@@ -11,7 +11,7 @@ export const cancel = protectedProcedure
   .input(
     z.object({
       workspaceId: workspaceIdSchema,
-      email: z.email(),
+      email: z.email({ error: "Некорректный email адрес" }),
     }),
   )
   .handler(async ({ input, context }) => {

@@ -14,7 +14,7 @@ export const removeTag = protectedProcedure
   .input(
     z.object({
       responseId: z.uuid(),
-      tag: z.string(),
+      tag: z.string().min(1).max(50),
       workspaceId: workspaceIdSchema,
     }),
   )
