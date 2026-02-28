@@ -8,7 +8,7 @@ import {
 } from "@qbs-autonaim/ui/components/tooltip";
 import { Star } from "lucide-react";
 import type { CandidateMetrics } from "./types";
-import { getMatchScoreColor, getStatusColor } from "./utils";
+import { getMatchScoreColor, getStatusColor, getStatusLabel } from "./utils";
 
 interface ComparisonTableRowProps {
   candidate: CandidateMetrics;
@@ -65,7 +65,7 @@ export function ComparisonTableRow({
           variant="outline"
           className={`${getStatusColor(candidate.status)} text-sm px-3 py-1`}
         >
-          {candidate.status}
+          {getStatusLabel(candidate.status)}
         </Badge>
       </TableCell>
       <TableCell className="py-6">

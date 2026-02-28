@@ -12,6 +12,7 @@ import { logger } from "hono/logger";
 import { auth } from "./auth";
 import { handleChatStream } from "./routes/chat-stream";
 import { extensionTokenRoutes } from "./routes/extension-token";
+import { handleGigChatGenerate } from "./routes/gig-chat-generate";
 import { googleCalendarRoutes } from "./routes/google-calendar";
 import { resumeDownloadRoutes } from "./routes/resume-download";
 import { testSetupRoutes } from "./routes/test-setup";
@@ -126,6 +127,9 @@ app.post("/api/chat/stream", handleChatStream);
 
 // Vacancy chat generate (streaming)
 app.post("/api/vacancy/chat-generate", handleVacancyChatGenerate);
+
+// Gig chat generate (streaming)
+app.post("/api/gig/chat-generate", handleGigChatGenerate);
 
 // Resume PDF download (с именем ФИО.pdf)
 app.route("/api/resume", resumeDownloadRoutes);

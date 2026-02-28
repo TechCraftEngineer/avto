@@ -1,4 +1,5 @@
 import { Button } from "@qbs-autonaim/ui/components/button";
+import { getStatusLabel } from "./utils";
 
 interface StatusFilterProps {
   statusFilter: string | null;
@@ -29,7 +30,7 @@ export function StatusFilter({
             size="sm"
             onClick={() => onFilterChange(status)}
           >
-            {status}
+            {getStatusLabel(status)}
           </Button>
         ))}
       </div>
