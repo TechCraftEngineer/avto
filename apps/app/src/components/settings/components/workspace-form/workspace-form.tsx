@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import {
   Form,
@@ -19,7 +20,7 @@ import {
 } from "@qbs-autonaim/ui/components/tooltip";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { HelpCircle, Trash2, Upload } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -53,6 +54,8 @@ export function WorkspaceForm({
   userRole?: string;
   appUrl?: string;
 }) {
+  const params = useParams();
+  const orgSlug = params?.orgSlug as string | undefined;
   const orpc = useORPC();
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -81,8 +84,14 @@ export function WorkspaceForm({
         await queryClient.invalidateQueries({
           queryKey: orpc.workspace.list.queryKey({ input: {} }),
         });
-        if (variables.data.slug && variables.data.slug !== initialSlug) {
-          router.push(`/${variables.data.slug}/settings`);
+        if (
+          variables.data.slug &&
+          variables.data.slug !== initialSlug &&
+          orgSlug
+        ) {
+          router.push(
+            paths.workspace.settings.root(orgSlug, variables.data.slug),
+          );
         }
       },
       onError: (err) => {

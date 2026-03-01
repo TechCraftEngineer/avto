@@ -81,6 +81,8 @@ export type GigChatStatus = "idle" | "loading" | "streaming" | "error";
 export interface UseGigChatReturn {
   document: GigDocument;
   quickReplies: string[];
+  /** Текст сообщения бота в процессе стриминга (обновляется по мере получения чанков) */
+  streamingMessage: string;
   status: GigChatStatus;
   error: string | null;
   sendMessage: (
@@ -106,6 +108,7 @@ export function useGigChat({
 }: UseGigChatOptions): UseGigChatReturn {
   const [document, setDocument] = useState<GigDocument>(initialDocument);
   const [quickReplies, setQuickReplies] = useState<string[]>([]);
+  const [streamingMessage, setStreamingMessage] = useState("");
   const [status, setStatus] = useState<GigChatStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -137,6 +140,7 @@ export function useGigChat({
       lastRequestTimeRef.current = now;
 
       setError(null);
+      setStreamingMessage("");
       setStatus("loading");
 
       abortControllerRef.current?.abort();
@@ -201,6 +205,7 @@ export function useGigChat({
               : "Ошибка генерации";
           setError(errMsg);
           setStatus("error");
+          setStreamingMessage("");
           return null;
         }
 
@@ -208,6 +213,7 @@ export function useGigChat({
         if (!reader) {
           setError("Нет тела ответа");
           setStatus("error");
+          setStreamingMessage("");
           return null;
         }
 
@@ -272,6 +278,7 @@ export function useGigChat({
 
             if (typeof parsedChunk.data.message === "string") {
               finalMessage = parsedChunk.data.message;
+              setStreamingMessage(parsedChunk.data.message);
             }
 
             if (parsedChunk.data.done) {
@@ -283,13 +290,17 @@ export function useGigChat({
               if (typeof parsedChunk.data.error === "string") {
                 setError(parsedChunk.data.error);
                 setStatus("error");
+                setStreamingMessage("");
                 hadStreamError = true;
               }
             }
           }
         }
 
-        if (!hadStreamError) setStatus("idle");
+        if (!hadStreamError) {
+          setStatus("idle");
+          setStreamingMessage("");
+        }
         const doc = finalDocument ?? { ...(currentDocument ?? document) };
         return {
           document: doc,
@@ -304,6 +315,7 @@ export function useGigChat({
 
         if (err instanceof Error && err.name === "AbortError") {
           setStatus("idle");
+          setStreamingMessage("");
           return null;
         }
 
@@ -324,6 +336,7 @@ export function useGigChat({
   return {
     document,
     quickReplies,
+    streamingMessage,
     status,
     error,
     sendMessage,

@@ -1,8 +1,9 @@
+import { ORPCError } from "@orpc/server";
 import { and, asc, eq, isNull } from "@qbs-autonaim/db";
 import { pipelineStage } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
-import { workspaceProcedure } from "../../orpc";
+import { protectedProcedure } from "../../orpc";
 
 const VACANCY_DEFAULTS = [
   {
@@ -120,7 +121,7 @@ const GIG_DEFAULTS = [
 
 const entityTypeSchema = z.enum(["gig", "vacancy", "project"]);
 
-export const getStages = workspaceProcedure
+export const getStages = protectedProcedure
   .input(
     z.object({
       workspaceId: workspaceIdSchema,
@@ -129,6 +130,14 @@ export const getStages = workspaceProcedure
     }),
   )
   .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
+      input.workspaceId,
+      context.session.user.id,
+    );
+    if (!access) {
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
+    }
+
     // 1. If entityId provided, try to find entity-specific stages
     if (input.entityId) {
       const entityStages = await context.db.query.pipelineStage.findMany({

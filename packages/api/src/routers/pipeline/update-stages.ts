@@ -6,7 +6,7 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
-import { workspaceProcedure } from "../../orpc";
+import { protectedProcedure } from "../../orpc";
 
 const stageInputSchema = z.object({
   id: z.string().uuid().optional(),
@@ -15,7 +15,7 @@ const stageInputSchema = z.object({
   color: z.string().max(50).optional().nullable(),
 });
 
-export const updateStages = workspaceProcedure
+export const updateStages = protectedProcedure
   .input(
     z.object({
       workspaceId: workspaceIdSchema,
@@ -25,6 +25,14 @@ export const updateStages = workspaceProcedure
     }),
   )
   .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
+      input.workspaceId,
+      context.session.user.id,
+    );
+    if (!access) {
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
+    }
+
     const entityId = input.entityId ?? null;
 
     return context.db.transaction(async (tx) => {
@@ -60,8 +68,13 @@ export const updateStages = workspaceProcedure
           )
           .groupBy(responseTable.pipelineStageId);
 
-        const countByStage = new Map(
-          counts.map((row) => [row.pipelineStageId, row.count]),
+        const countByStage = new Map<string, number>(
+          counts.map(
+            (row: { pipelineStageId: string | null; count: unknown }) => [
+              row.pipelineStageId ?? "",
+              Number(row.count) || 0,
+            ],
+          ),
         );
         for (const stage of toDelete) {
           const count = countByStage.get(stage.id) ?? 0;

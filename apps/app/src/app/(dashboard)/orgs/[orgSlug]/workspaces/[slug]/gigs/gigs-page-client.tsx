@@ -291,7 +291,7 @@ export function GigsPageClient() {
   return (
     <>
       <div className="flex flex-1 flex-col">
-        <div className="@container/main flex flex-1 flex-col gap-2">
+        <div className="@container/main flex flex-1 flex-col gap-2 px-4 lg:px-6">
           <PageHeader
             title="Разовые задания"
             description="Создание и управление разовыми задачами"
@@ -304,7 +304,7 @@ export function GigsPageClient() {
               onCardClick={handleStatsCardClick}
             />
 
-            <div className="px-4 lg:px-6">
+            <div>
               <GigsFilters
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}

@@ -11,11 +11,17 @@ export interface ValidationErrorDetail {
 }
 
 function getStringFromDoc(text: string, field: string): string {
-  const regex = new RegExp(
+  // Строгий regex: полная строка с экранированием. Поддерживает частичный вывод (до закрывающей ")
+  const strictRegex = new RegExp(
     `"${field}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)(?:"|$)`,
     "s",
   );
-  const match = text.match(regex);
+  let match = text.match(strictRegex);
+  // Fallback: проще regex для частичной строки без escape (на случай нестандартного вывода модели)
+  if (!match?.[1]) {
+    const simpleRegex = new RegExp(`"${field}"\\s*:\\s*"([^"]*)`, "s");
+    match = text.match(simpleRegex);
+  }
   if (!match?.[1]) return "";
   try {
     return JSON.parse(`"${match[1]}"`);

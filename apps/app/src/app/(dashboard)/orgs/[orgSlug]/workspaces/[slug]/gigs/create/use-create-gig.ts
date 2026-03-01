@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import React from "react";
+import type { Resolver } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -72,7 +73,7 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
   }, []);
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as Resolver<FormValues>,
     defaultValues: {
       title: "",
       description: "",
@@ -110,6 +111,8 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
   const {
     status: gigChatStatus,
     error: gigChatError,
+    streamingMessage,
+    quickReplies: streamingQuickReplies,
     sendMessage,
   } = useGigChat({
     workspaceId: workspace?.id ?? "",
@@ -130,7 +133,7 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
 
       const parsed = messageSchema.safeParse(message);
       if (!parsed.success) {
-        toast.error(parsed.error.errors[0]?.message ?? "Неверное сообщение");
+        toast.error(parsed.error.issues[0]?.message ?? "Неверное сообщение");
         return;
       }
       const trimmedMessage = parsed.data;
@@ -293,5 +296,7 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
     handleCreate,
     onSubmit,
     syncForm,
+    streamingMessage,
+    streamingQuickReplies,
   };
 }

@@ -1,3 +1,4 @@
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 
 /** Максимальная длина сообщения в запросе gig-chat (должна совпадать в schema и truncate) */
@@ -34,7 +35,7 @@ export const gigAIResponseSchema = z.object({
 });
 
 export const gigChatRequestSchema = z.object({
-  workspaceId: z.uuid(),
+  workspaceId: workspaceIdSchema,
   message: z
     .string()
     .trim()
