@@ -650,11 +650,11 @@ export function ResponsesKanban({
             ))}
           </div>
         </div>
-        {canConfigureStages && entityId && (
+        {canConfigureStages && (
           <PipelineStagesModal
             open={settingsModalOpen}
             onOpenChange={setSettingsModalOpen}
-            vacancyId={entityId}
+            vacancyId={entityId ?? ""}
             workspaceId={workspaceId}
           />
         )}
@@ -681,11 +681,11 @@ export function ResponsesKanban({
             </Button>
           )}
         </div>
-        {canConfigureStages && entityId && (
+        {canConfigureStages && (
           <PipelineStagesModal
             open={settingsModalOpen}
             onOpenChange={setSettingsModalOpen}
-            vacancyId={entityId}
+            vacancyId={entityId ?? ""}
             workspaceId={workspaceId}
           />
         )}
@@ -748,11 +748,11 @@ export function ResponsesKanban({
         workspaceId={workspaceId}
       />
 
-      {canConfigureStages && entityId && (
+      {canConfigureStages && (
         <PipelineStagesModal
           open={settingsModalOpen}
           onOpenChange={setSettingsModalOpen}
-          vacancyId={entityId}
+          vacancyId={entityId ?? ""}
           workspaceId={workspaceId}
         />
       )}
