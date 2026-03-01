@@ -58,6 +58,45 @@ export function ChatMessage({
   );
 }
 
+interface StreamingMessageProps {
+  content: string;
+  quickReplies?: string[];
+  onSelectOption: (value: string) => void;
+  onCustomAnswer?: (value: string) => void;
+}
+
+export function StreamingMessage({
+  content,
+  quickReplies = [],
+  onSelectOption,
+}: StreamingMessageProps) {
+  return (
+    <div className="space-y-2">
+      <div className="flex gap-3">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
+          <Bot className="h-4 w-4 text-muted-foreground" />
+        </div>
+        <div className="rounded-2xl rounded-bl-md bg-muted px-4 py-2.5 text-sm whitespace-pre-wrap max-w-[85%]">
+          {content}
+          <span
+            className="inline-block h-4 w-px mx-0.5 bg-foreground/60 animate-pulse align-middle"
+            aria-hidden
+          />
+        </div>
+      </div>
+      {quickReplies.length > 0 && (
+        <div className="ml-11">
+          <QuickReplies
+            replies={quickReplies}
+            onSelect={onSelectOption}
+            disabled
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function TypingIndicator() {
   return (
     <div className="flex gap-3">

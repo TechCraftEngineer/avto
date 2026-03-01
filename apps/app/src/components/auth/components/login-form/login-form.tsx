@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import {
   Card,
@@ -64,7 +65,7 @@ export function LoginForm({
         localStorage.setItem("auth_redirect", redirectUrl);
       }
       toast.success("Код отправлен! Проверьте вашу почту.");
-      router.push("/auth/otp");
+      router.push(paths.auth.otp);
     } catch (error) {
       console.error(error);
       toast.error("Не удалось отправить код. Попробуйте снова.");

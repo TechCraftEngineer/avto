@@ -1,5 +1,6 @@
 "use client";
 
+import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import {
   Select,
@@ -185,7 +186,7 @@ export function PaymentList({
         <div className="text-center py-12 space-y-4">
           <p className="text-muted-foreground">Платежей пока нет</p>
           <Button
-            onClick={() => router.push("/payment/create")}
+            onClick={() => router.push(paths.payment.create)}
             className="min-h-[44px]"
           >
             Создать платеж
@@ -241,7 +242,7 @@ export function PaymentList({
               <tr
                 key={payment.id}
                 className="border-b hover:bg-muted/50 cursor-pointer transition-colors"
-                onClick={() => router.push(`/payment/${payment.id}`)}
+                onClick={() => router.push(paths.payment.detail(payment.id))}
               >
                 <td
                   className="py-3 px-4 text-sm"
@@ -293,7 +294,7 @@ export function PaymentList({
             key={payment.id}
             type="button"
             className="w-full text-left bg-muted/50 rounded-lg p-4 space-y-3 hover:bg-muted transition-colors"
-            onClick={() => router.push(`/payment/${payment.id}`)}
+            onClick={() => router.push(paths.payment.detail(payment.id))}
           >
             <div className="flex justify-between items-start gap-4">
               <div className="space-y-1 flex-1 min-w-0">

@@ -1,5 +1,6 @@
 "use client";
 
+import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { Card } from "@qbs-autonaim/ui/components/card";
 import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area";
@@ -61,7 +62,7 @@ export function VacancyChatInterface({
           description: "Вакансия успешно сохранена",
         });
         router.push(
-          `/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/${vacancy.id}`,
+          paths.workspace.vacancies(orgSlug, workspaceSlug, vacancy.id),
         );
       },
       onError: (error) => {

@@ -5,6 +5,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -48,6 +49,12 @@ export const pipelineStage = pgTable(
       table.entityId,
     ),
     index("pipeline_stages_workspace_entity_position_idx").on(
+      table.workspaceId,
+      table.entityType,
+      table.entityId,
+      table.position,
+    ),
+    uniqueIndex("pipeline_stages_workspace_entity_position_unique").on(
       table.workspaceId,
       table.entityType,
       table.entityId,

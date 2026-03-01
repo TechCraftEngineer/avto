@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { and, eq } from "@qbs-autonaim/db";
+import { eq } from "@qbs-autonaim/db";
 import {
   gig as gigTable,
   pipelineStage,
@@ -76,6 +76,12 @@ export const moveResponse = protectedProcedure
     if (stage.entityType !== response.entityType) {
       throw new ORPCError("BAD_REQUEST", {
         message: "Тип этапа не совпадает с типом отклика",
+      });
+    }
+
+    if (stage.entityId !== null && stage.entityId !== response.entityId) {
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Этап привязан к другой сущности",
       });
     }
 

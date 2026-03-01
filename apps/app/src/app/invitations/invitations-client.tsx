@@ -1,5 +1,6 @@
 "use client";
 
+import { paths } from "@qbs-autonaim/config";
 import { getInitials } from "@qbs-autonaim/shared";
 import {
   Avatar,
@@ -38,7 +39,10 @@ export function InvitationsClient({ invites }: { invites: Invite[] }) {
       onSuccess: (data) => {
         toast.success(`Вы присоединились к ${data.workspace.name}`);
         router.push(
-          `/orgs/${data.workspace.organization?.slug}/workspaces/${data.workspace.slug}`,
+          paths.workspace.root(
+            data.workspace.organization?.slug ?? "",
+            data.workspace.slug,
+          ),
         );
         router.refresh();
       },
@@ -63,7 +67,7 @@ export function InvitationsClient({ invites }: { invites: Invite[] }) {
 
   const handleSkip = () => {
     // Редирект на onboarding для создания собственного workspace
-    router.push("/onboarding");
+    router.push(paths.onboarding.root);
   };
 
   const getRoleBadgeVariant = (role: string) => {

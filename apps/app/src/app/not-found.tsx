@@ -1,5 +1,6 @@
 "use client";
 
+import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { ArrowLeft, FileQuestion, Home } from "lucide-react";
 import Link from "next/link";
@@ -44,7 +45,7 @@ export default function NotFoundPage() {
             Назад
           </Button>
           <Button asChild size="lg" className="gap-2">
-            <Link href="/">
+            <Link href={paths.dashboard.root}>
               <Home className="h-4 w-4" />
               На главную
             </Link>

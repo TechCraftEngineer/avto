@@ -11,7 +11,7 @@ import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area";
 import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { Bot, RotateCcw, Sparkles } from "lucide-react";
 import React from "react";
-import { ChatMessage, TypingIndicator } from "./chat-message";
+import { ChatMessage, StreamingMessage, TypingIndicator } from "./chat-message";
 import { QuizStepBlock } from "./quiz-step-block";
 import type { ChatMessage as ChatMessageType } from "./types";
 
@@ -33,6 +33,10 @@ const WELCOME_MESSAGE: ChatMessageType = {
 interface GigConversationChatProps {
   messages: ChatMessageType[];
   isGenerating: boolean;
+  /** Текст ответа бота в процессе стриминга */
+  streamingMessage?: string;
+  /** Quick replies, приходящие в процессе стриминга */
+  streamingQuickReplies?: string[];
   onSendMessage: (content: string) => void;
   onReset: () => void;
 }
@@ -40,6 +44,8 @@ interface GigConversationChatProps {
 export function GigConversationChat({
   messages,
   isGenerating,
+  streamingMessage = "",
+  streamingQuickReplies = [],
   onSendMessage,
   onReset,
 }: GigConversationChatProps) {
@@ -47,9 +53,11 @@ export function GigConversationChat({
   const allMessages = [WELCOME_MESSAGE, ...messages];
   const lastMessage = allMessages[allMessages.length - 1];
   const isLastAssistant = lastMessage?.role === "assistant";
-  const currentStepOptions = isLastAssistant
-    ? (lastMessage.quickReplies ?? [])
-    : [];
+  const currentStepOptions = isGenerating
+    ? streamingQuickReplies
+    : isLastAssistant
+      ? (lastMessage.quickReplies ?? [])
+      : [];
 
   const handleAnswer = React.useCallback(
     (value: string) => {
@@ -69,7 +77,7 @@ export function GigConversationChat({
         el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
       }, 50);
     }
-  }, [messages.length, isGenerating]);
+  }, [messages.length, isGenerating, streamingMessage]);
 
   const stepNumber = allMessages.filter((m) => m.role === "assistant").length;
 
@@ -105,34 +113,45 @@ export function GigConversationChat({
       <Separator className="shrink-0" />
       <ScrollArea ref={scrollRef} className="flex-1 min-h-0">
         <div className="space-y-4 p-4">
-          {allMessages.slice(0, -1).map((msg) => (
-            <ChatMessage key={msg.id} message={msg} isDisabled />
-          ))}
-          {lastMessage?.role === "user" && (
+          {allMessages.map((msg) => (
             <ChatMessage
-              key={lastMessage.id}
-              message={lastMessage}
-              isDisabled
+              key={msg.id}
+              message={msg}
+              isDisabled={msg !== lastMessage}
+              onQuickReply={msg === lastMessage ? handleAnswer : undefined}
             />
-          )}
+          ))}
           {isLastAssistant && !isGenerating && (
             <div className="flex gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
-                <Bot className="h-4 w-4 text-muted-foreground" />
+              <div
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted opacity-0"
+                aria-hidden
+              >
+                <Bot className="h-4 w-4" />
               </div>
-              <div className="flex-1 min-w-0 space-y-2">
+              <div className="flex-1 min-w-0">
                 <QuizStepBlock
-                  question={lastMessage.content}
+                  question={lastMessage.content || "Чем могу помочь?"}
                   options={currentStepOptions}
                   onSelectOption={handleAnswer}
                   onCustomAnswer={handleAnswer}
                   disabled={isGenerating}
                   inputPlaceholder="Или напишите свой вариант…"
+                  hideQuestion
                 />
               </div>
             </div>
           )}
-          {isGenerating && <TypingIndicator />}
+          {isGenerating &&
+            (streamingMessage ? (
+              <StreamingMessage
+                content={streamingMessage}
+                quickReplies={currentStepOptions}
+                onSelectOption={handleAnswer}
+              />
+            ) : (
+              <TypingIndicator />
+            ))}
         </div>
       </ScrollArea>
     </Card>

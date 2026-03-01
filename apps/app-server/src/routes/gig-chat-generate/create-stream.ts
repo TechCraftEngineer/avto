@@ -122,43 +122,37 @@ export function createGigStream(params: CreateGigStreamParams): ReadableStream {
   const encoder = new TextEncoder();
   let fullText = "";
   let lastSentResponse: GigAIResponse | null = null;
-  let chunkCounter = 0;
 
   return new ReadableStream({
     async start(controller) {
       try {
         for await (const chunk of result.textStream) {
           fullText += chunk;
-          chunkCounter++;
 
-          if (chunkCounter % 3 === 0) {
-            const { response: partialResponse } = parseGigAIResponse(
-              fullText,
-              currentDocument,
+          const { response: partialResponse } = parseGigAIResponse(
+            fullText,
+            currentDocument,
+          );
+
+          const responseString = JSON.stringify(partialResponse);
+          const lastResponseString = JSON.stringify(lastSentResponse);
+
+          if (responseString !== lastResponseString) {
+            lastSentResponse = partialResponse;
+            const sanitizedDoc = sanitizeGigDocument(partialResponse.document);
+            const sanitizedMsg = filterAIContent(
+              partialResponse.message,
+              GIG_CHAT_MESSAGE_MAX_LENGTH,
             );
-
-            const responseString = JSON.stringify(partialResponse);
-            const lastResponseString = JSON.stringify(lastSentResponse);
-
-            if (responseString !== lastResponseString) {
-              lastSentResponse = partialResponse;
-              const sanitizedDoc = sanitizeGigDocument(
-                partialResponse.document,
-              );
-              const sanitizedMsg = filterAIContent(
-                partialResponse.message,
-                GIG_CHAT_MESSAGE_MAX_LENGTH,
-              );
-              controller.enqueue(
-                encoder.encode(
-                  `data: ${JSON.stringify({
-                    document: sanitizedDoc,
-                    message: sanitizedMsg,
-                    partial: true,
-                  })}\n\n`,
-                ),
-              );
-            }
+            controller.enqueue(
+              encoder.encode(
+                `data: ${JSON.stringify({
+                  document: sanitizedDoc,
+                  message: sanitizedMsg,
+                  partial: true,
+                })}\n\n`,
+              ),
+            );
           }
         }
 

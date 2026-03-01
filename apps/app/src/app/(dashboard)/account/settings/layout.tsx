@@ -1,5 +1,6 @@
 "use client";
 
+import { paths } from "@qbs-autonaim/config";
 import { Tabs, TabsList, TabsTrigger } from "@qbs-autonaim/ui/components/tabs";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
@@ -19,9 +20,9 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
 
   const handleTabChange = (value: string) => {
     if (value === "general") {
-      router.push("/account/settings");
+      router.push(paths.account.settings);
     } else {
-      router.push(`/account/settings/${value}`);
+      router.push(paths.account.settingsSection(value));
     }
   };
 

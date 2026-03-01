@@ -30,6 +30,8 @@ export default function CreateGigPage({ params }: PageProps) {
     handleCreate,
     onSubmit,
     syncForm,
+    streamingMessage,
+    streamingQuickReplies,
   } = useCreateGig({ orgSlug, workspaceSlug });
 
   return (
@@ -48,10 +50,12 @@ export default function CreateGigPage({ params }: PageProps) {
         </Link>
       </PageHeader>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
         <GigConversationChat
           messages={chatMessages}
           isGenerating={isGenerating}
+          streamingMessage={streamingMessage}
+          streamingQuickReplies={streamingQuickReplies}
           onSendMessage={handleSendMessage}
           onReset={handleReset}
         />

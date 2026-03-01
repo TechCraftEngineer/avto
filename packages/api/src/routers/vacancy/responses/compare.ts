@@ -5,7 +5,6 @@ import {
   response as responseTable,
   vacancy as vacancyTable,
 } from "@qbs-autonaim/db/schema";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import {
   protectedProcedure,

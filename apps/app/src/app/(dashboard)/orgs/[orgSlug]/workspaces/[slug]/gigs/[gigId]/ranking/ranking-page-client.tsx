@@ -1,5 +1,6 @@
 "use client";
 
+import { paths } from "@qbs-autonaim/config";
 import {
   Alert,
   AlertDescription,
@@ -134,9 +135,7 @@ export function RankingPageClient({
   };
 
   const handleMessage = (responseId: string) => {
-    router.push(
-      `/orgs/${orgSlug}/workspaces/${workspaceSlug}/chat/${responseId}`,
-    );
+    router.push(paths.workspace.chat(orgSlug, workspaceSlug, responseId));
   };
 
   const candidates = rankingData?.candidates ?? [];
@@ -150,9 +149,7 @@ export function RankingPageClient({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <Link
-              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gigId}`}
-            >
+            <Link href={paths.workspace.gigs(orgSlug, workspaceSlug, gigId)}>
               <Button variant="ghost" size="sm" className="gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 Назад к заданию

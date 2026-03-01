@@ -33,7 +33,7 @@ export default async function InvitePage({
               Ссылка приглашения недействительна или истекла
             </p>
             <Button asChild className="w-full">
-              <Link href="/">На главную</Link>
+              <Link href={paths.dashboard.root}>На главную</Link>
             </Button>
           </div>
         </div>
@@ -51,7 +51,7 @@ export default async function InvitePage({
               администратора рабочего пространства.
             </p>
             <Button asChild className="w-full">
-              <Link href="/">На главную</Link>
+              <Link href={paths.dashboard.root}>На главную</Link>
             </Button>
           </div>
         </div>
@@ -104,12 +104,14 @@ export default async function InvitePage({
 
             <div className="space-y-3">
               <Button asChild variant="outline" className="w-full">
-                <Link href="/auth/signout?redirect=/auth/signin">
+                <Link
+                  href={`${paths.auth.signout}?redirect=${paths.auth.signin}`}
+                >
                   Войти другим аккаунтом
                 </Link>
               </Button>
               <Button asChild variant="ghost" className="w-full">
-                <Link href="/">На главную</Link>
+                <Link href={paths.dashboard.root}>На главную</Link>
               </Button>
             </div>
           </div>
@@ -159,12 +161,14 @@ export default async function InvitePage({
 
               <div className="space-y-3">
                 <Button asChild variant="outline" className="w-full">
-                  <Link href="/auth/signout?redirect=/auth/signin">
+                  <Link
+                    href={`${paths.auth.signout}?redirect=${paths.auth.signin}`}
+                  >
                     Войти другим аккаунтом
                   </Link>
                 </Button>
                 <Button asChild variant="ghost" className="w-full">
-                  <Link href="/">На главную</Link>
+                  <Link href={paths.dashboard.root}>На главную</Link>
                 </Button>
               </div>
             </div>
@@ -184,7 +188,7 @@ export default async function InvitePage({
             Не удалось загрузить информацию о приглашении
           </p>
           <Button asChild className="w-full">
-            <Link href="/">На главную</Link>
+            <Link href={paths.dashboard.root}>На главную</Link>
           </Button>
         </div>
       </div>

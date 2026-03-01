@@ -29,7 +29,6 @@ export const updateStages = protectedProcedure
       input.workspaceId,
       context.session.user.id,
     );
-
     if (!access) {
       throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
@@ -53,27 +52,57 @@ export const updateStages = protectedProcedure
       );
       const toDelete = existingStages.filter((s) => !inputIds.has(s.id));
 
-      // Check if stages to delete have responses
-      for (const stage of toDelete) {
-        const countResult = await tx
-          .select({ count: sql<number>`count(*)` })
+      // Check if stages to delete have responses (batch query)
+      if (toDelete.length > 0) {
+        const counts = await tx
+          .select({
+            pipelineStageId: responseTable.pipelineStageId,
+            count: sql<number>`count(*)::int`,
+          })
           .from(responseTable)
-          .where(eq(responseTable.pipelineStageId, stage.id));
+          .where(
+            inArray(
+              responseTable.pipelineStageId,
+              toDelete.map((s) => s.id).filter((id): id is string => !!id),
+            ),
+          )
+          .groupBy(responseTable.pipelineStageId);
 
-        const count = Number(countResult[0]?.count ?? 0);
-        if (count > 0) {
-          throw new ORPCError("BAD_REQUEST", {
-            message: `Этап содержит ${count} откликов. Переместите их перед удалением.`,
-          });
+        const countByStage = new Map<string, number>(
+          counts.map(
+            (row: { pipelineStageId: string | null; count: unknown }) => [
+              row.pipelineStageId ?? "",
+              Number(row.count) || 0,
+            ],
+          ),
+        );
+        for (const stage of toDelete) {
+          const count = countByStage.get(stage.id) ?? 0;
+          if (count > 0) {
+            throw new ORPCError("BAD_REQUEST", {
+              message: `Этап содержит ${count} откликов. Переместите их перед удалением.`,
+            });
+          }
         }
       }
 
-      // Delete removed stages
+      const ownershipWhere = and(
+        eq(pipelineStage.workspaceId, input.workspaceId),
+        eq(pipelineStage.entityType, input.entityType),
+        entityId === null
+          ? isNull(pipelineStage.entityId)
+          : eq(pipelineStage.entityId, entityId),
+      );
+
+      // Delete removed stages (with ownership check)
       if (toDelete.length > 0) {
         await tx.delete(pipelineStage).where(
-          inArray(
-            pipelineStage.id,
-            toDelete.map((s) => s.id),
+          and(
+            ownershipWhere,
+            inArray(
+              pipelineStage.id,
+              toDelete.map((s) => s.id),
+            ),
           ),
         );
       }
@@ -90,7 +119,7 @@ export const updateStages = protectedProcedure
               color: s.color ?? null,
               updatedAt: new Date(),
             })
-            .where(eq(pipelineStage.id, s.id));
+            .where(and(eq(pipelineStage.id, s.id), ownershipWhere));
         } else {
           await tx.insert(pipelineStage).values({
             workspaceId: input.workspaceId,

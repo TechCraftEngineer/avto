@@ -98,7 +98,7 @@ function responsesToColumns(
   for (const s of stages) {
     if (s.legacyKey) legacyToStageId.set(s.legacyKey, s.id);
   }
-  const firstStageId = stages[0]!.id;
+  const firstStageId = stages[0]?.id ?? "";
   const columns: Record<string, ResponseItem[]> = {};
   for (const s of stages) {
     columns[s.id] = [];
@@ -114,7 +114,8 @@ function responsesToColumns(
       );
       stageId = legacyToStageId.get(legacyKey) ?? firstStageId;
     }
-    columns[stageId]!.push(r);
+    const col = columns[stageId];
+    if (col) col.push(r);
   }
   return columns;
 }
@@ -548,7 +549,7 @@ export function ResponsesKanban({
   const handleCardClick = useCallback(
     (response: ResponseItem) => {
       router.push(
-        `/orgs/${orgSlug}/workspaces/${workspaceSlug}/responses/${response.id}`,
+        paths.workspace.responses(orgSlug, workspaceSlug, response.id),
       );
     },
     [router, orgSlug, workspaceSlug],
@@ -562,14 +563,12 @@ export function ResponsesKanban({
       overContainer: string;
     }) => {
       const { activeContainer, overContainer, event: dndEvent } = event;
+      const pipelineStageId = String(overContainer);
       const activeId = String(dndEvent.active.id);
-      // После оптимистичного обновления элемент уже в overContainer
       const item =
-        columns[overContainer]?.find((r) => r.id === activeId) ??
+        columns[pipelineStageId]?.find((r) => r.id === activeId) ??
         columns[activeContainer]?.[event.activeIndex];
       if (!item || activeContainer === overContainer) return;
-
-      const pipelineStageId = overContainer;
 
       moveResponse({
         responseId: item.id,
@@ -579,7 +578,10 @@ export function ResponsesKanban({
     [columns, moveResponse],
   );
 
-  const settingsPipelineHref = `${paths.workspace.root(orgSlug, workspaceSlug)}/settings/pipeline`;
+  const settingsPipelineHref = paths.workspace.settings.pipeline(
+    orgSlug,
+    workspaceSlug,
+  );
 
   if (!mounted || stagesLoading || stagesSorted.length === 0) {
     return (

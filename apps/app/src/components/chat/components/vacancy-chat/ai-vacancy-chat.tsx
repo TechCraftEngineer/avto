@@ -1,5 +1,6 @@
 "use client";
 
+import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import {
   Dialog,
@@ -241,7 +242,7 @@ export function AIVacancyChat({
           description: "Вакансия успешно сохранена",
         });
         router.push(
-          `/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/${vacancy.id}`,
+          paths.workspace.vacancies(orgSlug, workspaceSlug, vacancy.id),
         );
       },
       onError: (err) => {

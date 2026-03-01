@@ -30,7 +30,7 @@ export function GigsStats({ stats, isLoading, onCardClick }: GigsStatsProps) {
       : {};
 
   return (
-    <div className="grid gap-4 px-4 sm:grid-cols-2 lg:grid-cols-5 lg:px-6">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
       <Card
         size="sm"
         className={

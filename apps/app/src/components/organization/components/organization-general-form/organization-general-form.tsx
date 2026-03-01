@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import {
   Card,
@@ -82,7 +83,7 @@ export function OrganizationGeneralForm({
           queryKey: orpc.organization.list.queryKey({ input: {} }),
         });
         if (variables.data.slug && variables.data.slug !== initialSlug) {
-          router.push(`/orgs/${variables.data.slug}/settings`);
+          router.push(paths.organization.settings.root(variables.data.slug));
         }
       },
       onError: (err) => {
@@ -99,7 +100,7 @@ export function OrganizationGeneralForm({
     orpc.organization.delete.mutationOptions({
       onSuccess: async () => {
         toast.success("Организация успешно удалена");
-        router.push("/");
+        router.push(paths.dashboard.root);
       },
       onError: (err) => {
         const message =

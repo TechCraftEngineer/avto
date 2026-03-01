@@ -45,6 +45,43 @@ const VACANCY_DEFAULTS = [
   { label: "Отказ", position: 6, color: "bg-rose-500", legacyKey: "REJECTED" },
 ] as const;
 
+const PROJECT_DEFAULTS = [
+  { label: "Контакт", position: 0, color: "bg-blue-500", legacyKey: null },
+  { label: "HR интервью", position: 1, color: "bg-cyan-500", legacyKey: null },
+  {
+    label: "Резюме у заказчика",
+    position: 2,
+    color: "bg-indigo-500",
+    legacyKey: null,
+  },
+  {
+    label: "Интервью с заказчиком",
+    position: 3,
+    color: "bg-violet-500",
+    legacyKey: null,
+  },
+  {
+    label: "Тестовое задание",
+    position: 4,
+    color: "bg-amber-500",
+    legacyKey: null,
+  },
+  { label: "Оффер", position: 5, color: "bg-emerald-500", legacyKey: null },
+  {
+    label: "Вышел на работу",
+    position: 6,
+    color: "bg-green-500",
+    legacyKey: null,
+  },
+  {
+    label: "Отказ от оффера",
+    position: 7,
+    color: "bg-rose-500",
+    legacyKey: null,
+  },
+  { label: "Резерв", position: 8, color: "bg-slate-500", legacyKey: null },
+] as const;
+
 const GIG_DEFAULTS = [
   { label: "Контакт", position: 0, color: "bg-blue-500", legacyKey: null },
   { label: "HR интервью", position: 1, color: "bg-cyan-500", legacyKey: null },
@@ -97,7 +134,6 @@ export const getStages = protectedProcedure
       input.workspaceId,
       context.session.user.id,
     );
-
     if (!access) {
       throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
@@ -142,32 +178,54 @@ export const getStages = protectedProcedure
       },
     });
 
-    // 3. Lazy init: if no default stages, create and return
+    // 3. Lazy init: if no default stages, create in transaction to avoid races
     if (defaultStages.length === 0) {
       const defaults =
-        input.entityType === "vacancy" ? VACANCY_DEFAULTS : GIG_DEFAULTS;
+        input.entityType === "vacancy"
+          ? VACANCY_DEFAULTS
+          : input.entityType === "project"
+            ? PROJECT_DEFAULTS
+            : GIG_DEFAULTS;
 
-      const inserted = await context.db
-        .insert(pipelineStage)
-        .values(
-          defaults.map((d) => ({
-            workspaceId: input.workspaceId,
-            entityType: input.entityType,
-            entityId: null,
-            label: d.label,
-            position: d.position,
-            color: d.color,
-            legacyKey: d.legacyKey,
-          })),
-        )
-        .returning({
-          id: pipelineStage.id,
-          label: pipelineStage.label,
-          position: pipelineStage.position,
-          color: pipelineStage.color,
-          legacyKey: pipelineStage.legacyKey,
+      const inserted = await context.db.transaction(async (tx) => {
+        const recheck = await tx.query.pipelineStage.findMany({
+          where: and(
+            eq(pipelineStage.workspaceId, input.workspaceId),
+            eq(pipelineStage.entityType, input.entityType),
+            isNull(pipelineStage.entityId),
+          ),
+          orderBy: [asc(pipelineStage.position)],
+          columns: {
+            id: true,
+            label: true,
+            position: true,
+            color: true,
+            legacyKey: true,
+          },
         });
-
+        if (recheck.length > 0) return recheck;
+        const rows = await tx
+          .insert(pipelineStage)
+          .values(
+            defaults.map((d) => ({
+              workspaceId: input.workspaceId,
+              entityType: input.entityType,
+              entityId: null,
+              label: d.label,
+              position: d.position,
+              color: d.color,
+              legacyKey: d.legacyKey,
+            })),
+          )
+          .returning({
+            id: pipelineStage.id,
+            label: pipelineStage.label,
+            position: pipelineStage.position,
+            color: pipelineStage.color,
+            legacyKey: pipelineStage.legacyKey,
+          });
+        return rows;
+      });
       return { stages: inserted };
     }
 
