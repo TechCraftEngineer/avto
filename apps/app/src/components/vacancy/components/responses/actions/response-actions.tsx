@@ -229,7 +229,7 @@ export function ResponseActions({
         {!welcomeSentAt && importSource === "HH" && (
           <DropdownMenuItem onClick={() => setWelcomeModalOpen(true)}>
             <Send className="h-4 w-4 mr-2" />
-            Сгенерировать приветствие для HH.ru
+            Сгенерировать приветствие для HH.ru…
           </DropdownMenuItem>
         )}
 
@@ -282,13 +282,16 @@ export function ResponseActions({
 
         {/* Группа 3: Резюме */}
         {resumeUrl && (
-          <DropdownMenuItem
-            onClick={() =>
-              window.open(resumeUrl, "_blank", "noopener,noreferrer")
-            }
-          >
-            <ExternalLink className="h-4 w-4 mr-2" />
-            Открыть резюме на HH.ru
+          <DropdownMenuItem asChild>
+            <a
+              href={resumeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="cursor-pointer"
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Открыть резюме на HH.ru
+            </a>
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>

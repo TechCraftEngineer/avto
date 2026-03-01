@@ -5,26 +5,17 @@ import {
   vacancy as vacancyTable,
 } from "@qbs-autonaim/db/schema";
 import { generateWelcomeMessage } from "@qbs-autonaim/jobs/services/messaging";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
-import { protectedProcedure } from "../../../orpc";
-import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
+import { workspaceInputSchema, workspaceProcedure } from "../../../orpc";
 
-export const generateWelcomeMessageProcedure = protectedProcedure
-  .input(
-    z.object({
-      responseId: z.string(),
-      workspaceId: workspaceIdSchema,
-    }),
-  )
+const generateWelcomeMessageInputSchema = workspaceInputSchema.merge(
+  z.object({ responseId: z.string().uuid() }),
+);
+
+export const generateWelcomeMessageProcedure = workspaceProcedure
+  .input(generateWelcomeMessageInputSchema)
   .handler(async ({ context, input }) => {
     const { responseId, workspaceId } = input;
-
-    await verifyWorkspaceAccess(
-      context.workspaceRepository,
-      workspaceId,
-      context.session.user.id,
-    );
 
     const response = await context.db.query.response.findFirst({
       where: and(
@@ -55,10 +46,29 @@ export const generateWelcomeMessageProcedure = protectedProcedure
     const result = await generateWelcomeMessage(responseId, "hh");
 
     if (!result.success) {
+      console.error("[generateWelcomeMessage] AI service error:", result.error);
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: result.error || "Не удалось сгенерировать приветствие",
+        message: "Не удалось сгенерировать приветствие. Попробуйте позже.",
       });
     }
 
-    return { message: result.data };
+    const rawMessage = result.data;
+    const MAX_WELCOME_LENGTH = 5000;
+    const trimmed = typeof rawMessage === "string" ? rawMessage.trim() : "";
+
+    if (!trimmed) {
+      console.error(
+        "[generateWelcomeMessage] AI returned empty or invalid message",
+      );
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось сгенерировать приветствие. Попробуйте позже.",
+      });
+    }
+
+    const safeMessage =
+      trimmed.length > MAX_WELCOME_LENGTH
+        ? `${trimmed.slice(0, MAX_WELCOME_LENGTH)}...`
+        : trimmed;
+
+    return { message: safeMessage };
   });
