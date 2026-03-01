@@ -6,14 +6,19 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { generateWelcomeMessage } from "@qbs-autonaim/jobs/services/messaging";
 import { z } from "zod";
-import { workspaceInputSchema, workspaceProcedure } from "../../../orpc";
+import {
+  protectedProcedure,
+  workspaceAccessMiddleware,
+  workspaceInputSchema,
+} from "../../../orpc";
 
 const generateWelcomeMessageInputSchema = workspaceInputSchema.merge(
   z.object({ responseId: z.string().uuid() }),
 );
 
-export const generateWelcomeMessageProcedure = workspaceProcedure
+export const generateWelcomeMessageProcedure = protectedProcedure
   .input(generateWelcomeMessageInputSchema)
+  .use(workspaceAccessMiddleware)
   .handler(async ({ context, input }) => {
     const { responseId, workspaceId } = input;
 
