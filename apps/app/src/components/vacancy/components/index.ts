@@ -11,3 +11,4 @@ export { VacancySettingsForm } from "./editor/vacancy-settings-form";
 export { VacancyIntegrationManager } from "./integrations/vacancy-integration-manager";
 export { ResponseDetailCard } from "./response-detail";
 export { ResponseActions, ResponseTable } from "./responses";
+export { VacancyPipelineStagesSettings } from "./settings/vacancy-pipeline-stages-settings";

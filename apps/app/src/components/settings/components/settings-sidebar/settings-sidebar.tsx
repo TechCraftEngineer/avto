@@ -4,7 +4,6 @@ import { paths } from "@qbs-autonaim/config";
 import { cn } from "@qbs-autonaim/ui/utils";
 import {
   Bot,
-  Columns2,
   Globe,
   Globe2,
   MessageSquare,
@@ -45,11 +44,6 @@ const sidebarNavItems = [
     title: "Сценарии интервью",
     href: "/settings/interview-scenarios",
     icon: MessageSquare,
-  },
-  {
-    title: "Этапы канбана",
-    href: "/settings/pipeline",
-    icon: Columns2,
   },
 ];
 
