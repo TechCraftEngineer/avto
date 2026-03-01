@@ -339,9 +339,9 @@ function ResponseKanbanItem({
   );
 
   return (
-    <KanbanItem value={response.id} className="w-full min-w-0">
+    <KanbanItem value={response.id} className="w-full min-w-0 max-w-full">
       {asHandle && !isOverlay ? (
-        <KanbanItemHandle className="w-full min-w-0">
+        <KanbanItemHandle className="w-full min-w-0 max-w-full">
           {cardContent}
         </KanbanItemHandle>
       ) : (
@@ -401,7 +401,7 @@ function ResponseKanbanColumn({
         <KanbanColumnContent
           value={value}
           className={cn(
-            "flex min-h-[420px] min-w-0 flex-1 flex-col gap-3 overflow-y-auto overflow-x-hidden rounded-lg p-3 transition-colors",
+            "flex min-h-[420px] w-full min-w-0 max-w-full flex-1 flex-col gap-3 overflow-y-auto overflow-x-hidden rounded-lg p-3 transition-colors",
             "border border-border/60 bg-muted/20",
           )}
         >

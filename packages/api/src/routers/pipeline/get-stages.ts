@@ -170,9 +170,8 @@ export const getStages = protectedProcedure
           },
         });
         if (recheck.length > 0) return recheck;
-        await tx
-          .insert(pipelineStage)
-          .values(
+        try {
+          await tx.insert(pipelineStage).values(
             defaults.map((d) => ({
               workspaceId: input.workspaceId,
               entityType: input.entityType,
@@ -182,15 +181,29 @@ export const getStages = protectedProcedure
               color: d.color,
               legacyKey: d.legacyKey,
             })),
-          )
-          .onConflictDoNothing({
-            target: [
-              pipelineStage.workspaceId,
-              pipelineStage.entityType,
-              pipelineStage.position,
-            ],
-            where: isNull(pipelineStage.entityId), // частичный уникальный индекс
-          });
+          );
+        } catch (err: unknown) {
+          const code = (err as { code?: string })?.code;
+          if (code === "23505") {
+            const rows = await tx.query.pipelineStage.findMany({
+              where: and(
+                eq(pipelineStage.workspaceId, input.workspaceId),
+                eq(pipelineStage.entityType, input.entityType),
+                isNull(pipelineStage.entityId),
+              ),
+              orderBy: [asc(pipelineStage.position)],
+              columns: {
+                id: true,
+                label: true,
+                position: true,
+                color: true,
+                legacyKey: true,
+              },
+            });
+            return rows;
+          }
+          throw err;
+        }
         const rows = await tx.query.pipelineStage.findMany({
           where: and(
             eq(pipelineStage.workspaceId, input.workspaceId),

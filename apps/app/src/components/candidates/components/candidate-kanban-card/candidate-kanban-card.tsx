@@ -29,7 +29,7 @@ export function CandidateKanbanCard({
   return (
     <div
       className={cn(
-        "bg-card border border-border rounded-lg shadow-sm flex flex-col group relative",
+        "w-full min-w-0 max-w-full bg-card border border-border rounded-lg shadow-sm flex flex-col group relative overflow-hidden",
         // Отключаем transition при перетаскивании для предотвращения конфликта с dnd-kit
         isDragging
           ? "transition-none shadow-lg scale-105"

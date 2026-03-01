@@ -68,7 +68,7 @@ export function ResponseKanbanCard({
   return (
     <div
       className={cn(
-        "w-full min-w-0 flex flex-col group relative rounded-lg border border-border bg-card shadow-sm",
+        "w-full min-w-0 max-w-full flex flex-col group relative rounded-lg border border-border bg-card shadow-sm overflow-hidden",
         getBorderColor(),
         // Отключаем transition при перетаскивании для предотвращения конфликта с dnd-kit
         isDragging
