@@ -1,10 +1,12 @@
 "use client";
 
 import { calculateAge } from "@qbs-autonaim/lib/utils";
+import { pluralize } from "@qbs-autonaim/shared";
 import { CandidateAvatar } from "@qbs-autonaim/ui/components/candidate-avatar";
 import { Badge } from "@qbs-autonaim/ui/components/reui/badge";
 import { cn } from "@qbs-autonaim/ui/utils";
 import {
+  IconMapPin,
   IconMessageCircle,
   IconSend,
   IconStar,
@@ -68,7 +70,7 @@ export function ResponseKanbanCard({
   return (
     <div
       className={cn(
-        "w-full min-w-0 max-w-full flex flex-col group relative rounded-lg border border-border bg-card shadow-sm overflow-hidden",
+        "w-[312px] shrink-0 flex flex-col group relative rounded-lg border border-border bg-card shadow-sm overflow-hidden",
         getBorderColor(),
         // Отключаем transition при перетаскивании для предотвращения конфликта с dnd-kit
         isDragging
@@ -121,18 +123,20 @@ export function ResponseKanbanCard({
                 {vacancyTitle}
               </p>
             )}
-            {age !== null && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <IconUser className="size-3 shrink-0" />
-                <span className="truncate">
-                  {age}{" "}
-                  {age % 10 === 1 && age % 100 !== 11
-                    ? "год"
-                    : [2, 3, 4].includes(age % 10) &&
-                        ![12, 13, 14].includes(age % 100)
-                      ? "года"
-                      : "лет"}
-                </span>
+            {(age !== null || response.location) && (
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                {age !== null && (
+                  <span className="flex items-center gap-1.5 truncate">
+                    <IconUser className="size-3 shrink-0" />
+                    {age} {pluralize(age, "год", "года", "лет")}
+                  </span>
+                )}
+                {response.location && (
+                  <span className="flex items-center gap-1.5 truncate">
+                    <IconMapPin className="size-3 shrink-0" />
+                    {response.location}
+                  </span>
+                )}
               </div>
             )}
             <div className="flex flex-wrap gap-1.5 mt-0.5">

@@ -27,11 +27,12 @@ export interface RawResponseBase {
   respondedAt: Date | null;
   welcomeSentAt: Date | null;
   createdAt: Date;
+  importSource: ImportSource | null;
+  profileData?: unknown;
 }
 
 /** Расширенный сырой отклик (используется в list) */
 export interface RawResponse extends RawResponseBase {
-  birthDate: Date | null;
   globalCandidateId: string | null;
   profileData: StoredProfileData | null;
   email: string | null;
@@ -39,5 +40,4 @@ export interface RawResponse extends RawResponseBase {
   salaryExpectationsComment: string | null;
   skills: string[] | null;
   rating: string | null;
-  importSource: ImportSource | null;
 }

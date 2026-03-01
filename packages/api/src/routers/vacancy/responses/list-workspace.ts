@@ -155,6 +155,8 @@ export const listWorkspace = protectedProcedure
               respondedAt: responseTable.respondedAt,
               welcomeSentAt: responseTable.welcomeSentAt,
               createdAt: responseTable.createdAt,
+              importSource: responseTable.importSource,
+              profileData: responseTable.profileData,
             })
             .from(responseTable)
             .leftJoin(
@@ -188,6 +190,8 @@ export const listWorkspace = protectedProcedure
             respondedAt: true,
             welcomeSentAt: true,
             createdAt: true,
+            importSource: true,
+            profileData: true,
           },
         })) as RawResponseBase[];
       })(),

@@ -339,9 +339,9 @@ function ResponseKanbanItem({
   );
 
   return (
-    <KanbanItem value={response.id} className="w-full min-w-0 max-w-full">
+    <KanbanItem value={response.id} className="w-[312px] shrink-0">
       {asHandle && !isOverlay ? (
-        <KanbanItemHandle className="w-full min-w-0 max-w-full">
+        <KanbanItemHandle className="w-[312px] shrink-0">
           {cardContent}
         </KanbanItemHandle>
       ) : (
