@@ -15,6 +15,7 @@ export {
   ShortlistLoading,
   ShortlistStats,
 } from "../gigs";
+export * from "./components/create";
 export { useGigsFilters } from "./components/filters/use-gigs-filters";
 export {
   ConfirmDialog,

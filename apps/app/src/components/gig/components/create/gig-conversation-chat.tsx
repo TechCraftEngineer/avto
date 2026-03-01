@@ -79,7 +79,7 @@ export function GigConversationChat({
       });
     }, 150);
     return () => window.clearTimeout(id);
-  }, [messages.length, isGenerating, streamingMessage]);
+  }, []);
 
   const stepNumber = allMessages.filter((m) => m.role === "assistant").length;
 
@@ -140,6 +140,7 @@ export function GigConversationChat({
             </div>
           )}
           {isGenerating &&
+            !isLastAssistant &&
             (streamingMessage ? (
               <StreamingMessage
                 content={streamingMessage}
