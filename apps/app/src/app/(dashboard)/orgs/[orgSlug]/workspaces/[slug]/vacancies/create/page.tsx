@@ -69,7 +69,7 @@ export default function CreateVacancyPage() {
 
   const handleManualSuccess = () => {
     toast.success("Вакансия успешно создана");
-    router.push(paths.workspace.vacancies(orgSlug, workspaceSlug));
+    router.push(paths.workspace.vacancies(orgSlug ?? "", workspaceSlug ?? ""));
   };
 
   if (!workspace) {
@@ -86,7 +86,10 @@ export default function CreateVacancyPage() {
         >
           <Button variant="outline" asChild>
             <Link
-              href={paths.workspace.vacancies(orgSlug, workspaceSlug)}
+              href={paths.workspace.vacancies(
+                orgSlug ?? "",
+                workspaceSlug ?? "",
+              )}
               aria-label="Вернуться к списку вакансий"
             >
               <IconArrowLeft className="size-4" aria-hidden="true" />
@@ -181,7 +184,10 @@ export default function CreateVacancyPage() {
               </Button>
               <Button variant="outline" size="sm" asChild>
                 <Link
-                  href={paths.workspace.vacancies(orgSlug, workspaceSlug)}
+                  href={paths.workspace.vacancies(
+                    orgSlug ?? "",
+                    workspaceSlug ?? "",
+                  )}
                   aria-label="Вернуться к списку вакансий"
                 >
                   <IconArrowLeft className="size-4" aria-hidden="true" />
@@ -216,7 +222,10 @@ export default function CreateVacancyPage() {
           </Button>
           <Button variant="outline" asChild>
             <Link
-              href={paths.workspace.vacancies(orgSlug, workspaceSlug)}
+              href={paths.workspace.vacancies(
+                orgSlug ?? "",
+                workspaceSlug ?? "",
+              )}
               aria-label="Вернуться к списку вакансий"
             >
               <IconArrowLeft className="size-4" aria-hidden="true" />

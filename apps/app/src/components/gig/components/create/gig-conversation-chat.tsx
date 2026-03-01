@@ -67,6 +67,7 @@ export function GigConversationChat({
     [isGenerating, onSendMessage],
   );
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deps trigger re-scroll when messages update
   React.useEffect(() => {
     const el = scrollRef.current?.querySelector(
       "[data-radix-scroll-area-viewport]",
@@ -79,7 +80,7 @@ export function GigConversationChat({
       });
     }, 150);
     return () => window.clearTimeout(id);
-  }, []);
+  }, [messages.length, isGenerating, streamingMessage]);
 
   const stepNumber = allMessages.filter((m) => m.role === "assistant").length;
 
@@ -120,7 +121,11 @@ export function GigConversationChat({
               key={msg.id}
               message={msg}
               isDisabled={msg !== lastMessage}
-              onQuickReply={msg === lastMessage ? handleAnswer : undefined}
+              onQuickReply={
+                msg === lastMessage && !(isLastAssistant && !isGenerating)
+                  ? handleAnswer
+                  : undefined
+              }
             />
           ))}
           {isLastAssistant && !isGenerating && (

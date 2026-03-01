@@ -35,13 +35,13 @@ export function DashboardStats() {
   if (isLoading || !stats) {
     const skeletonKeys = ["new", "pending", "candidates", "vacancies"] as const;
     return (
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
         {skeletonKeys.map((key) => (
           <Card key={key}>
-            <CardHeader>
+            <CardHeader className="p-4 sm:p-6">
               <div className="flex items-center gap-2 mb-1">
-                <Skeleton className="size-4 rounded" />
-                <Skeleton className="h-4 w-24" />
+                <Skeleton className="size-4 shrink-0 rounded" />
+                <Skeleton className="h-4 min-w-0 flex-1 sm:w-24" />
               </div>
               <Skeleton className="h-9 w-16" />
             </CardHeader>
@@ -100,21 +100,23 @@ export function DashboardStats() {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
       {cards.map(({ icon: Icon, description, value, badge, footer }) => (
         <Card key={description} className="@container/card">
-          <CardHeader className="flex flex-row items-start justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <Icon className="size-4 text-muted-foreground" />
-                <CardDescription>{description}</CardDescription>
+          <CardHeader className="flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4 sm:p-6">
+            <div className="min-w-0 flex-1 space-y-1">
+              <div className="flex min-w-0 items-center gap-2">
+                <Icon className="size-4 shrink-0 text-muted-foreground" />
+                <CardDescription className="wrap-break-word">
+                  {description}
+                </CardDescription>
               </div>
-              <CardTitle className="text-2xl font-semibold tabular-nums">
+              <CardTitle className="text-xl font-semibold tabular-nums sm:text-2xl">
                 {value}
               </CardTitle>
               <p className="text-xs text-muted-foreground">{footer}</p>
             </div>
-            {badge}
+            <div className="shrink-0">{badge}</div>
           </CardHeader>
         </Card>
       ))}

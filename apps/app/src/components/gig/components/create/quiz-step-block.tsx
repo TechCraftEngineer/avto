@@ -61,8 +61,8 @@ export function QuizStepBlock({
             {options.map((option) => {
               const needsTooltip = option.length > TRUNCATE_THRESHOLD;
               const button = (
+                // biome-ignore lint/correctness/useJsxKeyInIterable: key is on Tooltip/Fragment wrapper
                 <button
-                  key={option}
                   type="button"
                   onClick={() => onSelectOption(option)}
                   disabled={disabled}
