@@ -13,6 +13,7 @@ import { useORPC } from "~/orpc/react";
 
 export type StageItem = {
   id?: string;
+  clientId?: string;
   label: string;
   position: number;
   color: string | null;
@@ -26,14 +27,14 @@ export function useVacancyPipelineStages(
   const queryClient = useQueryClient();
   const [localStages, setLocalStages] = useState<StageItem[] | null>(null);
 
-  const { data, isLoading, isError, error } = useQuery({
-    ...orpc.pipeline.getStages.queryOptions({
-      input: workspaceId
-        ? { workspaceId, entityType: "vacancy", entityId: vacancyId }
-        : skipToken,
+  const { data, isLoading, isError, error } = useQuery(
+    orpc.pipeline.getStages.queryOptions({
+      input:
+        workspaceId && vacancyId
+          ? { workspaceId, entityType: "vacancy", entityId: vacancyId }
+          : skipToken,
     }),
-    enabled: Boolean(workspaceId) && Boolean(vacancyId),
-  });
+  );
 
   const stages = localStages ?? data?.stages ?? [];
   const hasChanges =
@@ -125,6 +126,7 @@ export function useVacancyPipelineStages(
       return [
         ...base,
         {
+          clientId: crypto.randomUUID(),
           label: "Новый этап",
           position: base.length,
           color: "bg-slate-500",
@@ -153,7 +155,7 @@ export function useVacancyPipelineStages(
     (event: DragEndEvent) => {
       const { active, over } = event;
       if (!over || active.id === over.id) return;
-      const ids = stages.map((s) => s.id ?? `new-${stages.indexOf(s)}`);
+      const ids = stages.map((s) => s.id ?? s.clientId!);
       const oldIndex = ids.indexOf(String(active.id));
       const newIndex = ids.indexOf(String(over.id));
       if (oldIndex === -1 || newIndex === -1) return;

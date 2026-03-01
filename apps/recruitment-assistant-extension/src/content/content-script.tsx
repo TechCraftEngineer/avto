@@ -158,6 +158,23 @@ export class ContentScript {
     await importToGlobalOnly(payload);
   }
 
+  /**
+   * Fallback для имени, когда контакты и fullName недоступны (частый случай на HH).
+   * Пытается извлечь имя из страницы или возвращает "Кандидат".
+   */
+  private getFallbackCandidateName(): string {
+    if (typeof document === "undefined") return "Кандидат";
+    // HH: data-qa="resume-personal-name"
+    const hhName = document
+      .querySelector('[data-qa="resume-personal-name"]')
+      ?.textContent?.trim();
+    if (hhName) return hhName;
+    // Заголовок страницы: "Резюме: Иванов Иван — HeadHunter"
+    const titleMatch = document.title?.match(/Резюме:\s*(.+?)(?:\s*[-—]|$)/);
+    if (titleMatch?.[1]) return titleMatch[1].trim();
+    return "Кандидат";
+  }
+
   private prepareCandidatePayload(data: CandidateData): {
     platformSource: string;
     profileUrl: string | undefined;
@@ -204,11 +221,14 @@ export class ContentScript {
     try {
       const { platformSource, profileUrl, responseText } =
         this.prepareCandidatePayload(result.data);
+      const freelancerName =
+        result.data.basicInfo.fullName?.trim() ||
+        this.getFallbackCandidateName();
       await importToGlobalOnly({
         workspaceId: payload.workspaceId,
         candidateData: {
           platformSource,
-          freelancerName: result.data.basicInfo.fullName || undefined,
+          freelancerName: freelancerName || undefined,
           contactInfo: {
             email: result.data.contacts?.email || undefined,
             phone: result.data.contacts?.phone || undefined,
@@ -246,11 +266,13 @@ export class ContentScript {
     }
     const { platformSource, profileUrl, responseText } =
       this.prepareCandidatePayload(data);
+    const freelancerName =
+      data.basicInfo.fullName?.trim() || this.getFallbackCandidateName();
     await importToGlobalOnly({
       workspaceId: payload.workspaceId,
       candidateData: {
         platformSource,
-        freelancerName: data.basicInfo.fullName || undefined,
+        freelancerName: freelancerName || undefined,
         contactInfo: {
           email: data.contacts?.email || undefined,
           phone: data.contacts?.phone || undefined,
@@ -295,6 +317,16 @@ export class ContentScript {
           "Не удалось извлечь данные профиля. Попробуйте обновить страницу.",
       });
       return;
+    }
+    // Fallback для имени при отсутствии контактов (контакты часто скрыты на HH)
+    if (!data.basicInfo.fullName?.trim()) {
+      data = {
+        ...data,
+        basicInfo: {
+          ...data.basicInfo,
+          fullName: this.getFallbackCandidateName(),
+        },
+      };
     }
     try {
       await importCandidateData(data, {

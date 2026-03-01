@@ -42,7 +42,7 @@ export function SortableStageRow({
   onRemove,
   canRemove,
 }: SortableStageRowProps) {
-  const id = stage.id ?? `new-${index}`;
+  const id = stage.id ?? stage.clientId!;
   const {
     attributes,
     listeners,
@@ -65,7 +65,7 @@ export function SortableStageRow({
         "flex items-center gap-3 rounded-lg border bg-card px-3 py-2 transition-colors hover:bg-muted/50",
         isDragging && "opacity-90 shadow-md ring-2 ring-primary/20",
       )}
-      {...(isDragging ? { inert: true } : {})}
+      inert={isDragging || undefined}
     >
       <button
         type="button"
@@ -86,6 +86,7 @@ export function SortableStageRow({
         value={stage.label}
         onChange={(e) => onUpdate(index, { label: e.target.value })}
         placeholder="Название этапа"
+        aria-label="Название этапа"
         className="h-9 flex-1 border-0 bg-transparent shadow-none focus-visible:ring-0"
       />
       <Select

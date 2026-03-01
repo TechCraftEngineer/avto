@@ -21,7 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@qbs-autonaim/ui/components/card";
-import { AlertCircle, Plus } from "lucide-react";
+import { AlertCircle, Loader2, Plus } from "lucide-react";
 import { SortableStageRow } from "./stage-row";
 import { useVacancyPipelineStages } from "./use-vacancy-pipeline-stages";
 
@@ -55,7 +55,7 @@ export function VacancyPipelineStagesSettings({
     }),
   );
 
-  const sortableIds = stages.map((s, i) => s.id ?? `new-${i}`);
+  const sortableIds = stages.map((s) => s.id ?? s.clientId!);
 
   return (
     <Card>
@@ -92,7 +92,12 @@ export function VacancyPipelineStagesSettings({
         ) : (
           <>
             <div className="flex items-center justify-end gap-2">
-              <Button variant="outline" size="sm" onClick={handleAdd}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleAdd}
+                disabled={updateStage.isPending}
+              >
                 <Plus className="size-4" />
                 Добавить этап
               </Button>
@@ -102,7 +107,10 @@ export function VacancyPipelineStagesSettings({
                   onClick={handleSave}
                   disabled={updateStage.isPending || stages.length === 0}
                 >
-                  {updateStage.isPending ? "Сохранение…" : "Сохранить"}
+                  {updateStage.isPending && (
+                    <Loader2 className="size-4 animate-spin" />
+                  )}
+                  Сохранить
                 </Button>
               )}
             </div>
@@ -119,7 +127,7 @@ export function VacancyPipelineStagesSettings({
                 <div className="space-y-2">
                   {stages.map((stage, index) => (
                     <SortableStageRow
-                      key={stage.id ?? `new-${index}`}
+                      key={stage.id ?? stage.clientId!}
                       stage={stage}
                       index={index}
                       onUpdate={handleUpdate}
@@ -139,6 +147,7 @@ export function VacancyPipelineStagesSettings({
                   size="sm"
                   className="mt-3"
                   onClick={handleAdd}
+                  disabled={updateStage.isPending}
                 >
                   Добавить этап
                 </Button>

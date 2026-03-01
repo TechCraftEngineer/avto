@@ -45,7 +45,7 @@ export async function checkDuplicateCandidate(
     contactInfo: {
       email: data.contacts?.email || undefined,
       phone: data.contacts?.phone || undefined,
-      platformProfileUrl: profileUrl,
+      platformProfileUrl: profileUrl, // обязателен при скрытых контактах (HH)
     },
     organizationId: userData.organizationId,
   };
@@ -326,7 +326,7 @@ async function importToVacancy(
     contactInfo: {
       email: data.contacts?.email || undefined,
       phone: data.contacts?.phone || undefined,
-      platformProfileUrl: profileUrl,
+      platformProfileUrl: profileUrl, // обязателен при скрытых контактах (HH)
     },
     responseText: responseText || "Импортировано из расширения",
   };
