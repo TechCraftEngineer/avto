@@ -35,8 +35,22 @@ export type NavSection = {
   defaultOpen?: boolean;
 };
 
+function getActiveItemUrl(
+  pathname: string,
+  sections: NavSection[],
+): string | undefined {
+  const allItems = sections.flatMap((s) => s.items);
+  const matching = allItems
+    .filter(
+      (item) => pathname === item.url || pathname.startsWith(`${item.url}/`),
+    )
+    .sort((a, b) => b.url.length - a.url.length);
+  return matching[0]?.url;
+}
+
 export function NavCollapsible({ sections }: { sections: NavSection[] }) {
   const pathname = usePathname();
+  const activeItemUrl = getActiveItemUrl(pathname, sections);
 
   return (
     <>
@@ -44,7 +58,7 @@ export function NavCollapsible({ sections }: { sections: NavSection[] }) {
         <NavCollapsibleSection
           key={section.title}
           section={section}
-          pathname={pathname}
+          activeItemUrl={activeItemUrl}
         />
       ))}
     </>
@@ -53,15 +67,16 @@ export function NavCollapsible({ sections }: { sections: NavSection[] }) {
 
 function NavCollapsibleSection({
   section,
-  pathname,
+  activeItemUrl,
 }: {
   section: NavSection;
-  pathname: string;
+  activeItemUrl: string | undefined;
 }) {
-  const isItemActive = (itemUrl: string) =>
-    pathname === itemUrl || pathname.startsWith(`${itemUrl}/`);
+  const isItemActive = (itemUrl: string) => activeItemUrl === itemUrl;
 
-  const hasActiveItem = section.items.some((item) => isItemActive(item.url));
+  const hasActiveItem = section.items.some(
+    (item) => activeItemUrl === item.url,
+  );
   const [isOpen, setIsOpen] = useState(section.defaultOpen ?? hasActiveItem);
 
   return (

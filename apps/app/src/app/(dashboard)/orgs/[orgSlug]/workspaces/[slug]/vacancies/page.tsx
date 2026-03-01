@@ -133,40 +133,39 @@ export default function VacanciesPage() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <PageHeader
-        title="Вакансии"
-        description="Управление вашими вакансиями и откликами на фриланс-платформах"
-        tooltipContent={`Вы можете импортировать вакансии из HH, Avito и других площадок. Система будет автоматически отслеживать новые отклики и синхронизировать статусы.\n\n[Подробнее в документации](${env.NEXT_PUBLIC_DOCS_URL}/integrations/hh)`}
-      >
-        <div className="flex items-center gap-2">
-          <Button asChild className="h-9 gap-2 shadow-sm active:scale-95">
-            <Link
-              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/import`}
-              title="Импортировать вакансии с HH.ru, Avito и других платформ"
-            >
-              <IconDownload className="size-4" />
-              <span className="hidden sm:inline">Добавить с HH/Avito</span>
-              <span className="sm:hidden">Импорт</span>
-            </Link>
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            className="h-9 gap-2 shadow-sm active:scale-95"
-          >
-            <Link
-              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/create`}
-              title="Создать новую вакансию вручную"
-            >
-              <IconPlus className="size-4" />
-              <span className="hidden sm:inline">Создать вручную</span>
-              <span className="sm:hidden">Создать</span>
-            </Link>
-          </Button>
-        </div>
-      </PageHeader>
-
       <div className="@container/main mx-auto flex w-full max-w-[1600px] flex-1 flex-col gap-8 px-4 py-6 md:px-6">
+        <PageHeader
+          title="Вакансии"
+          description="Управление вашими вакансиями и откликами на фриланс-платформах"
+          tooltipContent={`Вы можете импортировать вакансии из HH, Avito и других площадок. Система будет автоматически отслеживать новые отклики и синхронизировать статусы.\n\n[Подробнее в документации](${env.NEXT_PUBLIC_DOCS_URL}/integrations/hh)`}
+        >
+          <div className="flex items-center gap-2">
+            <Button asChild className="h-9 gap-2 shadow-sm active:scale-95">
+              <Link
+                href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/import`}
+                title="Импортировать вакансии с HH.ru, Avito и других платформ"
+              >
+                <IconDownload className="size-4" />
+                <span className="hidden sm:inline">Добавить с HH/Avito</span>
+                <span className="sm:hidden">Импорт</span>
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="h-9 gap-2 shadow-sm active:scale-95"
+            >
+              <Link
+                href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/create`}
+                title="Создать новую вакансию вручную"
+              >
+                <IconPlus className="size-4" />
+                <span className="hidden sm:inline">Создать вручную</span>
+                <span className="sm:hidden">Создать</span>
+              </Link>
+            </Button>
+          </div>
+        </PageHeader>
         <VacancyStats
           totalVacancies={stats.totalVacancies}
           activeVacancies={stats.activeVacancies}
