@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Recruitment Assistant",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "description": "Расширение для автоматизации работы рекрутеров с профилями кандидатов на LinkedIn и HeadHunter",
   "icons": {
     "16": "icons/icon16.png",

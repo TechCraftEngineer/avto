@@ -134,7 +134,7 @@ export const updateStages = protectedProcedure
         const stageId = s.id;
         const shouldUpdate =
           !isInitialCreate && stageId && existingIds.has(stageId);
-        if (shouldUpdate && stageId) {
+        if (shouldUpdate) {
           await tx
             .update(pipelineStage)
             .set({

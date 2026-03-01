@@ -47,6 +47,11 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
     }
   };
 
+  const hasAnyContact =
+    (contacts.email && contacts.email.trim()) ||
+    (contacts.phone && contacts.phone.trim()) ||
+    socialLinks.length > 0;
+
   return (
     <div>
       <h3
@@ -59,6 +64,23 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
       >
         Контактная информация
       </h3>
+
+      {!hasAnyContact && (
+        <p
+          style={{
+            fontSize: "13px",
+            color: "#6b7280",
+            marginBottom: "12px",
+            padding: "8px 12px",
+            backgroundColor: "#f3f4f6",
+            borderRadius: "6px",
+          }}
+          role="status"
+        >
+          Контакты могут быть скрыты на странице резюме. Добавьте их вручную или
+          сохраните кандидата по ссылке на профиль.
+        </p>
+      )}
 
       <div style={{ marginBottom: "16px" }}>
         <label

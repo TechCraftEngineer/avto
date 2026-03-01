@@ -4,6 +4,48 @@
  */
 
 import { and, eq, or } from "drizzle-orm";
+
+/** Паттерны placeholder-строк от AI, когда контакт не найден в резюме */
+const AI_PLACEHOLDER_PATTERNS = [
+  /not_provided/i,
+  /not_extracted/i,
+  /missing_from_the_resume/i,
+  /check_the_actual_resume_document/i,
+];
+
+function isAiPlaceholder(value: string): boolean {
+  return AI_PLACEHOLDER_PATTERNS.some((p) => p.test(value));
+}
+
+function isValidEmail(value: string): boolean {
+  if (value.length > 255) return false;
+  const atIdx = value.indexOf("@");
+  return atIdx > 0 && atIdx < value.length - 1;
+}
+
+function truncate(
+  str: string | null | undefined,
+  maxLen: number,
+): string | null {
+  if (str == null || str === "") return null;
+  const trimmed = str.trim();
+  if (!trimmed) return null;
+  return trimmed.length > maxLen ? trimmed.slice(0, maxLen) : trimmed;
+}
+
+function sanitizeContactField(
+  value: string | null | undefined,
+  options: { maxLen: number; validateEmail?: boolean },
+): string | null {
+  if (value == null || value === "") return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (isAiPlaceholder(trimmed)) return null;
+  if (options.validateEmail && !isValidEmail(trimmed)) return null;
+  if (trimmed.length > options.maxLen) return trimmed.slice(0, options.maxLen);
+  return trimmed;
+}
+
 import type { DbClient } from "../index";
 import {
   type CandidateOrganization,
@@ -315,24 +357,52 @@ export class GlobalCandidateRepository {
   }
 
   /**
+   * Санитизирует данные кандидата перед вставкой/обновлением.
+   * Фильтрует AI placeholder, усекает строки до лимитов схемы.
+   */
+  private sanitizeCandidateData(
+    data: GlobalCandidateData,
+  ): GlobalCandidateData {
+    return {
+      ...data,
+      firstName: truncate(data.firstName, 100),
+      lastName: truncate(data.lastName, 100),
+      middleName: truncate(data.middleName, 100),
+      fullName: truncate(data.fullName, 500) ?? "Без имени",
+      headline: truncate(data.headline, 255),
+      citizenship: truncate(data.citizenship, 100),
+      location: truncate(data.location, 200),
+      email: sanitizeContactField(data.email, {
+        maxLen: 255,
+        validateEmail: true,
+      }),
+      phone: sanitizeContactField(data.phone, { maxLen: 50 }),
+      telegramUsername: sanitizeContactField(data.telegramUsername, {
+        maxLen: 100,
+      }),
+    };
+  }
+
+  /**
    * Найти или создать глобального кандидата.
    * При конфликте по email/phone/telegram (23505) перезапрашивает кандидата и применяет merge.
    */
   async findOrCreateGlobalCandidate(
     data: GlobalCandidateData,
   ): Promise<{ candidate: GlobalCandidate; created: boolean }> {
+    const sanitized = this.sanitizeCandidateData(data);
     const contactParams = {
-      email: data.email ?? null,
-      phone: data.phone ?? null,
-      telegramUsername: data.telegramUsername ?? null,
+      email: sanitized.email ?? null,
+      phone: sanitized.phone ?? null,
+      telegramUsername: sanitized.telegramUsername ?? null,
     };
 
     let existing = await this.findGlobalCandidateByContacts(contactParams);
-    if (!existing && data.resumeUrl) {
-      existing = await this.findGlobalCandidateByResumeUrl(data.resumeUrl);
+    if (!existing && sanitized.resumeUrl) {
+      existing = await this.findGlobalCandidateByResumeUrl(sanitized.resumeUrl);
     }
     if (existing) {
-      const mergedData = this.mergeGlobalCandidateData(existing, data);
+      const mergedData = this.mergeGlobalCandidateData(existing, sanitized);
       if (Object.keys(mergedData).length > 0) {
         const [updated] = await this.db
           .update(globalCandidate)
@@ -345,31 +415,31 @@ export class GlobalCandidateRepository {
     }
 
     const newCandidateData: NewGlobalCandidate = {
-      fullName: data.fullName,
-      firstName: data.firstName ?? null,
-      lastName: data.lastName ?? null,
-      middleName: data.middleName ?? null,
-      email: data.email ?? null,
-      phone: data.phone ?? null,
-      telegramUsername: data.telegramUsername ?? null,
-      headline: data.headline ?? null,
-      resumeUrl: data.resumeUrl ?? null,
-      photoFileId: data.photoFileId ?? null,
-      profileData: data.profileData ?? null,
-      skills: data.skills ?? null,
-      experienceYears: data.experienceYears ?? null,
-      salaryExpectationsAmount: data.salaryExpectationsAmount ?? null,
-      source: data.source ?? "APPLICANT",
-      originalSource: data.originalSource ?? "MANUAL",
-      location: data.location ?? null,
-      birthDate: data.birthDate ?? null,
-      gender: data.gender ?? null,
-      citizenship: data.citizenship ?? null,
-      workFormat: data.workFormat ?? null,
-      englishLevel: data.englishLevel ?? null,
-      readyForRelocation: data.readyForRelocation ?? null,
-      tags: data.tags ?? null,
-      notes: data.notes ?? null,
+      fullName: sanitized.fullName,
+      firstName: sanitized.firstName ?? null,
+      lastName: sanitized.lastName ?? null,
+      middleName: sanitized.middleName ?? null,
+      email: sanitized.email ?? null,
+      phone: sanitized.phone ?? null,
+      telegramUsername: sanitized.telegramUsername ?? null,
+      headline: sanitized.headline ?? null,
+      resumeUrl: sanitized.resumeUrl ?? null,
+      photoFileId: sanitized.photoFileId ?? null,
+      profileData: sanitized.profileData ?? null,
+      skills: sanitized.skills ?? null,
+      experienceYears: sanitized.experienceYears ?? null,
+      salaryExpectationsAmount: sanitized.salaryExpectationsAmount ?? null,
+      source: sanitized.source ?? "APPLICANT",
+      originalSource: sanitized.originalSource ?? "MANUAL",
+      location: sanitized.location ?? null,
+      birthDate: sanitized.birthDate ?? null,
+      gender: sanitized.gender ?? null,
+      citizenship: sanitized.citizenship ?? null,
+      workFormat: sanitized.workFormat ?? null,
+      englishLevel: sanitized.englishLevel ?? null,
+      readyForRelocation: sanitized.readyForRelocation ?? null,
+      tags: sanitized.tags ?? null,
+      notes: sanitized.notes ?? null,
     };
 
     try {
@@ -383,7 +453,7 @@ export class GlobalCandidateRepository {
       if (pgErr?.code === "23505") {
         const found = await this.findGlobalCandidateByContacts(contactParams);
         if (found) {
-          const mergedData = this.mergeGlobalCandidateData(found, data);
+          const mergedData = this.mergeGlobalCandidateData(found, sanitized);
           if (Object.keys(mergedData).length > 0) {
             const [updated] = await this.db
               .update(globalCandidate)
