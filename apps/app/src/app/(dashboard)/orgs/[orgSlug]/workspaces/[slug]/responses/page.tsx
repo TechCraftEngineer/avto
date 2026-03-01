@@ -235,6 +235,21 @@ export default function ResponsesPage() {
                 )}
               </CardContent>
             </Card>
+          ) : selectedVacancyIds.length !== 1 ? (
+            <Card
+              className="flex min-h-0 flex-1 flex-col overflow-hidden border-border bg-card shadow-sm"
+              style={{
+                minHeight:
+                  "calc(100dvh - var(--header-height, 3.5rem) - 320px)",
+              }}
+            >
+              <CardContent className="flex flex-1 flex-col items-center justify-center p-8 text-center">
+                <p className="max-w-md text-sm text-muted-foreground">
+                  Канбан-доска показывает отклики в рамках одной вакансии.
+                  Выберите ровно одну вакансию в фильтре выше.
+                </p>
+              </CardContent>
+            </Card>
           ) : (
             <Card
               className="kanban-page flex min-h-0 flex-1 flex-col overflow-hidden border-border bg-card shadow-sm"
@@ -254,11 +269,7 @@ export default function ResponsesPage() {
                     id: v.id,
                     title: v.title,
                   }))}
-                  entityId={
-                    selectedVacancyIds.length === 1
-                      ? selectedVacancyIds[0]
-                      : undefined
-                  }
+                  entityId={selectedVacancyIds[0]}
                   sortKey={`${sortField ?? "createdAt"}-${sortDirection}-${screeningFilter}-${search}`}
                 />
               </CardContent>
