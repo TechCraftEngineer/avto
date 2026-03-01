@@ -1,26 +1,34 @@
 "use client";
 
-import { getResponseEventTitle } from "@qbs-autonaim/shared";
 import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@qbs-autonaim/ui/components/card";
+import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area";
 import { useQuery } from "@tanstack/react-query";
+import { format, formatDistanceToNow } from "date-fns";
+import { ru } from "date-fns/locale";
 import {
-  Briefcase,
   Calendar,
+  CalendarClock,
   CheckCircle2,
   Clock,
   FileText,
   Mail,
   MessageSquare,
   Phone,
-  User,
+  Users,
+  XCircle,
 } from "lucide-react";
-import { useState } from "react";
+import {
+  AddInteractionDialog,
+  ValueChangeDisplay,
+} from "~/components/shared/components/response-detail-tabs";
+import type { JsonValue } from "~/components/shared/components/response-detail-tabs/tabs/value-change-display";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useORPC } from "~/orpc/react";
 import { getStatusColor, getStatusLabel } from "./header-card-utils";
@@ -30,263 +38,397 @@ interface StatusTimelineProps {
   response: VacancyResponse;
 }
 
-// Типы событий в timeline
-interface TimelineEvent {
-  id: string;
-  type: "status_change" | "message" | "interview" | "evaluation" | "note";
-  title: string;
-  description: string;
-  timestamp: Date;
-  icon: React.ElementType;
-  color: string;
-  metadata?: Record<string, unknown>;
+// History event types (response_history)
+const HISTORY_ICONS: Record<string, React.ElementType> = {
+  STATUS_CHANGED: CheckCircle2,
+  HR_STATUS_CHANGED: Users,
+  TELEGRAM_USERNAME_ADDED: MessageSquare,
+  CHAT_ID_ADDED: MessageSquare,
+  PHONE_ADDED: Phone,
+  RESUME_UPDATED: FileText,
+  PHOTO_ADDED: FileText,
+  WELCOME_SENT: Mail,
+  OFFER_SENT: Mail,
+  COMMENT_ADDED: MessageSquare,
+  SALARY_UPDATED: XCircle,
+  CONTACT_INFO_UPDATED: Phone,
+  CREATED: Clock,
+  SCREENING_COMPLETED: CheckCircle2,
+  INTERVIEW_STARTED: MessageSquare,
+  INTERVIEW_COMPLETED: CheckCircle2,
+};
+
+const HISTORY_LABELS: Record<string, string> = {
+  STATUS_CHANGED: "Изменен статус",
+  HR_STATUS_CHANGED: "Изменен HR статус",
+  TELEGRAM_USERNAME_ADDED: "Добавлен Telegram",
+  CHAT_ID_ADDED: "Добавлен Chat ID",
+  PHONE_ADDED: "Добавлен телефон",
+  RESUME_UPDATED: "Обновлено резюме",
+  PHOTO_ADDED: "Добавлено фото",
+  WELCOME_SENT: "Отправлено приветствие",
+  OFFER_SENT: "Отправлен оффер",
+  COMMENT_ADDED: "Добавлен комментарий",
+  SALARY_UPDATED: "Обновлена зарплата",
+  CONTACT_INFO_UPDATED: "Обновлены контакты",
+  CREATED: "Создан отклик",
+  SCREENING_COMPLETED: "Завершен скрининг",
+  INTERVIEW_STARTED: "Начато интервью",
+  INTERVIEW_COMPLETED: "Завершено интервью",
+};
+
+// Interaction log types
+const INTERACTION_ICONS: Record<string, React.ElementType> = {
+  welcome_sent: Mail,
+  message_sent: MessageSquare,
+  interview_scheduled: Calendar,
+  interview_started: MessageSquare,
+  interview_completed: CheckCircle2,
+  offer_sent: Mail,
+  rejection_sent: XCircle,
+  call: Phone,
+  email_sent: Mail,
+  meeting: Users,
+  note: FileText,
+  followup_sent: Clock,
+};
+
+const INTERACTION_LABELS: Record<string, string> = {
+  welcome_sent: "Отправлено приветствие",
+  message_sent: "Сообщение отправлено",
+  interview_scheduled: "Интервью запланировано",
+  interview_started: "Начато интервью",
+  interview_completed: "Интервью завершено",
+  offer_sent: "Оффер отправлен",
+  rejection_sent: "Отказ отправлен",
+  call: "Звонок",
+  email_sent: "Письмо отправлено",
+  meeting: "Встреча",
+  note: "Заметка",
+  followup_sent: "Напоминание",
+};
+
+const CHANNEL_LABELS: Record<string, string> = {
+  telegram: "Telegram",
+  phone: "Телефон",
+  email: "Email",
+  kwork: "Kwork",
+  in_person: "Лично",
+  web_chat: "Чат",
+  whatsapp: "WhatsApp",
+  other: "Другое",
+};
+
+type TimelineItem =
+  | {
+      kind: "history";
+      id: string;
+      timestamp: Date;
+      eventType: string;
+      userId?: string | null;
+      oldValue?: unknown;
+      newValue?: unknown;
+      metadata?: unknown;
+      user?: { name?: string | null } | null;
+    }
+  | {
+      kind: "interaction";
+      id: string;
+      timestamp: Date;
+      eventType: string;
+      source: string;
+      channel?: string | null;
+      note?: string | null;
+      createdByUserId?: string | null;
+      metadata?: unknown;
+      createdByUser?: { name?: string | null } | null;
+    };
+
+const MESSAGE_EVENT_TYPES = new Set([
+  "WELCOME_SENT",
+  "OFFER_SENT",
+  "COMMENT_ADDED",
+  "MESSAGE",
+  "message_sent",
+  "email_sent",
+  "followup_sent",
+]);
+const INTERVIEW_EVENT_TYPES = new Set([
+  "INTERVIEW_STARTED",
+  "INTERVIEW_COMPLETED",
+  "SCREENING_COMPLETED",
+  "interview_scheduled",
+  "interview_started",
+  "interview_completed",
+]);
+
+function InteractionStats({
+  timelineItems,
+  respondedAt,
+}: {
+  timelineItems: TimelineItem[];
+  respondedAt: Date;
+}) {
+  const totalEvents = timelineItems.length;
+  const messageCount = timelineItems.filter((e) =>
+    MESSAGE_EVENT_TYPES.has(e.eventType),
+  ).length;
+  const interviewCount = timelineItems.filter((e) =>
+    INTERVIEW_EVENT_TYPES.has(e.eventType),
+  ).length;
+  const daysSinceResponse = Math.max(
+    0,
+    Math.floor(
+      (Date.now() - new Date(respondedAt).getTime()) / (1000 * 60 * 60 * 24),
+    ),
+  );
+
+  const stats = [
+    {
+      label: "Событий",
+      value: totalEvents,
+      icon: Clock,
+    },
+    {
+      label: "Сообщений",
+      value: messageCount,
+      icon: MessageSquare,
+    },
+    {
+      label: "Собеседований",
+      value: interviewCount,
+      icon: Calendar,
+    },
+    {
+      label: "Дней с отклика",
+      value: daysSinceResponse,
+      icon: CalendarClock,
+    },
+  ] as const;
+
+  return (
+    <div className="mt-4 border-t pt-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {stats.map(({ label, value, icon: Icon }) => (
+          <div
+            key={label}
+            className="flex items-center gap-3 rounded-lg border bg-muted/30 px-4 py-3"
+          >
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-muted">
+              <Icon className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-xs text-muted-foreground">{label}</p>
+              <p className="truncate font-semibold tabular-nums">{value}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export function StatusTimeline({ response }: StatusTimelineProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
   const orpc = useORPC();
   const { workspaceId } = useWorkspaceContext();
 
-  // Получаем реальную историю событий
-  const { data: historyData } = useQuery({
-    ...orpc.vacancy.responses.history.queryOptions({
-      input: { responseId: response.id, workspaceId: workspaceId ?? "" },
+  const {
+    data: items,
+    isLoading,
+    isError,
+    error,
+  } = useQuery(
+    orpc.vacancy.responses.listInteractions.queryOptions({
+      input: {
+        responseId: response.id,
+        workspaceId: workspaceId ?? "",
+      },
+      enabled: !!workspaceId,
     }),
-    enabled: !!workspaceId,
-  });
-
-  // Функция для получения иконки по типу события
-  const getEventIcon = (eventType: string) => {
-    switch (eventType) {
-      case "CREATED":
-        return User;
-      case "STATUS_CHANGED":
-      case "HR_STATUS_CHANGED":
-        return Briefcase;
-      case "MESSAGE":
-      case "WELCOME_SENT":
-      case "OFFER_SENT":
-        return MessageSquare;
-      case "INTERVIEW_STARTED":
-      case "INTERVIEW_COMPLETED":
-        return Calendar;
-      case "SCREENING_COMPLETED":
-        return CheckCircle2;
-      case "RESUME_UPDATED":
-        return FileText;
-      case "PHONE_ADDED":
-        return Phone;
-      case "EMAIL_ADDED":
-        return Mail;
-      case "COMMENT_ADDED":
-        return MessageSquare;
-      default:
-        return Clock;
-    }
-  };
-
-  // Функция для получения цвета по типу события
-  const getEventColor = (eventType: string) => {
-    switch (eventType) {
-      case "CREATED":
-        return "text-blue-600";
-      case "STATUS_CHANGED":
-      case "HR_STATUS_CHANGED":
-        return "text-indigo-600";
-      case "SCREENING_COMPLETED":
-      case "INTERVIEW_COMPLETED":
-        return "text-green-600";
-      case "MESSAGE":
-      case "WELCOME_SENT":
-      case "OFFER_SENT":
-      case "COMMENT_ADDED":
-        return "text-purple-600";
-      case "INTERVIEW_STARTED":
-        return "text-orange-600";
-      case "RESUME_UPDATED":
-      case "PHONE_ADDED":
-      case "EMAIL_ADDED":
-        return "text-cyan-600";
-      default:
-        return "text-gray-600";
-    }
-  };
-
-  // Преобразуем данные истории в TimelineEvent
-  const events: TimelineEvent[] = historyData
-    ? historyData.map((event) => ({
-        id: event.id,
-        type: event.eventType.toLowerCase().includes("status")
-          ? ("status_change" as const)
-          : event.eventType.toLowerCase().includes("message") ||
-              event.eventType.toLowerCase().includes("sent")
-            ? ("message" as const)
-            : event.eventType.toLowerCase().includes("interview")
-              ? ("interview" as const)
-              : event.eventType.toLowerCase().includes("screening") ||
-                  event.eventType.toLowerCase().includes("evaluation")
-                ? ("evaluation" as const)
-                : ("note" as const),
-        title: getResponseEventTitle(event.eventType, event.newValue),
-        description: `Изменение: ${event.oldValue || "—"} → ${event.newValue || "—"}`,
-        timestamp: event.createdAt,
-        icon: getEventIcon(event.eventType),
-        color: getEventColor(event.eventType),
-        metadata: {
-          userId: event.userId,
-          oldValue: event.oldValue,
-          newValue: event.newValue,
-        },
-      }))
-    : [];
-
-  // Добавляем событие создания отклика, если его нет в истории
-  if (!events.some((e) => e.type === "note" && e.title.includes("создан"))) {
-    events.push({
-      id: "created",
-      type: "note",
-      title: "Отклик получен",
-      description: "Кандидат откликнулся на вакансию",
-      timestamp: response.respondedAt || response.createdAt,
-      icon: User,
-      color: "text-blue-600",
-    });
-  }
-
-  // Сортируем по времени (новые сверху)
-  const sortedEvents = [...events].sort(
-    (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
   );
-  const displayedEvents = isExpanded ? sortedEvents : sortedEvents.slice(0, 3);
 
-  const formatTimeAgo = (date: Date) => {
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMinutes / 60);
-    const diffDays = Math.floor(diffHours / 24);
+  const timelineItems = (items ?? []) as TimelineItem[];
 
-    if (diffMinutes < 1) return "Только что";
-    if (diffMinutes < 60) return `${diffMinutes} мин. назад`;
-    if (diffHours < 24) return `${diffHours} ч. назад`;
-    if (diffDays < 7) return `${diffDays} д. назад`;
-
-    return date.toLocaleDateString("ru-RU");
-  };
+  if (isError) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">История взаимодействия</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div
+            className="rounded-lg border border-destructive/50 bg-destructive/5 p-6 text-center"
+            role="alert"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <XCircle className="mx-auto mb-3 h-12 w-12 text-destructive opacity-50" />
+            <p className="text-sm font-medium text-destructive">
+              Не удалось загрузить хронологию
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {error instanceof Error ? error.message : "Неизвестная ошибка"}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            История взаимодействия
-          </CardTitle>
-          <Badge variant="outline" className={getStatusColor(response.status)}>
-            {getStatusLabel(response.status)}
-          </Badge>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
+            <CardTitle className="text-lg">История взаимодействия</CardTitle>
+            <Badge
+              variant="outline"
+              className={getStatusColor(response.status)}
+            >
+              {getStatusLabel(response.status)}
+            </Badge>
+          </div>
+          <AddInteractionDialog
+            responseId={response.id}
+            workspaceId={workspaceId ?? ""}
+          />
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Timeline */}
-        <div className="space-y-4">
-          {displayedEvents.map((event, index) => {
-            const Icon = event.icon;
-            return (
-              <div key={event.id} className="flex gap-4">
-                {/* Timeline line */}
-                <div className="flex flex-col items-center">
-                  <div
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
-                      index === 0 ? "border-current" : "border-muted"
-                    }`}
-                  >
-                    <Icon className={`h-4 w-4 ${event.color}`} />
-                  </div>
-                  {index < displayedEvents.length - 1 && (
-                    <div className="h-8 w-px bg-muted" />
-                  )}
-                </div>
-
-                {/* Event content */}
-                <div className="flex-1 pb-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-medium text-sm">{event.title}</h4>
-                    <span className="text-xs text-muted-foreground">
-                      {formatTimeAgo(event.timestamp)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {event.description}
-                  </p>
-
-                  {/* Additional metadata */}
-                  {event.metadata && (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {typeof event.metadata.score === "number" && (
-                        <Badge variant="secondary" className="text-xs">
-                          Оценка: {event.metadata.score}%
-                        </Badge>
-                      )}
-                      {typeof event.metadata.date === "string" &&
-                        typeof event.metadata.time === "string" && (
-                          <Badge variant="outline" className="text-xs">
-                            {event.metadata.date} в {event.metadata.time}
-                          </Badge>
-                        )}
-                    </div>
-                  )}
+      <CardContent>
+        {isLoading ? (
+          <div className="space-y-3">
+            {[
+              "skeleton-1",
+              "skeleton-2",
+              "skeleton-3",
+              "skeleton-4",
+              "skeleton-5",
+            ].map((id) => (
+              <div key={id} className="flex gap-3 animate-pulse">
+                <div className="h-8 w-8 rounded-full bg-muted" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-1/3 rounded bg-muted" />
+                  <div className="h-3 w-1/2 rounded bg-muted" />
                 </div>
               </div>
-            );
-          })}
-        </div>
-
-        {/* Show more/less button */}
-        {events.length > 3 && (
-          <div className="pt-2 border-t">
-            <button
-              type="button"
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="text-sm text-primary hover:underline"
-            >
-              {isExpanded
-                ? "Показать меньше"
-                : `Показать еще ${events.length - 3} событий`}
-            </button>
+            ))}
           </div>
+        ) : timelineItems.length === 0 ? (
+          <div className="rounded-lg border border-dashed bg-muted/20 py-12 text-center text-muted-foreground">
+            <Clock className="mx-auto mb-3 h-12 w-12 opacity-50" />
+            <p className="text-sm">Добавьте первое взаимодействие</p>
+            <AddInteractionDialog
+              responseId={response.id}
+              workspaceId={workspaceId ?? ""}
+              trigger={
+                <Button variant="outline" size="sm" className="mt-3">
+                  Добавить
+                </Button>
+              }
+            />
+          </div>
+        ) : (
+          <>
+            <ScrollArea className="h-[500px] pr-4">
+              <div className="relative space-y-4">
+                <div className="absolute left-4 top-0 bottom-0 w-px bg-border" />
+
+                {timelineItems.map((event) => {
+                  const isHistory = event.kind === "history";
+                  const icons = isHistory ? HISTORY_ICONS : INTERACTION_ICONS;
+                  const labels = isHistory
+                    ? HISTORY_LABELS
+                    : INTERACTION_LABELS;
+                  const Icon = icons[event.eventType] ?? Clock;
+                  const label = labels[event.eventType] ?? event.eventType;
+
+                  return (
+                    <div key={event.id} className="relative flex gap-4 pl-0">
+                      <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-background">
+                        <Icon className="h-4 w-4 text-primary" />
+                      </div>
+
+                      <div className="flex-1 pb-4">
+                        <div className="rounded-lg border bg-card p-4">
+                          <div className="mb-2 flex items-start justify-between gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h4 className="text-sm font-semibold">{label}</h4>
+                              {event.kind === "interaction" &&
+                                event.channel && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
+                                    {CHANNEL_LABELS[event.channel] ??
+                                      event.channel}
+                                  </Badge>
+                                )}
+                              {event.kind === "interaction" &&
+                                event.source === "manual" && (
+                                  <Badge variant="outline" className="text-xs">
+                                    Вручную
+                                  </Badge>
+                                )}
+                            </div>
+                            <span className="whitespace-nowrap text-xs text-muted-foreground">
+                              {formatDistanceToNow(new Date(event.timestamp), {
+                                addSuffix: true,
+                                locale: ru,
+                              })}
+                            </span>
+                          </div>
+
+                          <p className="mb-2 text-xs text-muted-foreground">
+                            {format(
+                              new Date(event.timestamp),
+                              "d MMMM yyyy, HH:mm",
+                              {
+                                locale: ru,
+                              },
+                            )}
+                          </p>
+
+                          {(event.kind === "history"
+                            ? event.userId
+                            : event.createdByUser?.name) && (
+                            <p className="mb-2 text-xs text-muted-foreground">
+                              {event.kind === "history"
+                                ? `Пользователь: ${event.userId}`
+                                : `Добавил: ${event.createdByUser?.name ?? event.createdByUserId}`}
+                            </p>
+                          )}
+
+                          {event.kind === "interaction" && event.note && (
+                            <p className="mt-2 rounded bg-muted/50 p-2 text-sm">
+                              {event.note}
+                            </p>
+                          )}
+
+                          {event.kind === "history" && (
+                            <ValueChangeDisplay
+                              oldValue={
+                                event.oldValue as JsonValue | null | undefined
+                              }
+                              newValue={
+                                event.newValue as JsonValue | null | undefined
+                              }
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </ScrollArea>
+
+            {/* Статистика взаимодействия */}
+            <InteractionStats
+              timelineItems={timelineItems}
+              respondedAt={response.respondedAt ?? response.createdAt}
+            />
+          </>
         )}
-
-        {/* Quick stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
-          <div className="text-center">
-            <div className="text-lg font-bold text-blue-600">
-              {events.length}
-            </div>
-            <div className="text-xs text-muted-foreground">Событий</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-bold text-green-600">
-              {events.filter((e) => e.type === "message").length}
-            </div>
-            <div className="text-xs text-muted-foreground">Сообщений</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-bold text-purple-600">
-              {events.filter((e) => e.type === "interview").length}
-            </div>
-            <div className="text-xs text-muted-foreground">Собеседований</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-bold text-orange-600">
-              {Math.floor(
-                (Date.now() - (response.respondedAt?.getTime() || Date.now())) /
-                  (1000 * 60 * 60 * 24),
-              )}
-            </div>
-            <div className="text-xs text-muted-foreground">Дней прошло</div>
-          </div>
-        </div>
       </CardContent>
     </Card>
   );

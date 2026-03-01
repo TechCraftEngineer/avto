@@ -22,10 +22,10 @@ import {
 } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useORPC } from "~/orpc/react";
+import { ResponseDetailModal } from "./response-detail-modal";
 import { ResponseKanbanCard } from "./response-kanban-card";
 import type { ResponseItem } from "./types";
 
@@ -339,9 +339,9 @@ function ResponseKanbanItem({
   );
 
   return (
-    <KanbanItem value={response.id} className="w-full min-w-0 max-w-full">
+    <KanbanItem value={response.id} className="w-[312px] shrink-0">
       {asHandle && !isOverlay ? (
-        <KanbanItemHandle className="w-full min-w-0 max-w-full">
+        <KanbanItemHandle className="w-[312px] shrink-0">
           {cardContent}
         </KanbanItemHandle>
       ) : (
@@ -447,7 +447,6 @@ export function ResponsesKanban({
   entityId,
   sortKey = "",
 }: ResponsesKanbanProps) {
-  const router = useRouter();
   const orpc = useORPC();
   const queryClient = useQueryClient();
 
@@ -561,14 +560,15 @@ export function ResponsesKanban({
     [vacancies],
   );
 
-  const handleCardClick = useCallback(
-    (response: ResponseItem) => {
-      router.push(
-        paths.workspace.responses(orgSlug, workspaceSlug, response.id),
-      );
-    },
-    [router, orgSlug, workspaceSlug],
+  const [selectedResponseId, setSelectedResponseId] = useState<string | null>(
+    null,
   );
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleCardClick = useCallback((response: ResponseItem) => {
+    setSelectedResponseId(response.id);
+    setModalOpen(true);
+  }, []);
 
   const handleMove = useCallback(
     (event: {
@@ -679,6 +679,15 @@ export function ResponsesKanban({
           <div className="h-24 min-w-[200px]" aria-hidden />
         </KanbanOverlay>
       </Kanban>
+
+      <ResponseDetailModal
+        responseId={selectedResponseId}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        orgSlug={orgSlug}
+        workspaceSlug={workspaceSlug}
+        workspaceId={workspaceId}
+      />
     </div>
   );
 }

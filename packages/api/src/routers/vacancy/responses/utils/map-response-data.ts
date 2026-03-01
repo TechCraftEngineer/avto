@@ -3,6 +3,26 @@ import { sanitizeHtml } from "../../../utils/sanitize-html";
 import type { RawResponseBase } from "../types";
 import { calculatePriorityScore } from "./priority-score";
 
+function extractLocationFromProfileData(profileData: unknown): string | null {
+  if (!profileData || typeof profileData !== "object") return null;
+  const pd = profileData as Record<string, unknown>;
+  const personalInfo = pd.personalInfo as { location?: string } | undefined;
+  if (personalInfo?.location && typeof personalInfo.location === "string") {
+    const loc = personalInfo.location.trim();
+    return loc || null;
+  }
+  const kwork = pd.kworkUserData as Record<string, unknown> | undefined;
+  if (kwork?.location && typeof kwork.location === "string") {
+    const loc = kwork.location.trim();
+    return loc || null;
+  }
+  if (pd.location && typeof pd.location === "string") {
+    const loc = pd.location.trim();
+    return loc || null;
+  }
+  return null;
+}
+
 function buildLookupMap<T>(
   items: T[],
   keyExtractor: (item: T) => string | null,
@@ -57,9 +77,13 @@ export function mapResponseData(
     const interviewScoring = scoringByResponseId.get(r.id);
     const session = sessionByResponseId.get(r.id);
     const priorityScore = calculatePriorityScore(r, screening ?? undefined);
+    const raw = r as RawResponseBase & { profileData?: unknown };
+    const { profileData, ...rest } = raw;
+    const location = extractLocationFromProfileData(profileData);
 
     return {
-      ...r,
+      ...rest,
+      location,
       contacts: formatContacts(r.contacts),
       coverLetter: r.coverLetter ? sanitizeHtml(r.coverLetter) : null,
       priorityScore,

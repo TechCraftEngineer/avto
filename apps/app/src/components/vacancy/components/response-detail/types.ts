@@ -29,6 +29,7 @@ export interface VacancyResponseDetailCardProps {
   onReject?: () => void;
   onMessage?: () => void;
   onEvaluate?: () => void;
+  onNavigate?: (responseId: string) => void;
   isProcessing?: boolean;
   isPolling?: boolean;
 }
