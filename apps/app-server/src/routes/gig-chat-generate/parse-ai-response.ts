@@ -10,16 +10,27 @@ export interface ValidationErrorDetail {
   code?: string;
 }
 
+const DOC_FIELDS = [
+  "title",
+  "description",
+  "deliverables",
+  "requiredSkills",
+  "budgetRange",
+  "timeline",
+  "message",
+] as const;
+
 function getStringFromDoc(text: string, field: string): string {
-  // Строгий regex: полная строка с экранированием. Поддерживает частичный вывод (до закрывающей ")
+  if (!DOC_FIELDS.includes(field as (typeof DOC_FIELDS)[number])) return "";
+  const escaped = field.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const strictRegex = new RegExp(
-    `"${field}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)(?:"|$)`,
+    `"${escaped}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)(?:"|$)`,
     "s",
   );
   let match = text.match(strictRegex);
   // Fallback: проще regex для частичной строки без escape (на случай нестандартного вывода модели)
   if (!match?.[1]) {
-    const simpleRegex = new RegExp(`"${field}"\\s*:\\s*"([^"]*)`, "s");
+    const simpleRegex = new RegExp(`"${escaped}"\\s*:\\s*"([^"]*)`, "s");
     match = text.match(simpleRegex);
   }
   if (!match?.[1]) return "";

@@ -9,7 +9,7 @@ import {
 } from "@qbs-autonaim/ui/components/card";
 import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area";
 import { Separator } from "@qbs-autonaim/ui/components/separator";
-import { Bot, RotateCcw, Sparkles } from "lucide-react";
+import { RotateCcw, Sparkles } from "lucide-react";
 import React from "react";
 import { ChatMessage, StreamingMessage, TypingIndicator } from "./chat-message";
 import { QuizStepBlock } from "./quiz-step-block";
@@ -67,16 +67,18 @@ export function GigConversationChat({
     [isGenerating, onSendMessage],
   );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll when content changes
   React.useEffect(() => {
     const el = scrollRef.current?.querySelector(
       "[data-radix-scroll-area-viewport]",
     );
-    if (el) {
-      setTimeout(() => {
-        el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
-      }, 50);
-    }
+    if (!el) return;
+    const id = window.setTimeout(() => {
+      (el as HTMLElement).scrollTo({
+        top: el.scrollHeight,
+        behavior: "smooth",
+      });
+    }, 150);
+    return () => window.clearTimeout(id);
   }, [messages.length, isGenerating, streamingMessage]);
 
   const stepNumber = allMessages.filter((m) => m.role === "assistant").length;
@@ -123,12 +125,7 @@ export function GigConversationChat({
           ))}
           {isLastAssistant && !isGenerating && (
             <div className="flex gap-3">
-              <div
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted opacity-0"
-                aria-hidden
-              >
-                <Bot className="h-4 w-4" />
-              </div>
+              <div className="h-8 w-8 shrink-0" aria-hidden />
               <div className="flex-1 min-w-0">
                 <QuizStepBlock
                   question={lastMessage.content || "Чем могу помочь?"}

@@ -32,13 +32,11 @@ export function GigResponseKanbanCard({
       if (typeof rating === "number" && Number.isFinite(rating)) return rating;
       if (typeof rawScore === "number" && Number.isFinite(rawScore))
         return Math.round(rawScore / 20);
-      return null;
     }
     if (response.screening) {
       const overallScore = response.screening.overallScore;
       if (typeof overallScore === "number" && Number.isFinite(overallScore))
         return overallScore / 20;
-      return null;
     }
     return null;
   })();

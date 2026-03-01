@@ -15,9 +15,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function PipelineSettingsPage({ params }: PageProps) {
-  const { orgSlug: _orgSlug, slug: _workspaceSlug } = await params;
-
+export default async function PipelineSettingsPage() {
   return (
     <>
       <div className="space-y-1">

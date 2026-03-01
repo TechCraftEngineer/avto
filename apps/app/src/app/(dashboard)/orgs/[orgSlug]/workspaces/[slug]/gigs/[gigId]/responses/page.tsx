@@ -22,7 +22,12 @@ import {
   ToggleGroupItem,
 } from "@qbs-autonaim/ui/components/toggle-group";
 import { IconLayoutKanban, IconTable } from "@tabler/icons-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  skipToken,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -234,21 +239,23 @@ export default function GigResponsesPage({ params }: PageProps) {
     isError: isGigError,
   } = useQuery({
     ...orpc.gig.get.queryOptions({
-      input: { id: gigId, workspaceId: workspace?.id ?? "" },
+      input: workspace?.id
+        ? { id: gigId, workspaceId: workspace.id }
+        : skipToken,
     }),
-    enabled: !!workspace?.id,
   });
 
   // Fetch responses (higher limit for board view)
   const { data: responses, isLoading } = useQuery({
     ...orpc.gig.responses.list.queryOptions({
-      input: {
-        gigId,
-        workspaceId: workspace?.id ?? "",
-        limit: viewMode === "board" ? 50 : 20,
-      },
+      input: workspace?.id
+        ? {
+            gigId,
+            workspaceId: workspace.id,
+            limit: viewMode === "board" ? 50 : 20,
+          }
+        : skipToken,
     }),
-    enabled: !!workspace?.id,
   });
 
   // Transform responses to include score

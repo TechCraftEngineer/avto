@@ -45,7 +45,7 @@ const VACANCY_DEFAULTS = [
   { label: "Отказ", position: 6, color: "bg-rose-500", legacyKey: "REJECTED" },
 ] as const;
 
-const PROJECT_DEFAULTS = [
+const COMMON_STAGE_DEFAULTS = [
   { label: "Контакт", position: 0, color: "bg-blue-500", legacyKey: null },
   { label: "HR интервью", position: 1, color: "bg-cyan-500", legacyKey: null },
   {
@@ -82,42 +82,8 @@ const PROJECT_DEFAULTS = [
   { label: "Резерв", position: 8, color: "bg-slate-500", legacyKey: null },
 ] as const;
 
-const GIG_DEFAULTS = [
-  { label: "Контакт", position: 0, color: "bg-blue-500", legacyKey: null },
-  { label: "HR интервью", position: 1, color: "bg-cyan-500", legacyKey: null },
-  {
-    label: "Резюме у заказчика",
-    position: 2,
-    color: "bg-indigo-500",
-    legacyKey: null,
-  },
-  {
-    label: "Интервью с заказчиком",
-    position: 3,
-    color: "bg-violet-500",
-    legacyKey: null,
-  },
-  {
-    label: "Тестовое задание",
-    position: 4,
-    color: "bg-amber-500",
-    legacyKey: null,
-  },
-  { label: "Оффер", position: 5, color: "bg-emerald-500", legacyKey: null },
-  {
-    label: "Вышел на работу",
-    position: 6,
-    color: "bg-green-500",
-    legacyKey: null,
-  },
-  {
-    label: "Отказ от оффера",
-    position: 7,
-    color: "bg-rose-500",
-    legacyKey: null,
-  },
-  { label: "Резерв", position: 8, color: "bg-slate-500", legacyKey: null },
-] as const;
+const PROJECT_DEFAULTS = COMMON_STAGE_DEFAULTS;
+const GIG_DEFAULTS = COMMON_STAGE_DEFAULTS;
 
 const entityTypeSchema = z.enum(["gig", "vacancy", "project"]);
 
@@ -204,7 +170,7 @@ export const getStages = protectedProcedure
           },
         });
         if (recheck.length > 0) return recheck;
-        const rows = await tx
+        await tx
           .insert(pipelineStage)
           .values(
             defaults.map((d) => ({
@@ -217,13 +183,28 @@ export const getStages = protectedProcedure
               legacyKey: d.legacyKey,
             })),
           )
-          .returning({
-            id: pipelineStage.id,
-            label: pipelineStage.label,
-            position: pipelineStage.position,
-            color: pipelineStage.color,
-            legacyKey: pipelineStage.legacyKey,
+          .onConflictDoNothing({
+            target: [
+              pipelineStage.workspaceId,
+              pipelineStage.entityType,
+              pipelineStage.position,
+            ],
           });
+        const rows = await tx.query.pipelineStage.findMany({
+          where: and(
+            eq(pipelineStage.workspaceId, input.workspaceId),
+            eq(pipelineStage.entityType, input.entityType),
+            isNull(pipelineStage.entityId),
+          ),
+          orderBy: [asc(pipelineStage.position)],
+          columns: {
+            id: true,
+            label: true,
+            position: true,
+            color: true,
+            legacyKey: true,
+          },
+        });
         return rows;
       });
       return { stages: inserted };

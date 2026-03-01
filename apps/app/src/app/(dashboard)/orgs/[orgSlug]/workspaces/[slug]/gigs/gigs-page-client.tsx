@@ -304,7 +304,7 @@ export function GigsPageClient() {
               onCardClick={handleStatsCardClick}
             />
 
-            <div>
+            <>
               <GigsFilters
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
@@ -343,7 +343,7 @@ export function GigsPageClient() {
                 tableSortDirection={sortDirection}
                 onTableSort={handleTableSort}
               />
-            </div>
+            </>
           </div>
         </div>
       </div>

@@ -47,9 +47,23 @@ export const updateStages = protectedProcedure
         columns: { id: true, position: true },
       });
 
-      const inputIds = new Set(
-        input.stages.map((s) => s.id).filter((id): id is string => !!id),
-      );
+      const inputIdsRaw = input.stages
+        .map((s) => s.id)
+        .filter((id): id is string => !!id);
+      const inputIds = new Set(inputIdsRaw);
+      if (inputIdsRaw.length !== inputIds.size) {
+        throw new ORPCError("BAD_REQUEST", {
+          message: "Обнаружены дублирующиеся id этапов",
+        });
+      }
+      const existingIds = new Set(existingStages.map((s) => s.id));
+      for (const id of inputIds) {
+        if (!existingIds.has(id)) {
+          throw new ORPCError("BAD_REQUEST", {
+            message: `Неизвестный id этапа: ${id}`,
+          });
+        }
+      }
       const toDelete = existingStages.filter((s) => !inputIds.has(s.id));
 
       // Check if stages to delete have responses (batch query)
@@ -70,7 +84,7 @@ export const updateStages = protectedProcedure
 
         const countByStage = new Map<string, number>(
           counts.map(
-            (row: { pipelineStageId: string | null; count: unknown }) => [
+            (row: { pipelineStageId: string | null; count: number }) => [
               row.pipelineStageId ?? "",
               Number(row.count) || 0,
             ],

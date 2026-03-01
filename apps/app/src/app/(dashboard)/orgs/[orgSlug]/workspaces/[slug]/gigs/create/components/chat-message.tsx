@@ -2,6 +2,7 @@
 
 import { cn } from "@qbs-autonaim/ui/utils";
 import { Bot, User } from "lucide-react";
+import { memo } from "react";
 import { QuickReplies } from "./quick-replies";
 import type { ChatMessage as ChatMessageType } from "./types";
 
@@ -62,14 +63,13 @@ interface StreamingMessageProps {
   content: string;
   quickReplies?: string[];
   onSelectOption: (value: string) => void;
-  onCustomAnswer?: (value: string) => void;
 }
 
-export function StreamingMessage({
+const StreamingMessageComponent = ({
   content,
   quickReplies = [],
   onSelectOption,
-}: StreamingMessageProps) {
+}: StreamingMessageProps) => {
   return (
     <div className="space-y-2">
       <div className="flex gap-3">
@@ -79,7 +79,7 @@ export function StreamingMessage({
         <div className="rounded-2xl rounded-bl-md bg-muted px-4 py-2.5 text-sm whitespace-pre-wrap max-w-[85%]">
           {content}
           <span
-            className="inline-block h-4 w-px mx-0.5 bg-foreground/60 animate-pulse align-middle"
+            className="inline-block h-4 w-px mx-0.5 bg-foreground/60 motion-safe:animate-pulse motion-reduce:animate-none align-middle"
             aria-hidden
           />
         </div>
@@ -95,7 +95,9 @@ export function StreamingMessage({
       )}
     </div>
   );
-}
+};
+
+export const StreamingMessage = memo(StreamingMessageComponent);
 
 export function TypingIndicator() {
   return (
@@ -104,9 +106,9 @@ export function TypingIndicator() {
         <Bot className="h-4 w-4" />
       </div>
       <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-muted px-4 py-3">
-        <span className="h-2 w-2 rounded-full bg-foreground/40 animate-bounce [animation-delay:-0.3s]" />
-        <span className="h-2 w-2 rounded-full bg-foreground/40 animate-bounce [animation-delay:-0.15s]" />
-        <span className="h-2 w-2 rounded-full bg-foreground/40 animate-bounce" />
+        <span className="h-2 w-2 rounded-full bg-foreground/40 motion-safe:animate-bounce motion-reduce:animate-none [animation-delay:-0.3s]" />
+        <span className="h-2 w-2 rounded-full bg-foreground/40 motion-safe:animate-bounce motion-reduce:animate-none [animation-delay:-0.15s]" />
+        <span className="h-2 w-2 rounded-full bg-foreground/40 motion-safe:animate-bounce motion-reduce:animate-none" />
       </div>
     </div>
   );
