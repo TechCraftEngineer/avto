@@ -3,7 +3,7 @@
 import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
-import { Tabs, TabsList, TabsTrigger } from "@qbs-autonaim/ui/components/tabs";
+import { cn } from "@qbs-autonaim/ui/utils";
 import {
   IconEdit,
   IconEye,
@@ -181,16 +181,19 @@ export function VacancyLayoutClient({
             </Button>
           </div>
 
-          <Tabs value={getActiveTab()} className="space-y-4 md:space-y-6">
+          <div className="space-y-4 md:space-y-6">
             <section
               className="-mx-4 overflow-x-auto px-4 lg:mx-0 lg:px-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               aria-label="Навигация по разделам вакансии"
             >
-              <TabsList className="inline-flex h-11 min-w-max flex-nowrap gap-0.5 bg-transparent p-0 sm:h-9 sm:rounded-lg sm:bg-muted sm:p-[3px]">
-                <TabsTrigger
-                  value="detail"
+              <nav className="flex min-w-max flex-wrap items-center gap-1">
+                <Button
+                  variant="secondary"
                   asChild
-                  className="h-11 shrink-0 touch-manipulation gap-1.5 rounded-md px-3 sm:h-[calc(100%-1px)] sm:flex-1 sm:px-2 md:flex-initial"
+                  className={cn(
+                    "border border-border bg-white dark:bg-black text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring h-7 rounded-lg px-2.5 text-sm font-medium",
+                    getActiveTab() === "detail" && "bg-muted",
+                  )}
                 >
                   <Link
                     href={paths.workspace.vacancies(
@@ -200,13 +203,16 @@ export function VacancyLayoutClient({
                     )}
                   >
                     <IconEye className="size-4 shrink-0" aria-hidden="true" />
-                    <span>Обзор</span>
+                    Обзор
                   </Link>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="responses"
+                </Button>
+                <Button
+                  variant="secondary"
                   asChild
-                  className="h-11 shrink-0 touch-manipulation gap-1.5 rounded-md px-3 sm:h-[calc(100%-1px)] sm:flex-1 sm:px-2 md:flex-initial"
+                  className={cn(
+                    "border border-border bg-white dark:bg-black text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring h-7 rounded-lg px-2.5 text-sm font-medium",
+                    getActiveTab() === "responses" && "bg-muted",
+                  )}
                 >
                   <Link
                     href={paths.workspace.vacancies(
@@ -225,11 +231,14 @@ export function VacancyLayoutClient({
                     </span>
                     <span className="sm:hidden">Отклики</span>
                   </Link>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="edit"
+                </Button>
+                <Button
+                  variant="secondary"
                   asChild
-                  className="h-11 shrink-0 touch-manipulation gap-1.5 rounded-md px-3 sm:h-[calc(100%-1px)] sm:flex-1 sm:px-2 md:flex-initial"
+                  className={cn(
+                    "border border-border bg-white dark:bg-black text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring h-7 rounded-lg px-2.5 text-sm font-medium",
+                    getActiveTab() === "edit" && "bg-muted",
+                  )}
                 >
                   <Link
                     href={paths.workspace.vacancies(
@@ -243,11 +252,14 @@ export function VacancyLayoutClient({
                     <span className="hidden sm:inline">Редактировать</span>
                     <span className="sm:hidden">Редакт.</span>
                   </Link>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="integrations"
+                </Button>
+                <Button
+                  variant="secondary"
                   asChild
-                  className="h-11 shrink-0 touch-manipulation gap-1.5 rounded-md px-3 sm:h-[calc(100%-1px)] sm:flex-1 sm:px-2 md:flex-initial"
+                  className={cn(
+                    "border border-border bg-white dark:bg-black text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring h-7 rounded-lg px-2.5 text-sm font-medium",
+                    getActiveTab() === "integrations" && "bg-muted",
+                  )}
                 >
                   <Link
                     href={paths.workspace.vacancies(
@@ -261,11 +273,14 @@ export function VacancyLayoutClient({
                     <span className="hidden sm:inline">Интеграции</span>
                     <span className="sm:hidden">Интегр.</span>
                   </Link>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="settings"
+                </Button>
+                <Button
+                  variant="secondary"
                   asChild
-                  className="h-11 shrink-0 touch-manipulation gap-1.5 rounded-md px-3 sm:h-[calc(100%-1px)] sm:flex-1 sm:px-2 md:flex-initial"
+                  className={cn(
+                    "border border-border bg-white dark:bg-black text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring h-7 rounded-lg px-2.5 text-sm font-medium",
+                    getActiveTab() === "settings" && "bg-muted",
+                  )}
                 >
                   <Link
                     href={paths.workspace.vacancies(
@@ -282,12 +297,12 @@ export function VacancyLayoutClient({
                     <span className="hidden sm:inline">Настройки</span>
                     <span className="sm:hidden">Настр.</span>
                   </Link>
-                </TabsTrigger>
-              </TabsList>
+                </Button>
+              </nav>
             </section>
 
             {children}
-          </Tabs>
+          </div>
         </div>
       </div>
     </div>
