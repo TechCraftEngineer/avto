@@ -1,3 +1,11 @@
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import { Label } from "@qbs-autonaim/ui/components/label";
+
 interface VacancyInfoProps {
   title: string;
   description?: string | null;
@@ -5,20 +13,24 @@ interface VacancyInfoProps {
 
 export function VacancyInfo({ title, description }: VacancyInfoProps) {
   return (
-    <div>
-      <h2 className="text-lg font-semibold mb-4">Вакансия</h2>
-      <div className="space-y-3">
-        <div>
-          <p className="text-xs text-muted-foreground mb-1">Название</p>
+    <Card size="sm">
+      <CardHeader className="p-0 pb-3">
+        <CardTitle className="text-base">Вакансия</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3 p-0">
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">Название</Label>
           <p className="text-sm font-medium">{title}</p>
         </div>
         {description && (
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Описание</p>
-            <p className="text-sm line-clamp-3">{description}</p>
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">Описание</Label>
+            <p className="text-sm line-clamp-3 text-muted-foreground">
+              {description}
+            </p>
           </div>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

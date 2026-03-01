@@ -2,6 +2,13 @@
 
 import { paths } from "@qbs-autonaim/config";
 import { Badge } from "@qbs-autonaim/ui/components/badge";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@qbs-autonaim/ui/components/empty";
 import { Input } from "@qbs-autonaim/ui/components/input";
 import {
   Select,
@@ -10,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@qbs-autonaim/ui/components/select";
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -83,42 +91,50 @@ export function ChatList() {
 
   if (error) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center rounded-lg border border-dashed border-red-200 mx-3 md:mx-4 my-4">
-        <div className="text-center px-4">
-          <h2 className="text-xl md:text-2xl font-semibold mb-2 text-red-600">
-            Ошибка
-          </h2>
-          <p className="text-sm md:text-base text-muted-foreground">
-            {error.message}
-          </p>
-        </div>
+      <div className="flex min-h-[400px] items-center justify-center p-4">
+        <Empty className="border-destructive/50 max-w-sm">
+          <EmptyHeader>
+            <EmptyMedia
+              variant="icon"
+              className="bg-destructive/10 text-destructive"
+            >
+              <MessageCircle className="size-6" />
+            </EmptyMedia>
+            <EmptyTitle>Ошибка</EmptyTitle>
+            <EmptyDescription>{error.message}</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       </div>
     );
   }
 
   if (!isPending && conversations.length === 0) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center rounded-lg border border-dashed mx-3 md:mx-4 my-4">
-        <div className="text-center px-4">
-          <MessageCircle className="h-10 w-10 md:h-12 md:w-12 mx-auto mb-4 text-muted-foreground" />
-          <h2 className="text-xl md:text-2xl font-semibold mb-2">Нет чатов</h2>
-          <p className="text-sm md:text-base text-muted-foreground">
-            Пока нет активных диалогов с кандидатами
-          </p>
-        </div>
+      <div className="flex min-h-[400px] items-center justify-center p-4">
+        <Empty className="border-border max-w-sm">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <MessageCircle className="size-6" />
+            </EmptyMedia>
+            <EmptyTitle>Нет чатов</EmptyTitle>
+            <EmptyDescription>
+              Пока нет активных диалогов с кандидатами
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col h-full">
-      <div className="border-b px-3 md:px-4 py-3 space-y-3">
-        <h1 className="text-lg md:text-xl font-semibold">Чаты</h1>
+      <div className="px-3 md:px-4 py-3 space-y-3">
+        <h2 className="text-lg font-semibold tracking-tight">Чаты</h2>
 
         <div className="space-y-2">
           <label
             htmlFor="search-input"
-            className="text-sm font-medium text-muted-foreground"
+            className="text-sm font-medium leading-none text-muted-foreground"
           >
             Поиск по ФИО
           </label>
@@ -157,7 +173,7 @@ export function ChatList() {
           </Select>
         </div>
       </div>
-
+      <Separator />
       <div className="flex-1 overflow-y-auto">
         {conversations
           .filter((_conversation) => {
@@ -196,8 +212,8 @@ export function ChatList() {
                 )}
               >
                 <div
-                  className={`flex items-start gap-2 md:gap-3 px-3 md:px-4 py-3 hover:bg-muted/50 transition-colors cursor-pointer border-b ${
-                    isActive ? "bg-muted" : ""
+                  className={`flex items-start gap-2 md:gap-3 px-3 md:px-4 py-3 transition-colors cursor-pointer border-b border-border last:border-b-0 hover:bg-accent/50 ${
+                    isActive ? "bg-accent" : ""
                   }`}
                 >
                   <div className="flex-1 min-w-0">
@@ -215,10 +231,7 @@ export function ChatList() {
                     </div>
 
                     {vacancyTitle && (
-                      <Badge
-                        variant="outline"
-                        className="mb-1 text-xs text-teal-600 border-teal-200"
-                      >
+                      <Badge variant="secondary" className="mb-1 text-xs">
                         {vacancyTitle}
                       </Badge>
                     )}

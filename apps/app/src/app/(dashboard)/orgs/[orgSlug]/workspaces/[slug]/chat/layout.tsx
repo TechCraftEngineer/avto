@@ -20,18 +20,18 @@ export default function ChatLayout({
   const isChatSelected = Boolean(chatSegmentMatch?.[1]);
 
   return (
-    <div className="flex h-[calc(100vh-4rem)]">
+    <div className="flex h-[calc(100vh-4rem)] bg-background">
       <div
         className={`${
           isChatSelected ? "hidden md:block" : "block"
-        } w-full md:w-80 border-r h-full overflow-hidden`}
+        } w-full md:w-80 border-r border-border bg-card h-full overflow-hidden`}
       >
         <ChatList />
       </div>
       <div
         className={`${
           isChatSelected ? "flex" : "hidden md:flex"
-        } flex-1 h-full overflow-hidden`}
+        } flex-1 h-full overflow-hidden bg-background`}
       >
         {children}
       </div>

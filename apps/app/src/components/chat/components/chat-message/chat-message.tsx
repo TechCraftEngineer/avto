@@ -1,5 +1,7 @@
 "use client";
 
+import { cn } from "@qbs-autonaim/ui/utils";
+
 interface Message {
   id: string;
   sender: "BOT" | "CANDIDATE" | "ADMIN";
@@ -25,17 +27,21 @@ export function ChatMessage({ message }: ChatMessageProps) {
       aria-label={`Сообщение от ${isBot ? "ассистента" : "вас"}`}
     >
       <div
-        className={`max-w-[80%] rounded-lg px-4 py-3 shadow-sm ${
-          isBot ? "bg-white text-gray-900" : "bg-blue-600 text-white"
-        }`}
+        className={cn(
+          "max-w-[80%] rounded-lg px-4 py-3 shadow-sm",
+          isBot
+            ? "bg-muted text-foreground"
+            : "bg-primary text-primary-foreground",
+        )}
       >
         <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
           {message.content}
         </p>
         <time
-          className={`mt-1 block text-xs ${
-            isBot ? "text-gray-500" : "text-blue-100"
-          }`}
+          className={cn(
+            "mt-1 block text-xs",
+            isBot ? "text-muted-foreground" : "text-primary-foreground/80",
+          )}
           dateTime={new Date(message.createdAt).toISOString()}
         >
           {time}
