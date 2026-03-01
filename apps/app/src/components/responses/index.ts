@@ -1,5 +1,6 @@
 // Компоненты для страницы responses
 
+export { PipelineStagesModal } from "./pipeline-stages-modal";
 export { ResponseDetailModal } from "./response-detail-modal";
 export { ResponseKanbanCard } from "./response-kanban-card";
 export { ResponsesFilters } from "./responses-filters";

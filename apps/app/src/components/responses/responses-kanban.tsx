@@ -1,6 +1,5 @@
 "use client";
 
-import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { Badge } from "@qbs-autonaim/ui/components/reui/badge";
 import {
@@ -21,11 +20,11 @@ import {
   IconSettings,
 } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Link from "next/link";
 import { parseAsString, useQueryState } from "nuqs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useORPC } from "~/orpc/react";
+import { PipelineStagesModal } from "./pipeline-stages-modal";
 import { ResponseDetailModal } from "./response-detail-modal";
 import { ResponseKanbanCard } from "./response-kanban-card";
 import type { ResponseItem } from "./types";
@@ -561,6 +560,8 @@ export function ResponsesKanban({
     [vacancies],
   );
 
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+
   const [responseIdParam, setResponseIdParam] = useQueryState(
     "responseId",
     parseAsString.withDefault(""),
@@ -605,10 +606,7 @@ export function ResponsesKanban({
     [columns, moveResponse],
   );
 
-  const settingsPipelineHref =
-    entityId && orgSlug && workspaceSlug
-      ? paths.workspace.vacancies(orgSlug, workspaceSlug, entityId, "settings")
-      : null;
+  const canConfigureStages = Boolean(entityId && workspaceId);
 
   if (!mounted || stagesLoading || stagesSorted.length === 0) {
     return (
@@ -618,12 +616,15 @@ export function ResponsesKanban({
             <p className="text-sm text-muted-foreground">
               Загрузка этапов канбана…
             </p>
-            {settingsPipelineHref && (
-              <Button variant="outline" size="sm" asChild>
-                <Link href={settingsPipelineHref} className="gap-2">
-                  <IconSettings className="size-4" />
-                  Настроить этапы
-                </Link>
+            {canConfigureStages && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSettingsModalOpen(true)}
+                className="gap-2"
+              >
+                <IconSettings className="size-4" />
+                Настроить этапы
               </Button>
             )}
           </div>
@@ -649,19 +650,30 @@ export function ResponsesKanban({
             ))}
           </div>
         </div>
+        {entityId && (
+          <PipelineStagesModal
+            open={settingsModalOpen}
+            onOpenChange={setSettingsModalOpen}
+            vacancyId={entityId}
+            workspaceId={workspaceId}
+          />
+        )}
       </div>
     );
   }
 
   return (
     <div className="flex min-h-0 flex-1 flex-col space-y-3">
-      {settingsPipelineHref && (
+      {canConfigureStages && (
         <div className="flex items-center justify-end">
-          <Button variant="outline" size="sm" asChild>
-            <Link href={settingsPipelineHref} className="gap-2">
-              <IconSettings className="size-4" />
-              Настроить этапы
-            </Link>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSettingsModalOpen(true)}
+            className="gap-2"
+          >
+            <IconSettings className="size-4" />
+            Настроить этапы
           </Button>
         </div>
       )}
@@ -704,6 +716,15 @@ export function ResponsesKanban({
         workspaceSlug={workspaceSlug}
         workspaceId={workspaceId}
       />
+
+      {entityId && (
+        <PipelineStagesModal
+          open={settingsModalOpen}
+          onOpenChange={setSettingsModalOpen}
+          vacancyId={entityId}
+          workspaceId={workspaceId}
+        />
+      )}
     </div>
   );
 }
