@@ -90,6 +90,9 @@ export function ChatList() {
   }
 
   if (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("[ChatList] Failed to load conversations:", error);
+    }
     return (
       <div className="flex min-h-[400px] items-center justify-center p-4">
         <Empty className="border-destructive/50 max-w-sm">
@@ -101,7 +104,9 @@ export function ChatList() {
               <MessageCircle className="size-6" />
             </EmptyMedia>
             <EmptyTitle>Ошибка</EmptyTitle>
-            <EmptyDescription>{error.message}</EmptyDescription>
+            <EmptyDescription>
+              Что-то пошло не так при загрузке чатов
+            </EmptyDescription>
           </EmptyHeader>
         </Empty>
       </div>
@@ -210,39 +215,36 @@ export function ChatList() {
                   workspaceSlug,
                   conversation.id,
                 )}
+                className={`flex items-start gap-2 md:gap-3 px-3 md:px-4 py-3 transition-colors cursor-pointer border-b border-border last:border-b-0 hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+                  isActive ? "bg-accent" : ""
+                }`}
               >
-                <div
-                  className={`flex items-start gap-2 md:gap-3 px-3 md:px-4 py-3 transition-colors cursor-pointer border-b border-border last:border-b-0 hover:bg-accent/50 ${
-                    isActive ? "bg-accent" : ""
-                  }`}
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-baseline justify-between gap-2 mb-1">
-                      <h3 className="font-semibold truncate text-sm md:text-base">
-                        Кандидат
-                      </h3>
-                      {lastMessage && (
-                        <span className="text-xs text-muted-foreground shrink-0">
-                          {format(lastMessage.createdAt, "HH:mm", {
-                            locale: ru,
-                          })}
-                        </span>
-                      )}
-                    </div>
-
-                    {vacancyTitle && (
-                      <Badge variant="secondary" className="mb-1 text-xs">
-                        {vacancyTitle}
-                      </Badge>
-                    )}
-
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline justify-between gap-2 mb-1">
+                    <h3 className="font-semibold truncate text-sm md:text-base">
+                      Кандидат
+                    </h3>
                     {lastMessage && (
-                      <p className="text-xs md:text-sm text-muted-foreground truncate">
-                        {lastMessage.role === "assistant" && "Вы: "}
-                        {lastMessage.content}
-                      </p>
+                      <span className="text-xs text-muted-foreground shrink-0">
+                        {format(lastMessage.createdAt, "HH:mm", {
+                          locale: ru,
+                        })}
+                      </span>
                     )}
                   </div>
+
+                  {vacancyTitle && (
+                    <Badge variant="secondary" className="mb-1 text-xs">
+                      {vacancyTitle}
+                    </Badge>
+                  )}
+
+                  {lastMessage && (
+                    <p className="text-xs md:text-sm text-muted-foreground truncate">
+                      {lastMessage.role === "assistant" && "Вы: "}
+                      {lastMessage.content}
+                    </p>
+                  )}
                 </div>
               </Link>
             );

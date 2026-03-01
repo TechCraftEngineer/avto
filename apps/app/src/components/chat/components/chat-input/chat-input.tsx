@@ -24,17 +24,18 @@ export function ChatInput({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim() || disabled) return;
+    const trimmed = message.trim();
+    if (!trimmed || disabled) return;
 
     const handler = onSend ?? onSendMessage;
     if (handler) {
-      await handler(message);
+      await handler(trimmed);
       setMessage("");
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       handleSubmit(e);
     }
@@ -73,7 +74,7 @@ export function ChatInput({
           </Button>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          Нажмите Enter для отправки, Shift+Enter для новой строки
+          Ctrl+Enter для отправки, Enter для новой строки
         </p>
       </form>
     </div>
