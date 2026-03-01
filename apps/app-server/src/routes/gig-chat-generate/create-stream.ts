@@ -113,7 +113,7 @@ export function createGigStream(params: CreateGigStreamParams): ReadableStream {
 
   let result: ReturnType<typeof streamText>;
   try {
-    result = streamText({ prompt, maxTokens: 1000 });
+    result = streamText({ prompt });
   } catch (aiError) {
     console.error("[gig-chat-generate] AI error:", aiError);
     throw new Error("Не удалось сгенерировать задание. Попробуйте позже.");
