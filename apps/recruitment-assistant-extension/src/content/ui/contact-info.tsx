@@ -47,8 +47,11 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
     }
   };
 
-  const hasAnyContact =
-    contacts.email?.trim() || contacts.phone?.trim() || socialLinks.length > 0;
+  const hasAnyContact = !!(
+    contacts.email?.trim() ||
+    contacts.phone?.trim() ||
+    socialLinks.length > 0
+  );
 
   return (
     <div>

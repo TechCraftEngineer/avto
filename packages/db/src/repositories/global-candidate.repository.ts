@@ -20,7 +20,16 @@ function isAiPlaceholder(value: string): boolean {
 function isValidEmail(value: string): boolean {
   if (value.length > 255) return false;
   const atIdx = value.indexOf("@");
-  return atIdx > 0 && atIdx < value.length - 1;
+  if (atIdx !== value.lastIndexOf("@")) return false;
+  if (atIdx <= 0 || atIdx >= value.length - 1) return false;
+  const [local, domain] = value.split("@");
+  return !!local?.trim() && !!domain?.trim();
+}
+
+function normalizeResumeUrl(url: string | null | undefined): string | null {
+  if (url == null) return null;
+  const trimmed = url.trim();
+  return trimmed || null;
 }
 
 function truncate(
@@ -149,13 +158,15 @@ export class GlobalCandidateRepository {
   /**
    * Найти глобального кандидата по URL резюме.
    * Используется при отсутствии контактов (HH resume URL уникален для кандидата).
+   * URL нормализуется (trim) для согласованности с lookup и persist.
    */
   async findGlobalCandidateByResumeUrl(
     resumeUrl: string | null,
   ): Promise<GlobalCandidate | null> {
-    if (!resumeUrl?.trim()) return null;
+    const normalized = normalizeResumeUrl(resumeUrl);
+    if (!normalized) return null;
     const found = await this.db.query.globalCandidate.findFirst({
-      where: eq(globalCandidate.resumeUrl, resumeUrl),
+      where: eq(globalCandidate.resumeUrl, normalized),
     });
     return found ?? null;
   }
@@ -356,6 +367,25 @@ export class GlobalCandidateRepository {
     return merged;
   }
 
+  /** Известные AI/service placeholder-строки для fullName (case-insensitive). */
+  private static readonly FULLNAME_PLACEHOLDERS = [
+    "not_provided",
+    "n/a",
+    "na",
+    "unknown",
+    "not_extracted",
+    "not available",
+    "не указано",
+    "не указан",
+  ];
+
+  private static isFullNamePlaceholder(value: string): boolean {
+    const lower = value.trim().toLowerCase();
+    if (!lower) return true;
+    if (AI_PLACEHOLDER_PATTERNS.some((p) => p.test(value))) return true;
+    return GlobalCandidateRepository.FULLNAME_PLACEHOLDERS.includes(lower);
+  }
+
   /**
    * Санитизирует данные кандидата перед вставкой/обновлением.
    * Фильтрует AI placeholder, усекает строки до лимитов схемы.
@@ -363,13 +393,32 @@ export class GlobalCandidateRepository {
   private sanitizeCandidateData(
     data: GlobalCandidateData,
   ): GlobalCandidateData {
+    let fullName = data.fullName;
+    if (fullName != null && typeof fullName === "string") {
+      fullName = fullName.trim();
+      if (
+        GlobalCandidateRepository.isFullNamePlaceholder(fullName) ||
+        !fullName
+      ) {
+        fullName = "Без имени";
+      } else {
+        const truncated = truncate(fullName, 500);
+        fullName = truncated ?? "Без имени";
+      }
+    } else {
+      fullName = "Без имени";
+    }
+
+    const resumeUrl = normalizeResumeUrl(data.resumeUrl);
+
     return {
       ...data,
       firstName: truncate(data.firstName, 100),
       lastName: truncate(data.lastName, 100),
       middleName: truncate(data.middleName, 100),
-      fullName: truncate(data.fullName, 500) ?? "Без имени",
+      fullName,
       headline: truncate(data.headline, 255),
+      resumeUrl,
       citizenship: truncate(data.citizenship, 100),
       location: truncate(data.location, 200),
       email: sanitizeContactField(data.email, {
@@ -391,6 +440,7 @@ export class GlobalCandidateRepository {
     data: GlobalCandidateData,
   ): Promise<{ candidate: GlobalCandidate; created: boolean }> {
     const sanitized = this.sanitizeCandidateData(data);
+    const normalizedResumeUrl = sanitized.resumeUrl;
     const contactParams = {
       email: sanitized.email ?? null,
       phone: sanitized.phone ?? null,
@@ -398,8 +448,8 @@ export class GlobalCandidateRepository {
     };
 
     let existing = await this.findGlobalCandidateByContacts(contactParams);
-    if (!existing && sanitized.resumeUrl) {
-      existing = await this.findGlobalCandidateByResumeUrl(sanitized.resumeUrl);
+    if (!existing && normalizedResumeUrl) {
+      existing = await this.findGlobalCandidateByResumeUrl(normalizedResumeUrl);
     }
     if (existing) {
       const mergedData = this.mergeGlobalCandidateData(existing, sanitized);
@@ -451,7 +501,11 @@ export class GlobalCandidateRepository {
     } catch (err: unknown) {
       const pgErr = err as { code?: string };
       if (pgErr?.code === "23505") {
-        const found = await this.findGlobalCandidateByContacts(contactParams);
+        let found = await this.findGlobalCandidateByContacts(contactParams);
+        if (!found && normalizedResumeUrl) {
+          found =
+            await this.findGlobalCandidateByResumeUrl(normalizedResumeUrl);
+        }
         if (found) {
           const mergedData = this.mergeGlobalCandidateData(found, sanitized);
           if (Object.keys(mergedData).length > 0) {
