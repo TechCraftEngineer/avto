@@ -15,11 +15,11 @@ function extractLocationFromProfileData(
   }
   const kwork = pd.kworkUserData as Record<string, unknown> | undefined;
   if (kwork?.location && typeof kwork.location === "string") {
-    const loc = (kwork.location as string).trim();
+    const loc = kwork.location.trim();
     return loc ? sanitizeHtml(loc) : null;
   }
   if (pd.location && typeof pd.location === "string") {
-    const loc = (pd.location as string).trim();
+    const loc = pd.location.trim();
     return loc ? sanitizeHtml(loc) : null;
   }
   return null;

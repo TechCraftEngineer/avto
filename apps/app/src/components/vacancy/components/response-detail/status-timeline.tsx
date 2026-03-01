@@ -131,7 +131,6 @@ type TimelineItem =
       newValue?: unknown;
       metadata?: unknown;
       user?: { name?: string | null } | null;
-      userId?: string | null;
     }
   | {
       kind: "interaction";
@@ -151,12 +150,15 @@ function isValidTimelineItem(item: unknown): item is TimelineItem {
   const o = item as Record<string, unknown>;
   if (o.kind !== "history" && o.kind !== "interaction") return false;
   const ts = o.timestamp;
-  if (
-    typeof o.id !== "string" ||
-    !(ts instanceof Date || typeof ts === "string")
-  )
+  if (typeof o.id !== "string" || typeof o.eventType !== "string") return false;
+  if (ts instanceof Date) {
+    if (Number.isNaN(ts.getTime())) return false;
+  } else if (typeof ts === "string") {
+    const parsed = Date.parse(ts);
+    if (!Number.isFinite(parsed)) return false;
+  } else {
     return false;
-  if (typeof o.eventType !== "string") return false;
+  }
   if (o.kind === "interaction") {
     return typeof o.source === "string";
   }

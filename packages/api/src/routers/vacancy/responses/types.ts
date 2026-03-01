@@ -36,7 +36,6 @@ export interface RawResponseBase {
 /** Расширенный сырой отклик (используется в list) */
 export interface RawResponse extends RawResponseBase {
   globalCandidateId: string | null;
-  profileData: StoredProfileData | null;
   email: string | null;
   salaryExpectationsAmount: number | null;
   salaryExpectationsComment: string | null;

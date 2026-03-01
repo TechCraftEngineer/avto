@@ -5,46 +5,6 @@ import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
-const VACANCY_DEFAULTS = [
-  {
-    label: "На рассмотрении",
-    position: 0,
-    color: "bg-blue-500",
-    legacyKey: "SCREENING_DONE",
-  },
-  {
-    label: "Собеседование",
-    position: 1,
-    color: "bg-cyan-500",
-    legacyKey: "INTERVIEW",
-  },
-  {
-    label: "Оффер",
-    position: 2,
-    color: "bg-indigo-500",
-    legacyKey: "OFFER_SENT",
-  },
-  {
-    label: "СБ пройдена",
-    position: 3,
-    color: "bg-violet-500",
-    legacyKey: "SECURITY_PASSED",
-  },
-  {
-    label: "Договор отправлен",
-    position: 4,
-    color: "bg-amber-500",
-    legacyKey: "CONTRACT_SENT",
-  },
-  {
-    label: "Онбординг",
-    position: 5,
-    color: "bg-emerald-500",
-    legacyKey: "ONBOARDING",
-  },
-  { label: "Отказ", position: 6, color: "bg-rose-500", legacyKey: "REJECTED" },
-] as const;
-
 const COMMON_STAGE_DEFAULTS = [
   { label: "Контакт", position: 0, color: "bg-blue-500", legacyKey: null },
   { label: "HR интервью", position: 1, color: "bg-cyan-500", legacyKey: null },
@@ -82,6 +42,7 @@ const COMMON_STAGE_DEFAULTS = [
   { label: "Резерв", position: 8, color: "bg-slate-500", legacyKey: null },
 ] as const;
 
+const VACANCY_DEFAULTS = COMMON_STAGE_DEFAULTS;
 const PROJECT_DEFAULTS = COMMON_STAGE_DEFAULTS;
 const GIG_DEFAULTS = COMMON_STAGE_DEFAULTS;
 

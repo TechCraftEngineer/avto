@@ -38,25 +38,19 @@ export function VacancyFilter({
 }: VacancyFilterProps) {
   const [open, setOpen] = useState(false);
 
-  const handleToggle = (vacancyId: string) => {
-    const newSelection = selectedVacancyIds.includes(vacancyId)
-      ? selectedVacancyIds.filter((id) => id !== vacancyId)
-      : [...selectedVacancyIds, vacancyId];
-    onSelectionChange(newSelection);
+  const handleSelect = (vacancyId: string) => {
+    const isSelected = selectedVacancyIds.includes(vacancyId);
+    onSelectionChange(isSelected ? [] : [vacancyId]);
   };
 
   const handleSelectAll = () => {
     onSelectionChange([]);
   };
 
-  const selectedCount = selectedVacancyIds.length;
-  const displayText =
-    selectedCount === 0
-      ? "Все вакансии"
-      : selectedCount === 1
-        ? vacancies.find((v) => v.id === selectedVacancyIds[0])?.title ||
-          "1 вакансия"
-        : `${selectedCount} вакансий`;
+  const selectedId = selectedVacancyIds[0];
+  const displayText = !selectedId
+    ? "Все вакансии"
+    : (vacancies.find((v) => v.id === selectedId)?.title ?? "Вакансия");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -65,7 +59,7 @@ export function VacancyFilter({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          aria-label="Выбрать вакансии"
+          aria-label="Выбрать вакансию"
           className="w-full sm:w-[280px] justify-between"
           disabled={isLoading}
         >
@@ -84,18 +78,18 @@ export function VacancyFilter({
                 className="cursor-pointer gap-2"
               >
                 <Checkbox
-                  checked={selectedCount === 0}
+                  checked={!selectedId}
                   aria-label="Все вакансии"
                   className="pointer-events-none"
                 />
                 <span className="font-medium">Все вакансии</span>
               </CommandItem>
               {vacancies.map((vacancy) => {
-                const isSelected = selectedVacancyIds.includes(vacancy.id);
+                const isSelected = selectedId === vacancy.id;
                 return (
                   <CommandItem
                     key={vacancy.id}
-                    onSelect={() => handleToggle(vacancy.id)}
+                    onSelect={() => handleSelect(vacancy.id)}
                     className="cursor-pointer gap-2"
                   >
                     <Checkbox
