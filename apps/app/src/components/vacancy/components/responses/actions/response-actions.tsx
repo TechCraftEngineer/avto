@@ -229,7 +229,7 @@ export function ResponseActions({
         {!welcomeSentAt && importSource === "HH" && (
           <DropdownMenuItem onClick={() => setWelcomeModalOpen(true)}>
             <Send className="h-4 w-4 mr-2" />
-            Сгенерировать приветствие для HH.ru…
+            Сгенерировать приглашение на интервью…
           </DropdownMenuItem>
         )}
 

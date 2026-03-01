@@ -41,10 +41,12 @@ export function HhWelcomeMessageModal({
         if (openRef.current) {
           setMessage(data.message);
         }
-        toast.success("Приветствие сгенерировано");
+        toast.success("Приглашение на интервью сгенерировано");
       },
       onError: (error) => {
-        toast.error(error.message || "Не удалось сгенерировать приветствие");
+        toast.error(
+          error.message || "Не удалось сгенерировать приглашение на интервью",
+        );
       },
     }),
   );
@@ -76,11 +78,11 @@ export function HhWelcomeMessageModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MessageSquare className="h-5 w-5" />
-            Приветствие для HH.ru
+            Приглашение на интервью
           </DialogTitle>
           <DialogDescription>
-            Сгенерируйте приветственное сообщение и скопируйте его. Отправьте
-            сообщение самостоятельно в чате с кандидатом на hh.ru.
+            Сгенерируйте приглашение со ссылкой на интервью и скопируйте его.
+            Отправьте сообщение в чате с кандидатом на hh.ru.
           </DialogDescription>
         </DialogHeader>
 
@@ -88,14 +90,14 @@ export function HhWelcomeMessageModal({
           {!message && !isGenerating && (
             <Button onClick={handleGenerate} className="w-full gap-2" size="lg">
               <Sparkles className="h-4 w-4" />
-              Сгенерировать приветствие
+              Сгенерировать приглашение
             </Button>
           )}
 
           {isGenerating && (
             <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
-              <span>Генерация приветствия…</span>
+              <span>Генерация приглашения…</span>
             </div>
           )}
 
@@ -105,10 +107,10 @@ export function HhWelcomeMessageModal({
                 id="hh-welcome-message"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Приветственное сообщение"
+                placeholder="Приглашение на интервью"
                 rows={10}
                 className="font-sans text-base resize-none"
-                aria-label="Приветственное сообщение"
+                aria-label="Приглашение на интервью"
               />
               <div className="flex gap-2">
                 <Button

@@ -123,9 +123,9 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
             return result.data;
           });
         } else {
-          // Если ничего не включено, отправляем обычное приветствие
+          // Если ничего не включено, отправляем сообщение без ссылки на интервью
           hhMessage = await step.run("generate-hh-message", async () => {
-            console.log("🤖 Генерация приветственного сообщения для HH.ru", {
+            console.log("🤖 Генерация сообщения для HH.ru", {
               responseId,
               username,
             });

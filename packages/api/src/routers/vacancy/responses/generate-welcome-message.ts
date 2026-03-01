@@ -5,6 +5,7 @@ import {
   vacancy as vacancyTable,
 } from "@qbs-autonaim/db/schema";
 import { generateWelcomeMessage } from "@qbs-autonaim/jobs/services/messaging";
+import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import { z } from "zod";
 import {
   protectedProcedure,
@@ -48,12 +49,23 @@ export const generateWelcomeMessageProcedure = protectedProcedure
       });
     }
 
-    const result = await generateWelcomeMessage(responseId, "hh");
+    const linkGenerator = new InterviewLinkGenerator();
+    const interviewLink = await linkGenerator.getOrCreateResponseInterviewLink(
+      responseId,
+      vacancy.workspaceId,
+    );
+
+    const result = await generateWelcomeMessage(
+      responseId,
+      "hh-webchat-invite",
+      interviewLink.url,
+    );
 
     if (!result.success) {
       console.error("[generateWelcomeMessage] AI service error:", result.error);
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: "Не удалось сгенерировать приветствие. Попробуйте позже.",
+        message:
+          "Не удалось сгенерировать приглашение на интервью. Попробуйте позже.",
       });
     }
 
@@ -66,7 +78,8 @@ export const generateWelcomeMessageProcedure = protectedProcedure
         "[generateWelcomeMessage] AI returned empty or invalid message",
       );
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: "Не удалось сгенерировать приветствие. Попробуйте позже.",
+        message:
+          "Не удалось сгенерировать приглашение на интервью. Попробуйте позже.",
       });
     }
 
