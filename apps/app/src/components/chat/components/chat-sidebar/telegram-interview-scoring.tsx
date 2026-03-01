@@ -1,5 +1,12 @@
 "use client";
 
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import { Label } from "@qbs-autonaim/ui/components/label";
 import { Progress } from "@qbs-autonaim/ui/components/progress";
 import { Star } from "lucide-react";
 import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
@@ -11,9 +18,9 @@ interface TelegramInterviewScoringProps {
 }
 
 const getScoreColor = (score: number) => {
-  if (score >= 80) return "text-green-600";
-  if (score >= 60) return "text-yellow-600";
-  return "text-red-600";
+  if (score >= 80) return "text-green-600 dark:text-green-500";
+  if (score >= 60) return "text-yellow-600 dark:text-yellow-500";
+  return "text-red-600 dark:text-red-500";
 };
 
 const getProgressColor = (score: number) => {
@@ -32,12 +39,16 @@ export function TelegramInterviewScoring({
   }
 
   return (
-    <div>
-      <h2 className="text-lg font-semibold mb-4">Telegram интервью</h2>
-      <div className="space-y-3">
+    <Card size="sm">
+      <CardHeader className="p-0 pb-3">
+        <CardTitle className="text-base">Telegram интервью</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3 p-0">
         {score !== null && (
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Общая оценка</p>
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">
+              Общая оценка
+            </Label>
             <div className="flex items-center gap-2">
               <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
               <span className="text-2xl font-bold text-yellow-600">
@@ -49,10 +60,10 @@ export function TelegramInterviewScoring({
         )}
 
         {detailedScore != null && (
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">
               Детальная оценка
-            </p>
+            </Label>
             <div className="flex items-center gap-2 mb-2">
               <span
                 className={`text-2xl font-bold ${getScoreColor(detailedScore)}`}
@@ -70,17 +81,17 @@ export function TelegramInterviewScoring({
         )}
 
         {analysis && (
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Анализ</p>
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">Анализ</Label>
             <div
-              className="text-sm prose prose-sm max-w-none"
+              className="text-sm prose prose-sm max-w-none dark:prose-invert"
               dangerouslySetInnerHTML={{
                 __html: sanitizeHtmlFunction(analysis || ""),
               }}
             />
           </div>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

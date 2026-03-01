@@ -191,7 +191,7 @@ export function ChatView({ conversationId }: { conversationId: string }) {
     <div className="flex h-full bg-background">
       <div className="flex flex-col flex-1 min-h-0">
         <div className="shrink-0">
-          <div className="border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+          <div className="border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
             <div className="flex items-center gap-3 px-4 py-3">
               <Link
                 href={paths.workspace.chat(orgSlug ?? "", workspaceSlug ?? "")}
@@ -230,7 +230,7 @@ export function ChatView({ conversationId }: { conversationId: string }) {
           </div>
         </div>
 
-        <div className="flex-1 min-h-0 bg-muted/30">
+        <div className="flex-1 min-h-0 bg-muted/30 rounded-t-lg">
           <ChatMessages
             messages={messages.map(
               (msg) =>

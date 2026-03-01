@@ -1,4 +1,11 @@
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
 import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area";
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { CandidateInfo } from "./candidate-info";
 import { ResumePdfLink } from "./resume-pdf-link";
 import { ScreeningInfo } from "./screening-info";
@@ -39,16 +46,21 @@ export function ChatSidebar({
   responseData,
 }: ChatSidebarProps) {
   return (
-    <div className="w-full lg:w-80 border-l flex flex-col h-full overflow-hidden">
+    <div className="w-full lg:w-80 border-l border-border bg-card flex flex-col h-full overflow-hidden">
       <ScrollArea className="h-full">
-        <div className="p-4 lg:p-6 space-y-4 lg:space-y-6">
+        <div className="p-4 lg:p-6 space-y-6">
           <CandidateInfo candidateName={candidateName} chatId={chatId} />
+          <Separator />
 
           {responseData?.resumePdfFile && (
-            <div>
-              <h2 className="text-lg font-semibold mb-4">Резюме</h2>
-              <ResumePdfLink fileKey={responseData.resumePdfFile.key} />
-            </div>
+            <Card size="sm">
+              <CardHeader className="p-0 pb-3">
+                <CardTitle className="text-base">Резюме</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <ResumePdfLink fileKey={responseData.resumePdfFile.key} />
+              </CardContent>
+            </Card>
           )}
 
           {responseData?.screening && (

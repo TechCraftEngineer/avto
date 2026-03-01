@@ -1,5 +1,13 @@
 "use client";
 
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import { Label } from "@qbs-autonaim/ui/components/label";
+import { Progress } from "@qbs-autonaim/ui/components/progress";
 import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
 
 interface ScreeningInfoProps {
@@ -14,41 +22,40 @@ export function ScreeningInfo({
   analysis,
 }: ScreeningInfoProps) {
   return (
-    <div>
-      <h2 className="text-lg font-semibold mb-4">Скрининг</h2>
-      <div className="space-y-3">
+    <Card size="sm">
+      <CardHeader className="p-0 pb-3">
+        <CardTitle className="text-base">Скрининг</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3 p-0">
         {score !== null && (
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Оценка</p>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-2xl font-bold text-teal-600">{score}</span>
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Оценка</Label>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-bold text-primary">{score}</span>
               <span className="text-sm text-muted-foreground">из 5</span>
             </div>
-            {detailedScore !== null && detailedScore !== undefined && (
+            {detailedScore != null && (
               <div className="flex items-center gap-2">
-                <div className="flex-1 bg-muted rounded-full h-2">
-                  <div
-                    className="bg-teal-500 h-2 rounded-full transition-all"
-                    style={{ width: `${detailedScore}%` }}
-                  />
-                </div>
-                <span className="text-sm font-semibold">{detailedScore}%</span>
+                <Progress value={detailedScore} className="flex-1" />
+                <span className="text-sm font-medium shrink-0">
+                  {detailedScore}%
+                </span>
               </div>
             )}
           </div>
         )}
         {analysis && (
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Анализ</p>
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">Анализ</Label>
             <div
-              className="text-sm prose prose-sm max-w-none"
+              className="text-sm prose prose-sm max-w-none dark:prose-invert"
               dangerouslySetInnerHTML={{
                 __html: sanitizeHtmlFunction(analysis || ""),
               }}
             />
           </div>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,5 +1,8 @@
 "use client";
 
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { Textarea } from "@qbs-autonaim/ui/components/textarea";
+import { SendHorizontal } from "lucide-react";
 import { useState } from "react";
 
 interface ChatInputProps {
@@ -31,7 +34,6 @@ export function ChatInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Enter отправляет сообщение, Shift+Enter добавляет новую строку
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
@@ -39,10 +41,10 @@ export function ChatInput({
   };
 
   return (
-    <div className="border-t border-gray-200 bg-white px-4 py-4">
+    <div className="border-t border-border bg-background px-4 py-4">
       <form onSubmit={handleSubmit} className="mx-auto max-w-4xl">
         <div className="flex gap-2">
-          <textarea
+          <Textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -55,34 +57,22 @@ export function ChatInput({
             }
             disabled={disabled}
             rows={1}
-            className="flex-1 resize-none rounded-lg border border-gray-300 px-4 py-3 text-base shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
-            style={{
-              minHeight: "48px",
-              maxHeight: "200px",
-              touchAction: "manipulation",
-            }}
+            className="min-h-12 max-h-[200px] resize-none py-3 field-sizing-content"
+            style={{ touchAction: "manipulation" }}
             aria-label="Введите ваше сообщение"
             autoComplete="off"
           />
-          <button
+          <Button
             type="submit"
+            size="icon"
             disabled={disabled || !message.trim()}
-            className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-300"
-            style={{ touchAction: "manipulation" }}
+            className="h-12 w-12 shrink-0"
             aria-label="Отправить сообщение"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="h-5 w-5"
-              aria-hidden="true"
-            >
-              <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
-            </svg>
-          </button>
+            <SendHorizontal className="size-5" />
+          </Button>
         </div>
-        <p className="mt-2 text-xs text-gray-500">
+        <p className="mt-2 text-xs text-muted-foreground">
           Нажмите Enter для отправки, Shift+Enter для новой строки
         </p>
       </form>

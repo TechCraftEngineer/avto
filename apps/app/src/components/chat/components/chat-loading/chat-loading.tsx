@@ -1,9 +1,11 @@
+import { Spinner } from "@qbs-autonaim/ui/components/spinner";
+
 export function ChatLoading() {
   return (
     <div className="flex h-full items-center justify-center w-full">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto mb-4" />
-        <p className="text-muted-foreground">Загрузка чата...</p>
+      <div className="flex flex-col items-center gap-4 text-center">
+        <Spinner className="size-10 text-primary" />
+        <p className="text-sm text-muted-foreground">Загрузка чата...</p>
       </div>
     </div>
   );
