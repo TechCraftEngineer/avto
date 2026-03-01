@@ -36,9 +36,12 @@ export function ScreeningInfo({
             </div>
             {detailedScore != null && (
               <div className="flex items-center gap-2">
-                <Progress value={detailedScore} className="flex-1" />
+                <Progress
+                  value={Math.max(0, Math.min(100, detailedScore))}
+                  className="flex-1"
+                />
                 <span className="text-sm font-medium shrink-0">
-                  {detailedScore}%
+                  {Math.round(Math.max(0, Math.min(100, detailedScore)))}%
                 </span>
               </div>
             )}
