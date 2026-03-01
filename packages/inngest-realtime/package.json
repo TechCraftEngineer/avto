@@ -50,6 +50,9 @@
   },
   "author": "Bunworks Team",
   "license": "MIT",
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
   "devDependencies": {
     "@types/debug": "^4.1.12",
     "@types/node": "^25.3.3",

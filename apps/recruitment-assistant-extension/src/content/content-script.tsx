@@ -115,8 +115,15 @@ export class ContentScript {
         existingCandidate: result.existingCandidate,
       };
     }
+    const sanitizedData = {
+      ...result.data,
+      basicInfo: {
+        ...result.data.basicInfo,
+        fullName: this.getFreelancerName(result.data),
+      },
+    };
     try {
-      await importCandidateData(result.data, {
+      await importCandidateData(sanitizedData, {
         vacancyId: payload.vacancyId,
       });
       return { ok: true, duplicate: false };

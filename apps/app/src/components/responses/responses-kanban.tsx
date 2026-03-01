@@ -608,7 +608,7 @@ export function ResponsesKanban({
 
   const canConfigureStages = Boolean(entityId && workspaceId);
 
-  if (!mounted || stagesLoading || stagesSorted.length === 0) {
+  if (!mounted || stagesLoading) {
     return (
       <div className="flex min-h-0 flex-1 flex-col space-y-3">
         {stagesLoading && (
@@ -650,7 +650,38 @@ export function ResponsesKanban({
             ))}
           </div>
         </div>
-        {entityId && (
+        {canConfigureStages && entityId && (
+          <PipelineStagesModal
+            open={settingsModalOpen}
+            onOpenChange={setSettingsModalOpen}
+            vacancyId={entityId}
+            workspaceId={workspaceId}
+          />
+        )}
+      </div>
+    );
+  }
+
+  if (stagesSorted.length === 0) {
+    return (
+      <div className="flex min-h-0 flex-1 flex-col space-y-3">
+        <div className="flex flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-border/60 bg-muted/10 py-16">
+          <p className="text-sm text-muted-foreground mb-4">
+            Нет этапов канбана. Настройте этапы для отображения откликов.
+          </p>
+          {canConfigureStages && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSettingsModalOpen(true)}
+              className="gap-2"
+            >
+              <IconSettings className="size-4" />
+              Настроить этапы
+            </Button>
+          )}
+        </div>
+        {canConfigureStages && entityId && (
           <PipelineStagesModal
             open={settingsModalOpen}
             onOpenChange={setSettingsModalOpen}
@@ -717,7 +748,7 @@ export function ResponsesKanban({
         workspaceId={workspaceId}
       />
 
-      {entityId && (
+      {canConfigureStages && entityId && (
         <PipelineStagesModal
           open={settingsModalOpen}
           onOpenChange={setSettingsModalOpen}
