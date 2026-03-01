@@ -189,6 +189,7 @@ export const getStages = protectedProcedure
               pipelineStage.entityType,
               pipelineStage.position,
             ],
+            where: isNull(pipelineStage.entityId), // частичный уникальный индекс
           });
         const rows = await tx.query.pipelineStage.findMany({
           where: and(

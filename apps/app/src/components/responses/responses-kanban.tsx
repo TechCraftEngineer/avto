@@ -70,6 +70,8 @@ type PipelineStage = {
   legacyKey: string | null;
 };
 
+const EMPTY_STAGES: PipelineStage[] = [];
+
 interface VacancyOption {
   id: string;
   title: string;
@@ -456,7 +458,7 @@ export function ResponsesKanban({
     enabled: Boolean(workspaceId),
   });
 
-  const stages = stagesData?.stages ?? [];
+  const stages = stagesData?.stages ?? EMPTY_STAGES;
   const stagesSorted = useMemo(
     () => [...stages].sort((a, b) => a.position - b.position),
     [stages],
@@ -474,6 +476,8 @@ export function ResponsesKanban({
   // - при смене sortKey (сортировка/фильтры) — используем порядок с сервера
   // - при refetch с теми же параметрами — сохраняем локальный порядок (после drag)
   useEffect(() => {
+    if (stagesSorted.length === 0) return;
+
     const serverColumns = responsesToColumns(responses, stagesSorted);
     const useServerOrder = sortKey !== prevSortKeyRef.current;
     if (useServerOrder) {
@@ -504,7 +508,18 @@ export function ResponsesKanban({
         }
         merged[colId] = mergedItems;
       }
-      return merged;
+      // Не обновлять, если порядок и состав колонок не изменился — предотвращает цикл
+      const keys = Object.keys(merged);
+      if (keys.length !== Object.keys(prev).length) return merged;
+      for (const k of keys) {
+        const prevCol = prev[k] ?? [];
+        const nextCol = merged[k] ?? [];
+        if (prevCol.length !== nextCol.length) return merged;
+        for (let i = 0; i < prevCol.length; i++) {
+          if (prevCol[i]?.id !== nextCol[i]?.id) return merged;
+        }
+      }
+      return prev;
     });
   }, [responses, sortKey, stagesSorted]);
 

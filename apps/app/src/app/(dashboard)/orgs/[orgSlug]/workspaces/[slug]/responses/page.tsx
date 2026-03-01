@@ -116,31 +116,30 @@ export default function ResponsesPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <PageHeader
-        title="Отклики"
-        description="Управление откликами кандидатов на ваши вакансии"
-        tooltipContent={`Здесь отображаются все отклики на ваши вакансии. Вы можете фильтровать их по статусу, оценке скрининга и другим параметрам.\n\n[Подробнее в документации](${env.NEXT_PUBLIC_DOCS_URL}/candidates/pipeline)`}
-      >
-        <ToggleGroup
-          type="single"
-          value={viewMode}
-          onValueChange={(v) => v && setViewMode(v as ViewMode)}
-          variant="outline"
-          size="sm"
-          className="rounded-lg"
-        >
-          <ToggleGroupItem value="board" aria-label="Доска">
-            <IconLayoutKanban className="size-4" />
-            <span className="hidden sm:inline">Доска</span>
-          </ToggleGroupItem>
-          <ToggleGroupItem value="table" aria-label="Таблица">
-            <IconTable className="size-4" />
-            <span className="hidden sm:inline">Таблица</span>
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </PageHeader>
-
       <div className="@container/main mx-auto flex min-h-0 w-full max-w-[1600px] flex-1 flex-col gap-6 overflow-hidden px-4 py-6 md:px-6">
+        <PageHeader
+          title="Отклики"
+          description="Управление откликами кандидатов на ваши вакансии"
+          tooltipContent={`Здесь отображаются все отклики на ваши вакансии. Вы можете фильтровать их по статусу, оценке скрининга и другим параметрам.\n\n[Подробнее в документации](${env.NEXT_PUBLIC_DOCS_URL}/candidates/pipeline)`}
+        >
+          <ToggleGroup
+            type="single"
+            value={viewMode}
+            onValueChange={(v) => v && setViewMode(v as ViewMode)}
+            variant="outline"
+            size="sm"
+            className="rounded-lg"
+          >
+            <ToggleGroupItem value="board" aria-label="Доска">
+              <IconLayoutKanban className="size-4" />
+              <span className="hidden sm:inline">Доска</span>
+            </ToggleGroupItem>
+            <ToggleGroupItem value="table" aria-label="Таблица">
+              <IconTable className="size-4" />
+              <span className="hidden sm:inline">Таблица</span>
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </PageHeader>
         <ResponsesStats
           totalResponses={stats.totalResponses}
           evaluatedResponses={stats.evaluatedResponses}
