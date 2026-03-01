@@ -80,7 +80,7 @@ export function VacancyPipelineStagesSettings({
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="h-12 animate-pulse rounded-lg bg-muted/50"
+              className="h-12 animate-pulse motion-reduce:animate-none rounded-lg bg-muted/50"
             />
           ))}
         </div>

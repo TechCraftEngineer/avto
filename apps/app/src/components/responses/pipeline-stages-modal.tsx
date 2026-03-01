@@ -24,7 +24,7 @@ export function PipelineStagesModal({
 }: PipelineStagesModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
+      <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto overscroll-contain">
         <DialogHeader>
           <DialogTitle>Этапы канбан-доски</DialogTitle>
           <DialogDescription>

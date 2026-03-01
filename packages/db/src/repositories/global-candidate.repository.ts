@@ -367,11 +367,11 @@ export class GlobalCandidateRepository {
     return merged;
   }
 
-  /** Известные AI/service placeholder-строки для fullName (case-insensitive). */
+  /** Известные AI/service placeholder-строки для fullName (case-insensitive).
+   * Не включаем "na" — легитимные короткие фамилии (напр. "Na") не должны отфильтровываться. */
   private static readonly FULLNAME_PLACEHOLDERS = [
     "not_provided",
     "n/a",
-    "na",
     "unknown",
     "not_extracted",
     "not available",
@@ -393,20 +393,23 @@ export class GlobalCandidateRepository {
   private sanitizeCandidateData(
     data: GlobalCandidateData,
   ): GlobalCandidateData {
-    let fullName = data.fullName;
-    if (fullName != null && typeof fullName === "string") {
-      fullName = fullName.trim();
+    let fullName: string;
+    if (data.fullName != null && typeof data.fullName === "string") {
+      fullName = data.fullName.trim();
       if (
         GlobalCandidateRepository.isFullNamePlaceholder(fullName) ||
         !fullName
       ) {
-        fullName = "Без имени";
+        // Не сохраняем placeholder в БД — пустое значение позволит merge перезаписать
+        // при поступлении валидного имени (напр. "Анна"). Для отображения используйте
+        // "Без имени" на уровне UI.
+        fullName = "";
       } else {
         const truncated = truncate(fullName, 500);
-        fullName = truncated ?? "Без имени";
+        fullName = truncated ?? "";
       }
     } else {
-      fullName = "Без имени";
+      fullName = "";
     }
 
     const resumeUrl = normalizeResumeUrl(data.resumeUrl);

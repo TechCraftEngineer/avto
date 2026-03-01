@@ -5,11 +5,7 @@ import type { BetterAuthOptions, BetterAuthPlugin } from "better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
-import {
-  createAuthMiddleware,
-  customSession,
-  emailOTP,
-} from "better-auth/plugins";
+import { customSession, emailOTP } from "better-auth/plugins";
 
 export function initAuth<
   TExtraPlugins extends BetterAuthPlugin[] = [],
@@ -23,7 +19,7 @@ export function initAuth<
     email: string;
     otp?: string;
     url?: string;
-    type: "sign-in" | "email-verification" | "forget-password";
+    type: "sign-in" | "email-verification" | "forget-password" | "change-email";
   }) => Promise<void>;
   sendWelcomeEmail?: (data: {
     email: string;
@@ -82,27 +78,21 @@ export function initAuth<
         }
       },
     },
-    hooks: {
-      after: createAuthMiddleware(async (ctx) => {
-        // Отправляем приветственное письмо после регистрации
-        const isSignup =
-          ctx.path === "/sign-up/email" || ctx.path.startsWith("/callback/");
-
-        if (isSignup && ctx.context.newSession && options.sendWelcomeEmail) {
-          const userData = await db
-            .select({ email: user.email, name: user.name })
-            .from(user)
-            .where(eq(user.id, ctx.context.newSession.session.userId))
-            .limit(1);
-
-          if (userData[0]) {
-            await options.sendWelcomeEmail({
-              email: userData[0].email,
-              username: userData[0].name || userData[0].email,
-            });
-          }
-        }
-      }),
+    // welcome email отправляем только при создании нового юзера (databaseHooks),
+    // а не при каждом OAuth callback — иначе существующие юзеры получают письмо при каждом входе через Google
+    databaseHooks: {
+      user: {
+        create: {
+          after: async (createdUser) => {
+            if (options.sendWelcomeEmail && createdUser.email) {
+              await options.sendWelcomeEmail({
+                email: createdUser.email,
+                username: createdUser.name ?? createdUser.email,
+              });
+            }
+          },
+        },
+      },
     },
     plugins: [
       emailOTP({
