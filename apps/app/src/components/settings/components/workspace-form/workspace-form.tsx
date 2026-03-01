@@ -108,7 +108,7 @@ export function WorkspaceForm({
     orpc.workspace.delete.mutationOptions({
       onSuccess: async () => {
         toast.success("Рабочее пространство успешно удалено");
-        router.push("/");
+        router.push(paths.dashboard.root);
       },
       onError: (err) => {
         const message =

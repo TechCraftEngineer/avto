@@ -303,7 +303,7 @@ function LeaveWorkspaceDialog({
             input: { workspaceId },
           }),
         });
-        router.push("/");
+        router.push(paths.dashboard.root);
       },
       onError: (err) => {
         const message =

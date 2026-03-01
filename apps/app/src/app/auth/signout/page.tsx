@@ -1,6 +1,6 @@
 "use client";
 
-import { APP_CONFIG } from "@qbs-autonaim/config";
+import { APP_CONFIG, paths } from "@qbs-autonaim/config";
 import { GalleryVerticalEnd } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -15,7 +15,8 @@ export default function SignOutPage() {
   useEffect(() => {
     const performSignOut = async () => {
       try {
-        const redirectPath = searchParams.get("redirect") ?? "/";
+        const redirectPath =
+          searchParams.get("redirect") ?? paths.dashboard.root;
 
         await signOut({
           fetchOptions: {
@@ -42,7 +43,10 @@ export default function SignOutPage() {
   return (
     <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
       <div className="flex w-full max-w-sm flex-col gap-6">
-        <a href="/" className="flex items-center gap-2 self-center font-medium">
+        <a
+          href={paths.dashboard.root}
+          className="flex items-center gap-2 self-center font-medium"
+        >
           <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
             <GalleryVerticalEnd
               className="size-4"
@@ -63,7 +67,7 @@ export default function SignOutPage() {
               <p className="text-destructive text-sm">{error}</p>
               <button
                 type="button"
-                onClick={() => router.push("/")}
+                onClick={() => router.push(paths.dashboard.root)}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4 py-2 text-sm font-medium transition-colors"
               >
                 На главную

@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import {
   Card,
@@ -156,9 +157,7 @@ export default function EditGigPage({ params }: PageProps) {
             },
           }),
         });
-        router.push(
-          `/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gigId}`,
-        );
+        router.push(paths.workspace.gigs(orgSlug, workspaceSlug, gigId));
       },
       onError: (error) => {
         toast.error(error.message || "Не удалось обновить задание");
@@ -241,7 +240,7 @@ export default function EditGigPage({ params }: PageProps) {
           </CardHeader>
           <CardContent className="flex flex-col items-center gap-4">
             <Button asChild className="min-h-[44px] touch-action-manipulation">
-              <Link href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs`}>
+              <Link href={paths.workspace.gigs(orgSlug, workspaceSlug)}>
                 <ArrowLeft className="h-4 w-4 mr-2" aria-hidden="true" />
                 Вернуться к заданиям
               </Link>

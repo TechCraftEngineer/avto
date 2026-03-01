@@ -33,6 +33,7 @@ export const paths = {
     signin: `${ROOTS.AUTH}/signin`,
     signup: `${ROOTS.AUTH}/signup`,
     otp: `${ROOTS.AUTH}/otp`,
+    signout: `${ROOTS.AUTH}/signout`,
     forgotPassword: `${ROOTS.AUTH}/forgot-password`,
     resetPassword: `${ROOTS.AUTH}/reset-password`,
     verifyEmail: `${ROOTS.AUTH}/verify-email`,
@@ -41,6 +42,13 @@ export const paths = {
     root: ROOTS.ACCOUNT,
     settings: `${ROOTS.ACCOUNT}/settings`,
     integrations: `${ROOTS.ACCOUNT}/settings/integrations`,
+    settingsSection: (section: string) =>
+      `${ROOTS.ACCOUNT}/settings/${section}`,
+  },
+  payment: {
+    root: "/payment",
+    create: "/payment/create",
+    detail: (id: string) => `/payment/${id}`,
   },
   workspace: {
     root: (orgSlug: string, slug: string) =>
@@ -61,7 +69,13 @@ export const paths = {
       orgSlug: string,
       slug: string,
       vacancyId?: string,
-      section?: "detail" | "settings" | "responses" | "edit" | "integrations",
+      section?:
+        | "detail"
+        | "settings"
+        | "responses"
+        | "edit"
+        | "integrations"
+        | "shortlist",
     ) => {
       const base = `/orgs/${orgSlug}/workspaces/${slug}/vacancies`;
       if (!vacancyId) return base;
@@ -81,13 +95,29 @@ export const paths = {
       orgSlug: string,
       slug: string,
       gigId?: string,
-      section?: "detail" | "settings" | "responses" | "edit",
+      section?: "detail" | "settings" | "responses" | "edit" | "shortlist",
     ) => {
       const base = `/orgs/${orgSlug}/workspaces/${slug}/gigs`;
       if (!gigId) return base;
       if (section) return `${base}/${gigId}/${section}`;
       return `${base}/${gigId}`;
     },
+    gigChat: (
+      orgSlug: string,
+      slug: string,
+      gigId: string,
+      sessionId?: string,
+    ) =>
+      sessionId
+        ? `/orgs/${orgSlug}/workspaces/${slug}/gigs/${gigId}/chat/${sessionId}`
+        : `/orgs/${orgSlug}/workspaces/${slug}/gigs/${gigId}/chat`,
+    gigResponse: (
+      orgSlug: string,
+      slug: string,
+      gigId: string,
+      responseId: string,
+    ) =>
+      `/orgs/${orgSlug}/workspaces/${slug}/gigs/${gigId}/responses/${responseId}`,
     settings: {
       root: (orgSlug: string, slug: string) =>
         `/orgs/${orgSlug}/workspaces/${slug}/settings`,
@@ -99,6 +129,8 @@ export const paths = {
         `/orgs/${orgSlug}/workspaces/${slug}/settings/members`,
       telegram: (orgSlug: string, slug: string) =>
         `/orgs/${orgSlug}/workspaces/${slug}/settings/telegram`,
+      pipeline: (orgSlug: string, slug: string) =>
+        `/orgs/${orgSlug}/workspaces/${slug}/settings/pipeline`,
     },
   },
   onboarding: {

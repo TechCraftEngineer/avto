@@ -1,5 +1,6 @@
 "use client";
 
+import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -21,7 +22,10 @@ export function InviteAcceptClient({ invite, token }: InviteAcceptClientProps) {
       onSuccess: () => {
         toast.success(`Вы присоединились к ${invite.workspace.name}`);
         router.push(
-          `/orgs/${invite.workspace.organization?.slug}/workspaces/${invite.workspace.slug}`,
+          paths.workspace.root(
+            invite.workspace.organization?.slug ?? "",
+            invite.workspace.slug,
+          ),
         );
         router.refresh();
       },
@@ -47,7 +51,7 @@ export function InviteAcceptClient({ invite, token }: InviteAcceptClientProps) {
   };
 
   const handleDecline = () => {
-    router.push("/");
+    router.push(paths.dashboard.root);
   };
 
   const getRoleLabel = (role: string) => {

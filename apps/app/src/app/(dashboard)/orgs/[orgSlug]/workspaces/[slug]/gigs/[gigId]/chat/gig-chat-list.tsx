@@ -1,5 +1,6 @@
 "use client";
 
+import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -63,7 +64,7 @@ export function GigChatList({ gigId }: GigChatListProps) {
         if (!orgSlug || !workspaceSlug) return;
 
         router.push(
-          `/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gigId}/chat/${session.id}`,
+          paths.workspace.gigChat(orgSlug, workspaceSlug, gigId, session.id),
         );
       },
     }),
@@ -84,9 +85,7 @@ export function GigChatList({ gigId }: GigChatListProps) {
               size="icon"
               className="h-9 w-9 shrink-0"
             >
-              <Link
-                href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gigId}`}
-              >
+              <Link href={paths.workspace.gigs(orgSlug, workspaceSlug, gigId)}>
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>
@@ -134,7 +133,12 @@ export function GigChatList({ gigId }: GigChatListProps) {
           </div>
         ) : sessionsQuery.data?.sessions?.length ? (
           sessionsQuery.data.sessions.map((session) => {
-            const href = `/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gigId}/chat/${session.id}`;
+            const href = paths.workspace.gigChat(
+              orgSlug,
+              workspaceSlug,
+              gigId,
+              session.id,
+            );
             const isActive = pathname === href;
 
             const title = session.title || "Диалог";

@@ -1,5 +1,6 @@
 "use client";
 
+import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, CheckCircle2, Clock, XCircle } from "lucide-react";
@@ -49,7 +50,10 @@ export function PaymentReturnContent() {
         <p className="text-muted-foreground">
           Не указан идентификатор платежа. Проверьте правильность ссылки.
         </p>
-        <Button onClick={() => router.push("/")} className="min-h-[44px]">
+        <Button
+          onClick={() => router.push(paths.dashboard.root)}
+          className="min-h-[44px]"
+        >
           Вернуться на главную
         </Button>
       </div>
@@ -100,7 +104,10 @@ export function PaymentReturnContent() {
         </div>
         <p className="text-muted-foreground">{errorMessage}</p>
         <div className="flex gap-3 flex-wrap">
-          <Button onClick={() => router.push("/")} className="min-h-[44px]">
+          <Button
+            onClick={() => router.push(paths.dashboard.root)}
+            className="min-h-[44px]"
+          >
             Вернуться на главную
           </Button>
           {!isForbidden && (
@@ -172,7 +179,7 @@ export function PaymentReturnContent() {
         </div>
 
         <Button
-          onClick={() => router.push("/")}
+          onClick={() => router.push(paths.dashboard.root)}
           className="w-full min-h-[44px]"
         >
           Вернуться на главную
@@ -240,7 +247,7 @@ export function PaymentReturnContent() {
           </Button>
           <Button
             variant="outline"
-            onClick={() => router.push("/")}
+            onClick={() => router.push(paths.dashboard.root)}
             className="min-h-[44px]"
           >
             Вернуться на главную
@@ -287,7 +294,10 @@ export function PaymentReturnContent() {
         </div>
 
         <div className="flex gap-3 flex-wrap">
-          <Button onClick={() => router.push("/")} className="min-h-[44px]">
+          <Button
+            onClick={() => router.push(paths.dashboard.root)}
+            className="min-h-[44px]"
+          >
             Вернуться на главную
           </Button>
           {payment.confirmationUrl && (

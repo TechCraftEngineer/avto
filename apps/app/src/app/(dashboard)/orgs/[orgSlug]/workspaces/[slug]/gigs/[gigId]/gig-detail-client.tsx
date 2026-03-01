@@ -1,5 +1,6 @@
 "use client";
 
+import { paths } from "@qbs-autonaim/config";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -114,7 +115,7 @@ export function GigDetailClient({
             input: { workspaceId: workspaceId ?? "" },
           }),
         });
-        router.push(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs`);
+        router.push(paths.workspace.gigs(orgSlug, workspaceSlug));
       },
       onError: (error) => {
         toast.error(error.message || "Не удалось удалить задание");

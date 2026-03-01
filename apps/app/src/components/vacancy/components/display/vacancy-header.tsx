@@ -1,5 +1,6 @@
 "use client";
 
+import { paths } from "@qbs-autonaim/config";
 import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -68,7 +69,7 @@ export function VacancyHeader({
           }),
         });
         setIsDeleteDialogOpen(false);
-        router.push(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`);
+        router.push(paths.workspace.vacancies(orgSlug, workspaceSlug));
       },
       onError: (error) => {
         toast.error(`Ошибка удаления: ${error.message}`);

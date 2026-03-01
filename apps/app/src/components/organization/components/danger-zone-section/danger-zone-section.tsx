@@ -1,5 +1,6 @@
 "use client";
 
+import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { useMutation } from "@tanstack/react-query";
 import { AlertTriangle } from "lucide-react";
@@ -26,7 +27,7 @@ export function DangerZoneSection({
     orpc.organization.delete.mutationOptions({
       onSuccess: async () => {
         toast.success("Организация успешно удалена");
-        router.push("/");
+        router.push(paths.dashboard.root);
       },
       onError: (err) => {
         const message =

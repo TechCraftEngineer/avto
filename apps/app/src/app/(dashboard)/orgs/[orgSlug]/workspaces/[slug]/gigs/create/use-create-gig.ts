@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { paths } from "@qbs-autonaim/config";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -98,7 +99,7 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
             input: { workspaceId: workspace?.id ?? "" },
           }),
         });
-        router.push(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs`);
+        router.push(paths.workspace.gigs(orgSlug, workspaceSlug));
       },
       onError: (e) => toast.error(e.message || "Не удалось создать задание"),
     }),

@@ -107,7 +107,7 @@ export default function ImportResponsesPage() {
         }
         // Перенаправляем на страницу вакансии
         router.push(
-          `/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/${vacancyId}`,
+          paths.workspace.vacancies(orgSlug, workspaceSlug, vacancyId),
         );
       },
       onError: (error) => {

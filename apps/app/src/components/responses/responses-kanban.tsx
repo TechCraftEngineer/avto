@@ -549,7 +549,7 @@ export function ResponsesKanban({
   const handleCardClick = useCallback(
     (response: ResponseItem) => {
       router.push(
-        `/orgs/${orgSlug}/workspaces/${workspaceSlug}/responses/${response.id}`,
+        paths.workspace.responses(orgSlug, workspaceSlug, response.id),
       );
     },
     [router, orgSlug, workspaceSlug],
@@ -578,7 +578,10 @@ export function ResponsesKanban({
     [columns, moveResponse],
   );
 
-  const settingsPipelineHref = `${paths.workspace.root(orgSlug, workspaceSlug)}/settings/pipeline`;
+  const settingsPipelineHref = paths.workspace.settings.pipeline(
+    orgSlug,
+    workspaceSlug,
+  );
 
   if (!mounted || stagesLoading || stagesSorted.length === 0) {
     return (

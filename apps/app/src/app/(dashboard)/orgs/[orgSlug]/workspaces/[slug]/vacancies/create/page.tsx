@@ -1,5 +1,6 @@
 "use client";
 
+import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { IconArrowLeft, IconEdit, IconSparkles } from "@tabler/icons-react";
 import dynamic from "next/dynamic";
@@ -68,7 +69,7 @@ export default function CreateVacancyPage() {
 
   const handleManualSuccess = () => {
     toast.success("Вакансия успешно создана");
-    router.push(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`);
+    router.push(paths.workspace.vacancies(orgSlug, workspaceSlug));
   };
 
   if (!workspace) {
@@ -85,7 +86,7 @@ export default function CreateVacancyPage() {
         >
           <Button variant="outline" asChild>
             <Link
-              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`}
+              href={paths.workspace.vacancies(orgSlug, workspaceSlug)}
               aria-label="Вернуться к списку вакансий"
             >
               <IconArrowLeft className="size-4" aria-hidden="true" />
@@ -180,7 +181,7 @@ export default function CreateVacancyPage() {
               </Button>
               <Button variant="outline" size="sm" asChild>
                 <Link
-                  href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`}
+                  href={paths.workspace.vacancies(orgSlug, workspaceSlug)}
                   aria-label="Вернуться к списку вакансий"
                 >
                   <IconArrowLeft className="size-4" aria-hidden="true" />
@@ -215,7 +216,7 @@ export default function CreateVacancyPage() {
           </Button>
           <Button variant="outline" asChild>
             <Link
-              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`}
+              href={paths.workspace.vacancies(orgSlug, workspaceSlug)}
               aria-label="Вернуться к списку вакансий"
             >
               <IconArrowLeft className="size-4" aria-hidden="true" />
