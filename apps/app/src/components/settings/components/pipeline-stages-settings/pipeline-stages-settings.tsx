@@ -31,7 +31,12 @@ import {
   TabsTrigger,
 } from "@qbs-autonaim/ui/components/tabs";
 import { cn } from "@qbs-autonaim/ui/utils";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  skipToken,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { GripVertical, Plus, Trash2 } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
@@ -162,9 +167,8 @@ function PipelineStagesTab({
 
   const { data, isLoading } = useQuery({
     ...orpc.pipeline.getStages.queryOptions({
-      input: { workspaceId, entityType },
+      input: workspaceId ? { workspaceId, entityType } : skipToken,
     }),
-    enabled: Boolean(workspaceId),
   });
 
   const stages = localStages ?? data?.stages ?? [];

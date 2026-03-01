@@ -62,7 +62,6 @@ export function QuizStepBlock({
               const needsTooltip = option.length > TRUNCATE_THRESHOLD;
               const button = (
                 <button
-                  key={option}
                   type="button"
                   onClick={() => onSelectOption(option)}
                   disabled={disabled}
@@ -89,7 +88,7 @@ export function QuizStepBlock({
                   </TooltipContent>
                 </Tooltip>
               ) : (
-                button
+                <React.Fragment key={option}>{button}</React.Fragment>
               );
             })}
           </div>
