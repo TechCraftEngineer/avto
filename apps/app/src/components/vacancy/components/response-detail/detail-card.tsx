@@ -17,6 +17,7 @@ export function VacancyResponseDetailCard({
   onReject,
   onMessage,
   onEvaluate,
+  onNavigate,
   isProcessing,
   isPolling,
 }: VacancyResponseDetailCardProps) {
@@ -42,22 +43,29 @@ export function VacancyResponseDetailCard({
     enabled: canFetchPdf,
   });
 
+  const responsesList = allResponses ?? [];
+  const showNavigation = responsesList.length > 1;
+
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Navigation between candidates */}
-      <CandidateNavigation
-        currentResponse={response}
-        allResponses={allResponses || []}
-        onNavigate={(responseId) => {
-          // Реализовать навигацию между кандидатами
-          const currentUrl = window.location.href;
-          const newUrl = currentUrl.replace(
-            /\/responses\/[^/]+$/,
-            `/responses/${responseId}`,
-          );
-          window.location.href = newUrl;
-        }}
-      />
+      {/* Navigation between candidates - только если есть несколько откликов */}
+      {showNavigation && (
+        <CandidateNavigation
+          currentResponse={response}
+          allResponses={responsesList}
+          onNavigate={
+            onNavigate ??
+            ((responseId) => {
+              const currentUrl = window.location.href;
+              const newUrl = currentUrl.replace(
+                /\/responses\/[^/]+$/,
+                `/responses/${responseId}`,
+              );
+              window.location.href = newUrl;
+            })
+          }
+        />
+      )}
 
       {/* Header Card */}
       <VacancyResponseHeaderCard

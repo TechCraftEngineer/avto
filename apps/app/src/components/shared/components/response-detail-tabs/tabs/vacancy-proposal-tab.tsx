@@ -22,15 +22,6 @@ export function VacancyProposalTab({ response }: VacancyProposalTabProps) {
               : "Не указана"}
           </div>
         </div>
-
-        <div className="rounded-lg border bg-muted/20 p-3 sm:p-4">
-          <div className="text-xs sm:text-sm text-muted-foreground">
-            Язык резюме
-          </div>
-          <div className="mt-1 text-base sm:text-lg font-semibold uppercase">
-            {response.resumeLanguage || "RU"}
-          </div>
-        </div>
       </div>
 
       {response.salaryExpectationsComment && (

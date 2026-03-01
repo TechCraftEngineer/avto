@@ -68,13 +68,6 @@ export function VacancyExperienceTab({
         return null;
       })()}
 
-      {response.skills && response.skills.length > 0 && (
-        <>
-          <Separator />
-          <SkillsList skills={response.skills} />
-        </>
-      )}
-
       {!experienceData.isJson &&
         !experienceData.text &&
         (!response.skills || response.skills.length === 0) && (

@@ -13,7 +13,6 @@ import {
   calculateMatchScore,
   calculateResponseTime,
 } from "./header-card-utils";
-import { HrNotes } from "./hr-notes";
 import type { VacancyResponse } from "./types";
 
 interface VacancyResponseHeaderCardProps {
@@ -67,7 +66,6 @@ export function VacancyResponseHeaderCard({
 
       <CardContent className="pt-0">
         <CandidateKeyInfo response={response} resumePdfUrl={resumePdfUrl} />
-        <HrNotes responseId={response.id} />
       </CardContent>
     </Card>
   );
