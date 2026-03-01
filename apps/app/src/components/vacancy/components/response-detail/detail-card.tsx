@@ -1,6 +1,8 @@
 "use client";
 
+import { paths } from "@qbs-autonaim/config";
 import { useQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
 import { useORPC } from "~/orpc/react";
 import { CandidateNavigation } from "./candidate-navigation";
 import { VacancyResponseHeaderCard } from "./header-card";
@@ -22,6 +24,12 @@ export function VacancyResponseDetailCard({
   isPolling,
 }: VacancyResponseDetailCardProps) {
   const orpc = useORPC();
+  const params = useParams<{
+    orgSlug?: string;
+    slug?: string;
+    id?: string;
+    responseId?: string;
+  }>();
   const {
     hasScreening,
     hasInterviewScoring,
@@ -56,12 +64,22 @@ export function VacancyResponseDetailCard({
           onNavigate={
             onNavigate ??
             ((responseId) => {
-              const currentUrl = window.location.href;
-              const newUrl = currentUrl.replace(
-                /\/responses\/[^/]+$/,
-                `/responses/${responseId}`,
-              );
-              window.location.href = newUrl;
+              const orgSlug = params.orgSlug ?? "";
+              const workspaceSlug = params.slug ?? "";
+              const href =
+                params.responseId != null
+                  ? paths.workspace.vacancyResponse(
+                      orgSlug,
+                      workspaceSlug,
+                      params.id ?? "",
+                      responseId,
+                    )
+                  : paths.workspace.responses(
+                      orgSlug,
+                      workspaceSlug,
+                      responseId,
+                    );
+              window.location.href = href;
             })
           }
         />

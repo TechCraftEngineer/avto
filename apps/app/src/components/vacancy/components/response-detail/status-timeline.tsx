@@ -13,6 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format, formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import {
+  Banknote,
   Calendar,
   CalendarClock,
   CheckCircle2,
@@ -50,7 +51,7 @@ const HISTORY_ICONS: Record<string, React.ElementType> = {
   WELCOME_SENT: Mail,
   OFFER_SENT: Mail,
   COMMENT_ADDED: MessageSquare,
-  SALARY_UPDATED: XCircle,
+  SALARY_UPDATED: Banknote,
   CONTACT_INFO_UPDATED: Phone,
   CREATED: Clock,
   SCREENING_COMPLETED: CheckCircle2,
@@ -130,6 +131,7 @@ type TimelineItem =
       newValue?: unknown;
       metadata?: unknown;
       user?: { name?: string | null } | null;
+      userId?: string | null;
     }
   | {
       kind: "interaction";
@@ -143,6 +145,23 @@ type TimelineItem =
       metadata?: unknown;
       createdByUser?: { name?: string | null } | null;
     };
+
+function isValidTimelineItem(item: unknown): item is TimelineItem {
+  if (!item || typeof item !== "object") return false;
+  const o = item as Record<string, unknown>;
+  if (o.kind !== "history" && o.kind !== "interaction") return false;
+  const ts = o.timestamp;
+  if (
+    typeof o.id !== "string" ||
+    !(ts instanceof Date || typeof ts === "string")
+  )
+    return false;
+  if (typeof o.eventType !== "string") return false;
+  if (o.kind === "interaction") {
+    return typeof o.source === "string";
+  }
+  return true;
+}
 
 const MESSAGE_EVENT_TYPES = new Set([
   "WELCOME_SENT",
@@ -247,7 +266,14 @@ export function StatusTimeline({ response }: StatusTimelineProps) {
     }),
   );
 
-  const timelineItems = (items ?? []) as TimelineItem[];
+  const rawItems = (items ?? []).filter(isValidTimelineItem);
+  const timelineItems: TimelineItem[] = rawItems.map((item) => {
+    const ts =
+      item.timestamp instanceof Date
+        ? item.timestamp
+        : new Date(item.timestamp as string);
+    return { ...item, timestamp: ts } as TimelineItem;
+  });
 
   if (isError) {
     return (
@@ -304,7 +330,10 @@ export function StatusTimeline({ response }: StatusTimelineProps) {
               "skeleton-4",
               "skeleton-5",
             ].map((id) => (
-              <div key={id} className="flex gap-3 animate-pulse">
+              <div
+                key={id}
+                className="flex gap-3 motion-safe:animate-pulse motion-reduce:animate-none"
+              >
                 <div className="h-8 w-8 rounded-full bg-muted" />
                 <div className="flex-1 space-y-2">
                   <div className="h-4 w-1/3 rounded bg-muted" />
@@ -329,9 +358,13 @@ export function StatusTimeline({ response }: StatusTimelineProps) {
           </div>
         ) : (
           <>
-            <ScrollArea className="h-[500px] pr-4">
+            <ScrollArea className="max-h-[80vh] pr-4">
               <div className="relative space-y-4">
-                <div className="absolute left-4 top-0 bottom-0 w-px bg-border" />
+                <div
+                  className="absolute left-4 top-0 bottom-0 w-px bg-border"
+                  aria-hidden="true"
+                  role="presentation"
+                />
 
                 {timelineItems.map((event) => {
                   const isHistory = event.kind === "history";
@@ -389,11 +422,12 @@ export function StatusTimeline({ response }: StatusTimelineProps) {
                           </p>
 
                           {(event.kind === "history"
-                            ? event.userId
-                            : event.createdByUser?.name) && (
+                            ? (event.user?.name ?? event.userId)
+                            : (event.createdByUser?.name ??
+                              event.createdByUserId)) && (
                             <p className="mb-2 text-xs text-muted-foreground">
                               {event.kind === "history"
-                                ? `Пользователь: ${event.userId}`
+                                ? `Пользователь: ${event.user?.name ?? event.userId}`
                                 : `Добавил: ${event.createdByUser?.name ?? event.createdByUserId}`}
                             </p>
                           )}

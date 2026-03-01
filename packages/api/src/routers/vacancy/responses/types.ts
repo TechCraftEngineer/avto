@@ -2,6 +2,8 @@
  * Типы для vacancy responses
  */
 
+export type { StoredProfileData } from "@qbs-autonaim/db/schema";
+
 import type {
   HrSelectionStatus,
   ImportSource,
@@ -28,7 +30,7 @@ export interface RawResponseBase {
   welcomeSentAt: Date | null;
   createdAt: Date;
   importSource: ImportSource | null;
-  profileData?: unknown;
+  profileData: StoredProfileData | null;
 }
 
 /** Расширенный сырой отклик (используется в list) */

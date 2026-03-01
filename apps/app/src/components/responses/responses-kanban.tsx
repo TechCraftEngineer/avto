@@ -22,6 +22,7 @@ import {
 } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { parseAsString, useQueryState } from "nuqs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useORPC } from "~/orpc/react";
@@ -560,15 +561,26 @@ export function ResponsesKanban({
     [vacancies],
   );
 
-  const [selectedResponseId, setSelectedResponseId] = useState<string | null>(
-    null,
+  const [responseIdParam, setResponseIdParam] = useQueryState(
+    "responseId",
+    parseAsString.withDefault(""),
   );
-  const [modalOpen, setModalOpen] = useState(false);
+  const selectedResponseId = responseIdParam || null;
+  const modalOpen = Boolean(responseIdParam);
 
-  const handleCardClick = useCallback((response: ResponseItem) => {
-    setSelectedResponseId(response.id);
-    setModalOpen(true);
-  }, []);
+  const handleCardClick = useCallback(
+    (response: ResponseItem) => {
+      setResponseIdParam(response.id);
+    },
+    [setResponseIdParam],
+  );
+
+  const handleModalOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) setResponseIdParam(null);
+    },
+    [setResponseIdParam],
+  );
 
   const handleMove = useCallback(
     (event: {
@@ -683,7 +695,7 @@ export function ResponsesKanban({
       <ResponseDetailModal
         responseId={selectedResponseId}
         open={modalOpen}
-        onOpenChange={setModalOpen}
+        onOpenChange={handleModalOpenChange}
         orgSlug={orgSlug}
         workspaceSlug={workspaceSlug}
         workspaceId={workspaceId}
