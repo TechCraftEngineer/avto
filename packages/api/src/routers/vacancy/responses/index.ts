@@ -4,6 +4,7 @@ import { compare } from "./compare";
 import { createInteraction } from "./create-interaction";
 import { debugList } from "./debug-list";
 import { exportPdf } from "./export-pdf";
+import { generateWelcomeMessageProcedure } from "./generate-welcome-message";
 import { get } from "./get";
 import { getCount } from "./get-count";
 import { getInterviewLink } from "./get-interview-link";
@@ -43,6 +44,7 @@ export const responsesRouter = {
   getInterviewLink,
   updateStatus,
   exportPdf,
+  generateWelcomeMessage: generateWelcomeMessageProcedure,
   debugList, // Временный debug endpoint
   listInteractions,
   createInteraction,
