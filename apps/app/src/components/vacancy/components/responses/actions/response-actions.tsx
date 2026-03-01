@@ -18,22 +18,17 @@ import {
   Mail,
   MoreVertical,
   Phone,
-  RefreshCw,
   Send,
   UserCheck,
   UserX,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import {
-  triggerAnalyzeSingleResponse,
-  triggerRefreshSingleResume,
-  triggerSendWelcome,
-} from "~/actions/trigger";
+import { triggerAnalyzeSingleResponse } from "~/actions/trigger";
 import { useORPC } from "~/orpc/react";
 import { useAnalyzeSingleResponse } from "../hooks/use-analyze-single-response";
 import { useCandidateOperations } from "../hooks/use-candidate-operations";
-import { useRefreshSingleResume } from "../hooks/use-refresh-single-resume";
+import { HhWelcomeMessageModal } from "../ui/hh-welcome-message-modal";
 
 interface ResponseActionsProps {
   responseId: string;
@@ -66,7 +61,7 @@ export function ResponseActions({
   candidateName,
 }: ResponseActionsProps) {
   const [analyzeEnabled, setAnalyzeEnabled] = useState(false);
-  const [refreshEnabled, setRefreshEnabled] = useState(false);
+  const [welcomeModalOpen, setWelcomeModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const orpc = useORPC();
 
@@ -84,48 +79,6 @@ export function ResponseActions({
     responseId,
     enabled: analyzeEnabled,
   });
-
-  const { progress, result, isRefreshing, reset } = useRefreshSingleResume({
-    responseId,
-    enabled: refreshEnabled,
-  });
-
-  // Обрабатываем результат обновления резюме
-  useEffect(() => {
-    if (!result) return;
-
-    if (result.success) {
-      toast.success("Резюме успешно обновлено");
-      if (vacancyId) {
-        void queryClient.invalidateQueries({
-          queryKey: orpc.vacancy.responses.list.queryKey({
-            input: {
-              workspaceId,
-              vacancyId,
-              sortDirection: "desc",
-            },
-          }),
-        });
-      }
-    } else {
-      toast.error(result.error || "Не удалось обновить резюме");
-    }
-
-    setRefreshEnabled(false);
-
-    const timer = setTimeout(() => {
-      reset();
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [
-    result,
-    reset,
-    queryClient,
-    vacancyId,
-    workspaceId,
-    orpc.vacancy.responses.list.queryKey,
-  ]);
 
   // Обрабатываем результат AI-оценки
   useEffect(() => {
@@ -180,50 +133,6 @@ export function ResponseActions({
     }
   };
 
-  const handleRefreshResume = async () => {
-    try {
-      const triggerResult = await triggerRefreshSingleResume(responseId);
-
-      if (!triggerResult.success) {
-        toast.error("Не удалось запустить обновление резюме");
-        return;
-      }
-
-      toast.success("Обновление резюме запущено");
-      setRefreshEnabled(true);
-    } catch {
-      toast.error("Не удалось запустить обновление резюме");
-    }
-  };
-
-  const handleSendWelcome = async () => {
-    try {
-      const welcomeResult = await triggerSendWelcome(
-        responseId,
-        telegramUsername,
-        phone,
-      );
-      if (welcomeResult.success) {
-        toast.success("Приветствие отправлено");
-        if (vacancyId) {
-          void queryClient.invalidateQueries({
-            queryKey: orpc.vacancy.responses.list.queryKey({
-              input: {
-                workspaceId,
-                vacancyId,
-                sortDirection: "desc",
-              },
-            }),
-          });
-        }
-      } else {
-        toast.error("Не удалось отправить приветствие");
-      }
-    } catch {
-      toast.error("Не удалось отправить приветствие");
-    }
-  };
-
   const handleInvite = () => {
     invite(responseId);
   };
@@ -260,7 +169,7 @@ export function ResponseActions({
     }
   };
 
-  const isLoading = isRefreshing || isAnalyzing || isInviting || isRejecting;
+  const isLoading = isAnalyzing || isInviting || isRejecting;
 
   const hasContacts = !!(telegramUsername || phone || email);
   const isRejected = hrSelectionStatus === "REJECTED";
@@ -318,9 +227,9 @@ export function ResponseActions({
 
         {/* Группа 2: Коммуникация */}
         {!welcomeSentAt && importSource === "HH" && (
-          <DropdownMenuItem onClick={handleSendWelcome}>
+          <DropdownMenuItem onClick={() => setWelcomeModalOpen(true)}>
             <Send className="h-4 w-4 mr-2" />
-            Отправить приветствие HH.ru
+            Сгенерировать приветствие для HH.ru
           </DropdownMenuItem>
         )}
 
@@ -373,30 +282,23 @@ export function ResponseActions({
 
         {/* Группа 3: Резюме */}
         {resumeUrl && (
-          <>
-            <DropdownMenuItem
-              onClick={handleRefreshResume}
-              disabled={isRefreshing}
-            >
-              <RefreshCw
-                className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
-              />
-              {isRefreshing
-                ? progress?.message || "Обновление…"
-                : "Обновить резюме с HH.ru"}
-            </DropdownMenuItem>
-
-            <DropdownMenuItem
-              onClick={() =>
-                window.open(resumeUrl, "_blank", "noopener,noreferrer")
-              }
-            >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Открыть резюме на HH.ru
-            </DropdownMenuItem>
-          </>
+          <DropdownMenuItem
+            onClick={() =>
+              window.open(resumeUrl, "_blank", "noopener,noreferrer")
+            }
+          >
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Открыть резюме на HH.ru
+          </DropdownMenuItem>
         )}
       </DropdownMenuContent>
+
+      <HhWelcomeMessageModal
+        open={welcomeModalOpen}
+        onOpenChange={setWelcomeModalOpen}
+        responseId={responseId}
+        workspaceId={workspaceId}
+      />
     </DropdownMenu>
   );
 }
