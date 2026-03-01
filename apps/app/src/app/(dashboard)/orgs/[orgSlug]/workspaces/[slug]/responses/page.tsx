@@ -254,6 +254,11 @@ export default function ResponsesPage() {
                     id: v.id,
                     title: v.title,
                   }))}
+                  entityId={
+                    selectedVacancyIds.length === 1
+                      ? selectedVacancyIds[0]
+                      : undefined
+                  }
                   sortKey={`${sortField ?? "createdAt"}-${sortDirection}-${screeningFilter}-${search}`}
                 />
               </CardContent>

@@ -22,6 +22,7 @@ import {
 } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { parseAsString, useQueryState } from "nuqs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useORPC } from "~/orpc/react";
@@ -560,15 +561,26 @@ export function ResponsesKanban({
     [vacancies],
   );
 
-  const [selectedResponseId, setSelectedResponseId] = useState<string | null>(
-    null,
+  const [responseIdParam, setResponseIdParam] = useQueryState(
+    "responseId",
+    parseAsString.withDefault(""),
   );
-  const [modalOpen, setModalOpen] = useState(false);
+  const selectedResponseId = responseIdParam || null;
+  const modalOpen = Boolean(responseIdParam);
 
-  const handleCardClick = useCallback((response: ResponseItem) => {
-    setSelectedResponseId(response.id);
-    setModalOpen(true);
-  }, []);
+  const handleCardClick = useCallback(
+    (response: ResponseItem) => {
+      setResponseIdParam(response.id);
+    },
+    [setResponseIdParam],
+  );
+
+  const handleModalOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) setResponseIdParam(null);
+    },
+    [setResponseIdParam],
+  );
 
   const handleMove = useCallback(
     (event: {
@@ -593,10 +605,10 @@ export function ResponsesKanban({
     [columns, moveResponse],
   );
 
-  const settingsPipelineHref = paths.workspace.settings.pipeline(
-    orgSlug,
-    workspaceSlug,
-  );
+  const settingsPipelineHref =
+    entityId && orgSlug && workspaceSlug
+      ? paths.workspace.vacancies(orgSlug, workspaceSlug, entityId, "settings")
+      : null;
 
   if (!mounted || stagesLoading || stagesSorted.length === 0) {
     return (
@@ -606,12 +618,14 @@ export function ResponsesKanban({
             <p className="text-sm text-muted-foreground">
               Загрузка этапов канбана…
             </p>
-            <Button variant="outline" size="sm" asChild>
-              <Link href={settingsPipelineHref} className="gap-2">
-                <IconSettings className="size-4" />
-                Настроить этапы
-              </Link>
-            </Button>
+            {settingsPipelineHref && (
+              <Button variant="outline" size="sm" asChild>
+                <Link href={settingsPipelineHref} className="gap-2">
+                  <IconSettings className="size-4" />
+                  Настроить этапы
+                </Link>
+              </Button>
+            )}
           </div>
         )}
         <div className="flex min-h-0 flex-1 flex-col overflow-x-auto overflow-y-hidden rounded-lg">
@@ -641,14 +655,16 @@ export function ResponsesKanban({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col space-y-3">
-      <div className="flex items-center justify-end">
-        <Button variant="outline" size="sm" asChild>
-          <Link href={settingsPipelineHref} className="gap-2">
-            <IconSettings className="size-4" />
-            Настроить этапы
-          </Link>
-        </Button>
-      </div>
+      {settingsPipelineHref && (
+        <div className="flex items-center justify-end">
+          <Button variant="outline" size="sm" asChild>
+            <Link href={settingsPipelineHref} className="gap-2">
+              <IconSettings className="size-4" />
+              Настроить этапы
+            </Link>
+          </Button>
+        </div>
+      )}
       <Kanban<ResponseItem>
         value={columns}
         onValueChange={setColumns}
@@ -683,7 +699,7 @@ export function ResponsesKanban({
       <ResponseDetailModal
         responseId={selectedResponseId}
         open={modalOpen}
-        onOpenChange={setModalOpen}
+        onOpenChange={handleModalOpenChange}
         orgSlug={orgSlug}
         workspaceSlug={workspaceSlug}
         workspaceId={workspaceId}

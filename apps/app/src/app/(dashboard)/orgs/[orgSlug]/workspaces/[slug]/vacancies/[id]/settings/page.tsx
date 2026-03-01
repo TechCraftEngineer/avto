@@ -2,7 +2,10 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { use, useEffect, useState } from "react";
-import { VacancySettingsForm } from "~/components/vacancy/components";
+import {
+  VacancyPipelineStagesSettings,
+  VacancySettingsForm,
+} from "~/components/vacancy/components";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useORPC } from "~/orpc/react";
 
@@ -141,6 +144,10 @@ export default function VacancySettingsPage({
 
   return (
     <div className="space-y-6">
+      <VacancyPipelineStagesSettings
+        vacancyId={id}
+        workspaceId={workspaceId ?? ""}
+      />
       <VacancySettingsForm
         vacancyTitle={vacancy.title}
         vacancyDescription={vacancy.description ?? undefined}

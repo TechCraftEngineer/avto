@@ -1,24 +1,26 @@
 import { formatContacts } from "../../../../utils/format-contacts";
 import { sanitizeHtml } from "../../../utils/sanitize-html";
-import type { RawResponseBase } from "../types";
+import type { RawResponseBase, StoredProfileData } from "../types";
 import { calculatePriorityScore } from "./priority-score";
 
-function extractLocationFromProfileData(profileData: unknown): string | null {
+function extractLocationFromProfileData(
+  profileData: StoredProfileData | null | undefined,
+): string | null {
   if (!profileData || typeof profileData !== "object") return null;
   const pd = profileData as Record<string, unknown>;
   const personalInfo = pd.personalInfo as { location?: string } | undefined;
   if (personalInfo?.location && typeof personalInfo.location === "string") {
     const loc = personalInfo.location.trim();
-    return loc || null;
+    return loc ? sanitizeHtml(loc) : null;
   }
   const kwork = pd.kworkUserData as Record<string, unknown> | undefined;
   if (kwork?.location && typeof kwork.location === "string") {
-    const loc = kwork.location.trim();
-    return loc || null;
+    const loc = (kwork.location as string).trim();
+    return loc ? sanitizeHtml(loc) : null;
   }
   if (pd.location && typeof pd.location === "string") {
-    const loc = pd.location.trim();
-    return loc || null;
+    const loc = (pd.location as string).trim();
+    return loc ? sanitizeHtml(loc) : null;
   }
   return null;
 }
@@ -77,8 +79,7 @@ export function mapResponseData(
     const interviewScoring = scoringByResponseId.get(r.id);
     const session = sessionByResponseId.get(r.id);
     const priorityScore = calculatePriorityScore(r, screening ?? undefined);
-    const raw = r as RawResponseBase & { profileData?: unknown };
-    const { profileData, ...rest } = raw;
+    const { profileData, ...rest } = r;
     const location = extractLocationFromProfileData(profileData);
 
     return {

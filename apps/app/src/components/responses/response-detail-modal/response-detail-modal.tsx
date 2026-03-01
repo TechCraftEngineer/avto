@@ -54,7 +54,12 @@ export function ResponseDetailModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onSave]);
 
-  const { data: response, isLoading } = useQuery({
+  const {
+    data: response,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     ...orpc.vacancy.responses.get.queryOptions({
       input: {
         id: responseId ?? "",
@@ -96,21 +101,19 @@ export function ResponseDetailModal({
     <div className="flex flex-col gap-4">
       {hasActions && (
         <div className="flex shrink-0 flex-wrap items-center gap-2 border-b pb-4">
-          {!!response?.interviewSession && (
-            <Button size="sm" asChild>
-              <Link
-                href={paths.workspace.chat(
-                  orgSlug,
-                  workspaceSlug,
-                  responseId ?? "",
-                )}
-                onClick={() => onOpenChange(false)}
-              >
-                <MessageSquare className="mr-2 h-4 w-4" />
-                Открыть чат
-              </Link>
-            </Button>
-          )}
+          <Button size="sm" asChild>
+            <Link
+              href={paths.workspace.chat(
+                orgSlug,
+                workspaceSlug,
+                responseId ?? "",
+              )}
+              onClick={() => onOpenChange(false)}
+            >
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Открыть чат
+            </Link>
+          </Button>
         </div>
       )}
 
@@ -118,6 +121,15 @@ export function ResponseDetailModal({
         <div className="space-y-6">
           <Skeleton className="h-32 w-full" />
           <Skeleton className="h-64 w-full" />
+        </div>
+      ) : isError ? (
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
+          <p className="text-sm font-medium">Не удалось загрузить отклик</p>
+          {error && (
+            <p className="text-xs">
+              {error instanceof Error ? error.message : "Неизвестная ошибка"}
+            </p>
+          )}
         </div>
       ) : responseWithGlobalCandidate ? (
         <ResponseDetailCard
@@ -138,10 +150,10 @@ export function ResponseDetailModal({
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
-          className="flex h-[90vh] max-h-[90vh] w-[min(95vw,1600px)]! max-w-[min(95vw,1600px)]! flex-col overflow-hidden p-0 gap-0"
+          className="flex h-[90vh] max-h-[90vh] w-[min(95vw,1600px)]! max-w-[min(95vw,1600px)]! flex-col overflow-hidden p-0 gap-0 overscroll-contain"
           showCloseButton={true}
         >
-          <ScrollArea className="min-h-0 flex-1 px-6 pt-14 pb-6">
+          <ScrollArea className="min-h-0 flex-1 overscroll-contain px-6 pt-14 pb-6">
             {content}
           </ScrollArea>
         </DialogContent>
@@ -153,7 +165,7 @@ export function ResponseDetailModal({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
-        className="h-[90vh] max-h-[90vh] w-full overflow-hidden flex flex-col p-0 gap-0 rounded-t-xl"
+        className="h-[90vh] max-h-[90vh] w-full overflow-hidden flex flex-col p-0 gap-0 rounded-t-xl overscroll-contain"
         showCloseButton={true}
       >
         <SheetHeader className="shrink-0 border-b px-4 py-3 text-left">
@@ -166,7 +178,9 @@ export function ResponseDetailModal({
             </p>
           )}
         </SheetHeader>
-        <ScrollArea className="min-h-0 flex-1 px-4 pb-4">{content}</ScrollArea>
+        <ScrollArea className="min-h-0 flex-1 overscroll-contain px-4 pb-4">
+          {content}
+        </ScrollArea>
       </SheetContent>
     </Sheet>
   );

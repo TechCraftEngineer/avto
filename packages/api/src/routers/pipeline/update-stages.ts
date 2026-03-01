@@ -57,14 +57,20 @@ export const updateStages = protectedProcedure
         });
       }
       const existingIds = new Set(existingStages.map((s) => s.id));
-      for (const id of inputIds) {
-        if (!existingIds.has(id)) {
-          throw new ORPCError("BAD_REQUEST", {
-            message: `Неизвестный id этапа: ${id}`,
-          });
+      // Когда entityId задан и у сущности ещё нет своих этапов — все этапы создаём заново, id игнорируем
+      const isInitialCreate = entityId !== null && existingStages.length === 0;
+      if (!isInitialCreate) {
+        for (const id of inputIds) {
+          if (!existingIds.has(id)) {
+            throw new ORPCError("BAD_REQUEST", {
+              message: `Неизвестный id этапа: ${id}`,
+            });
+          }
         }
       }
-      const toDelete = existingStages.filter((s) => !inputIds.has(s.id));
+      const toDelete = isInitialCreate
+        ? []
+        : existingStages.filter((s) => !inputIds.has(s.id));
 
       // Check if stages to delete have responses (batch query)
       if (toDelete.length > 0) {
@@ -124,7 +130,8 @@ export const updateStages = protectedProcedure
       for (let i = 0; i < input.stages.length; i++) {
         const s = input.stages[i];
         if (!s) continue;
-        if (s.id) {
+        const shouldUpdate = !isInitialCreate && s.id && existingIds.has(s.id);
+        if (shouldUpdate) {
           await tx
             .update(pipelineStage)
             .set({
