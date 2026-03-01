@@ -48,9 +48,7 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
   };
 
   const hasAnyContact =
-    (contacts.email && contacts.email.trim()) ||
-    (contacts.phone && contacts.phone.trim()) ||
-    socialLinks.length > 0;
+    contacts.email?.trim() || contacts.phone?.trim() || socialLinks.length > 0;
 
   return (
     <div>
@@ -75,7 +73,6 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
             backgroundColor: "#f3f4f6",
             borderRadius: "6px",
           }}
-          role="status"
         >
           Контакты могут быть скрыты на странице резюме. Добавьте их вручную или
           сохраните кандидата по ссылке на профиль.
