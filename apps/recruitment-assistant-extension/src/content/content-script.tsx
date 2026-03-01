@@ -158,9 +158,38 @@ export class ContentScript {
     await importToGlobalOnly(payload);
   }
 
+  /** Максимальная длина имени кандидата при санитизации. */
+  private static readonly MAX_CANDIDATE_NAME_LENGTH = 100;
+
+  /**
+   * Санитизирует имя: убирает управляющие/HTML-символы, нормализует пробелы,
+   * обрезает пунктуацию по краям, ограничивает длину. Возвращает "Кандидат" если пусто.
+   */
+  private sanitizeCandidateName(name: string): string {
+    if (typeof name !== "string") return "Кандидат";
+    // Удаляем управляющие символы (0x00-0x1F, 0x7F) и HTML-теги
+    let s = name
+      .replace(/<[^>]*>/g, "")
+      .split("")
+      .filter((c) => {
+        const code = c.charCodeAt(0);
+        return (code > 0x1f && code !== 0x7f) || code === 0x20;
+      })
+      .join("");
+    // Нормализуем пробелы (множественные -> один, trim)
+    s = s.replace(/\s+/g, " ").trim();
+    // Обрезаем пунктуацию по краям (.,;:!?-—_ и пробелы)
+    s = s.replace(/^[\s.,;:!?\-—_\u2014]+|[\s.,;:!?\-—_\u2014]+$/g, "").trim();
+    if (!s) return "Кандидат";
+    return s.length > ContentScript.MAX_CANDIDATE_NAME_LENGTH
+      ? s.slice(0, ContentScript.MAX_CANDIDATE_NAME_LENGTH)
+      : s;
+  }
+
   /**
    * Fallback для имени, когда контакты и fullName недоступны (частый случай на HH).
    * Пытается извлечь имя из страницы или возвращает "Кандидат".
+   * Результат всегда санитизирован.
    */
   private getFallbackCandidateName(): string {
     if (typeof document === "undefined") return "Кандидат";
@@ -168,11 +197,22 @@ export class ContentScript {
     const hhName = document
       .querySelector('[data-qa="resume-personal-name"]')
       ?.textContent?.trim();
-    if (hhName) return hhName;
+    if (hhName) return this.sanitizeCandidateName(hhName);
     // Заголовок страницы: "Резюме: Иванов Иван — HeadHunter"
     const titleMatch = document.title?.match(/Резюме:\s*(.+?)(?:\s*[-—]|$)/);
-    if (titleMatch?.[1]) return titleMatch[1].trim();
+    if (titleMatch?.[1])
+      return this.sanitizeCandidateName(titleMatch[1].trim());
     return "Кандидат";
+  }
+
+  /**
+   * Вычисляет имя кандидата: fullName из данных или fallback из DOM.
+   * Результат всегда санитизирован.
+   */
+  private getFreelancerName(data: CandidateData): string {
+    const raw =
+      data.basicInfo.fullName?.trim() || this.getFallbackCandidateName();
+    return this.sanitizeCandidateName(raw);
   }
 
   private prepareCandidatePayload(data: CandidateData): {
@@ -221,9 +261,7 @@ export class ContentScript {
     try {
       const { platformSource, profileUrl, responseText } =
         this.prepareCandidatePayload(result.data);
-      const freelancerName =
-        result.data.basicInfo.fullName?.trim() ||
-        this.getFallbackCandidateName();
+      const freelancerName = this.getFreelancerName(result.data);
       await importToGlobalOnly({
         workspaceId: payload.workspaceId,
         candidateData: {
@@ -266,8 +304,7 @@ export class ContentScript {
     }
     const { platformSource, profileUrl, responseText } =
       this.prepareCandidatePayload(data);
-    const freelancerName =
-      data.basicInfo.fullName?.trim() || this.getFallbackCandidateName();
+    const freelancerName = this.getFreelancerName(data);
     await importToGlobalOnly({
       workspaceId: payload.workspaceId,
       candidateData: {
@@ -318,16 +355,14 @@ export class ContentScript {
       });
       return;
     }
-    // Fallback для имени при отсутствии контактов (контакты часто скрыты на HH)
-    if (!data.basicInfo.fullName?.trim()) {
-      data = {
-        ...data,
-        basicInfo: {
-          ...data.basicInfo,
-          fullName: this.getFallbackCandidateName(),
-        },
-      };
-    }
+    // Валидация имени: санитизация и fallback при пустом/некорректном fullName
+    data = {
+      ...data,
+      basicInfo: {
+        ...data.basicInfo,
+        fullName: this.getFreelancerName(data),
+      },
+    };
     try {
       await importCandidateData(data, {
         vacancyId: payload?.vacancyId,

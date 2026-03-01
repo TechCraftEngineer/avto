@@ -28,11 +28,14 @@ import { useVacancyPipelineStages } from "./use-vacancy-pipeline-stages";
 interface VacancyPipelineStagesSettingsProps {
   vacancyId: string;
   workspaceId: string;
+  /** Встроенный режим: без Card, для модального окна */
+  embedded?: boolean;
 }
 
 export function VacancyPipelineStagesSettings({
   vacancyId,
   workspaceId,
+  embedded = false,
 }: VacancyPipelineStagesSettingsProps) {
   const {
     stages,
@@ -57,6 +60,103 @@ export function VacancyPipelineStagesSettings({
 
   const sortableIds = stages.map((s) => s.id ?? s.clientId!);
 
+  const content = (
+    <div className="space-y-4">
+      {isError ? (
+        <div
+          className="rounded-lg border border-destructive/50 bg-destructive/5 p-6 text-center"
+          role="alert"
+        >
+          <AlertCircle className="mx-auto mb-3 h-12 w-12 text-destructive opacity-50" />
+          <p className="text-sm font-medium text-destructive">
+            Не удалось загрузить этапы канбана
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {error instanceof Error ? error.message : "Неизвестная ошибка"}
+          </p>
+        </div>
+      ) : isLoading ? (
+        <div className="space-y-2">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="h-12 animate-pulse rounded-lg bg-muted/50"
+            />
+          ))}
+        </div>
+      ) : (
+        <>
+          <div className="flex items-center justify-end gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleAdd}
+              disabled={updateStage.isPending}
+            >
+              <Plus className="size-4" />
+              Добавить этап
+            </Button>
+            {hasChanges && (
+              <Button
+                size="sm"
+                onClick={handleSave}
+                disabled={updateStage.isPending || stages.length === 0}
+              >
+                {updateStage.isPending && (
+                  <Loader2 className="size-4 animate-spin" />
+                )}
+                Сохранить
+              </Button>
+            )}
+          </div>
+
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={sortableIds}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-2">
+                {stages.map((stage, index) => (
+                  <SortableStageRow
+                    key={stage.id ?? stage.clientId!}
+                    stage={stage}
+                    index={index}
+                    onUpdate={handleUpdate}
+                    onRemove={handleRemove}
+                    canRemove={stages.length > 1}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+
+          {stages.length === 0 && (
+            <div className="rounded-lg border border-dashed py-8 text-center text-sm text-muted-foreground">
+              <p>Этапы загружаются при первом просмотре.</p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-3"
+                onClick={handleAdd}
+                disabled={updateStage.isPending}
+              >
+                Добавить этап
+              </Button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+
+  if (embedded) {
+    return content;
+  }
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -66,96 +166,7 @@ export function VacancyPipelineStagesSettings({
           можно менять перетаскиванием.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {isError ? (
-          <div
-            className="rounded-lg border border-destructive/50 bg-destructive/5 p-6 text-center"
-            role="alert"
-          >
-            <AlertCircle className="mx-auto mb-3 h-12 w-12 text-destructive opacity-50" />
-            <p className="text-sm font-medium text-destructive">
-              Не удалось загрузить этапы канбана
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {error instanceof Error ? error.message : "Неизвестная ошибка"}
-            </p>
-          </div>
-        ) : isLoading ? (
-          <div className="space-y-2">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="h-12 animate-pulse rounded-lg bg-muted/50"
-              />
-            ))}
-          </div>
-        ) : (
-          <>
-            <div className="flex items-center justify-end gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleAdd}
-                disabled={updateStage.isPending}
-              >
-                <Plus className="size-4" />
-                Добавить этап
-              </Button>
-              {hasChanges && (
-                <Button
-                  size="sm"
-                  onClick={handleSave}
-                  disabled={updateStage.isPending || stages.length === 0}
-                >
-                  {updateStage.isPending && (
-                    <Loader2 className="size-4 animate-spin" />
-                  )}
-                  Сохранить
-                </Button>
-              )}
-            </div>
-
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={sortableIds}
-                strategy={verticalListSortingStrategy}
-              >
-                <div className="space-y-2">
-                  {stages.map((stage, index) => (
-                    <SortableStageRow
-                      key={stage.id ?? stage.clientId!}
-                      stage={stage}
-                      index={index}
-                      onUpdate={handleUpdate}
-                      onRemove={handleRemove}
-                      canRemove={stages.length > 1}
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-
-            {stages.length === 0 && (
-              <div className="rounded-lg border border-dashed py-8 text-center text-sm text-muted-foreground">
-                <p>Этапы загружаются при первом просмотре.</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-3"
-                  onClick={handleAdd}
-                  disabled={updateStage.isPending}
-                >
-                  Добавить этап
-                </Button>
-              </div>
-            )}
-          </>
-        )}
-      </CardContent>
+      <CardContent className="space-y-4">{content}</CardContent>
     </Card>
   );
 }
