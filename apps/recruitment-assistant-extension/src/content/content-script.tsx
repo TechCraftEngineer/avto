@@ -115,13 +115,7 @@ export class ContentScript {
         existingCandidate: result.existingCandidate,
       };
     }
-    const sanitizedData = {
-      ...result.data,
-      basicInfo: {
-        ...result.data.basicInfo,
-        fullName: this.getFreelancerName(result.data),
-      },
-    };
+    const sanitizedData = this.normalizeFullName(result.data);
     try {
       await importCandidateData(sanitizedData, {
         vacancyId: payload.vacancyId,
@@ -220,6 +214,20 @@ export class ContentScript {
     const raw =
       data.basicInfo.fullName?.trim() || this.getFallbackCandidateName();
     return this.sanitizeCandidateName(raw);
+  }
+
+  /**
+   * Нормализует fullName в данных кандидата: санитизация и fallback при пустом/некорректном.
+   * Единая реализация для sanitizedData и handleImport.
+   */
+  private normalizeFullName(data: CandidateData): CandidateData {
+    return {
+      ...data,
+      basicInfo: {
+        ...data.basicInfo,
+        fullName: this.getFreelancerName(data),
+      },
+    };
   }
 
   private prepareCandidatePayload(data: CandidateData): {
@@ -362,14 +370,7 @@ export class ContentScript {
       });
       return;
     }
-    // Валидация имени: санитизация и fallback при пустом/некорректном fullName
-    data = {
-      ...data,
-      basicInfo: {
-        ...data.basicInfo,
-        fullName: this.getFreelancerName(data),
-      },
-    };
+    data = this.normalizeFullName(data);
     try {
       await importCandidateData(data, {
         vacancyId: payload?.vacancyId,

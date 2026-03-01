@@ -177,17 +177,20 @@ export class GlobalCandidateRepository {
    */
   mergeGlobalCandidateData(
     existing: GlobalCandidate,
-    newData: GlobalCandidateData,
+    newData: Omit<GlobalCandidateData, "fullName"> & { fullName?: string },
   ): Partial<NewGlobalCandidate> {
     const merged: Partial<NewGlobalCandidate> = {};
 
-    // Полное имя - выбираем более полное
-    if (newData.fullName) {
-      if (
-        !existing.fullName ||
-        newData.fullName.length > existing.fullName.length
-      ) {
-        merged.fullName = newData.fullName;
+    // Полное имя - выбираем более полное (только валидные непустые не-placeholder)
+    const newFullName =
+      typeof newData.fullName === "string" ? newData.fullName.trim() : "";
+    if (
+      newFullName.length > 0 &&
+      !GlobalCandidateRepository.isFullNamePlaceholder(newFullName)
+    ) {
+      if (!existing.fullName || newFullName.length > existing.fullName.length) {
+        merged.fullName =
+          newFullName.length > 500 ? newFullName.slice(0, 500) : newFullName;
       }
     }
 
@@ -392,34 +395,28 @@ export class GlobalCandidateRepository {
    */
   private sanitizeCandidateData(
     data: GlobalCandidateData,
-  ): GlobalCandidateData {
-    let fullName: string;
+  ): Omit<GlobalCandidateData, "fullName"> & { fullName?: string } {
+    let fullName: string | undefined;
     if (data.fullName != null && typeof data.fullName === "string") {
-      fullName = data.fullName.trim();
+      const trimmed = data.fullName.trim();
       if (
-        GlobalCandidateRepository.isFullNamePlaceholder(fullName) ||
-        !fullName
+        trimmed.length > 0 &&
+        !GlobalCandidateRepository.isFullNamePlaceholder(trimmed)
       ) {
-        // Не сохраняем placeholder в БД — пустое значение позволит merge перезаписать
-        // при поступлении валидного имени (напр. "Анна"). Для отображения используйте
-        // "Без имени" на уровне UI.
-        fullName = "";
-      } else {
-        const truncated = truncate(fullName, 500);
-        fullName = truncated ?? "";
+        const truncated = truncate(trimmed, 500);
+        fullName = truncated ?? undefined;
       }
-    } else {
-      fullName = "";
     }
 
     const resumeUrl = normalizeResumeUrl(data.resumeUrl);
+    const { fullName: _omit, ...dataRest } = data;
 
     return {
-      ...data,
+      ...dataRest,
       firstName: truncate(data.firstName, 100),
       lastName: truncate(data.lastName, 100),
       middleName: truncate(data.middleName, 100),
-      fullName,
+      ...(fullName !== undefined ? { fullName } : {}),
       headline: truncate(data.headline, 255),
       resumeUrl,
       citizenship: truncate(data.citizenship, 100),
@@ -468,7 +465,7 @@ export class GlobalCandidateRepository {
     }
 
     const newCandidateData: NewGlobalCandidate = {
-      fullName: sanitized.fullName,
+      fullName: sanitized.fullName ?? "Без имени",
       firstName: sanitized.firstName ?? null,
       lastName: sanitized.lastName ?? null,
       middleName: sanitized.middleName ?? null,
