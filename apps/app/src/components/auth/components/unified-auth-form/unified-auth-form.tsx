@@ -332,6 +332,25 @@ export function UnifiedAuthForm({
             </TabsContent>
           </Tabs>
 
+          {mode === "signup" && (
+            <p className="text-center text-xs text-muted-foreground">
+              Продолжая, вы соглашаетесь с{" "}
+              <Link
+                href={paths.legal.terms}
+                className="text-primary underline-offset-4 hover:underline"
+              >
+                Условиями использования
+              </Link>{" "}
+              и{" "}
+              <Link
+                href={paths.legal.privacy}
+                className="text-primary underline-offset-4 hover:underline"
+              >
+                Политикой конфиденциальности
+              </Link>
+              .
+            </p>
+          )}
           <div className="text-center text-sm">
             {mode === "signup" ? (
               <>

@@ -55,7 +55,7 @@ export async function proxy(request: NextRequest) {
 
   // Публичные маршруты (не требуют аутентификации)
   // /auth/verify-email доступен всем (и авторизованным, и нет)
-  const publicPaths = ["/auth", "/invite"];
+  const publicPaths = ["/auth", "/invite", "/terms", "/privacy"];
   const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
   // Если нет cookie сессии и пытается зайти на защищенный маршрут
   if (!sessionCookie && !isPublicPath) {

@@ -11,7 +11,7 @@ import {
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { useMutation } from "@tanstack/react-query";
 import { ClipboardCopy, Loader2, MessageSquare, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useORPC } from "~/orpc/react";
 
@@ -30,11 +30,17 @@ export function HhWelcomeMessageModal({
 }: HhWelcomeMessageModalProps) {
   const [message, setMessage] = useState("");
   const orpc = useORPC();
+  const openRef = useRef(open);
+  useEffect(() => {
+    openRef.current = open;
+  }, [open]);
 
   const { mutate: generateMessage, isPending: isGenerating } = useMutation(
     orpc.vacancy.responses.generateWelcomeMessage.mutationOptions({
       onSuccess: (data) => {
-        setMessage(data.message);
+        if (openRef.current) {
+          setMessage(data.message);
+        }
         toast.success("Приветствие сгенерировано");
       },
       onError: (error) => {
@@ -96,11 +102,13 @@ export function HhWelcomeMessageModal({
           {message && (
             <>
               <Textarea
+                id="hh-welcome-message"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Приветственное сообщение"
                 rows={10}
-                className="font-sans text-sm resize-none"
+                className="font-sans text-base resize-none"
+                aria-label="Приветственное сообщение"
               />
               <div className="flex gap-2">
                 <Button
