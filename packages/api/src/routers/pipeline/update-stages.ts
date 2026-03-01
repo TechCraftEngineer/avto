@@ -47,18 +47,19 @@ export const updateStages = protectedProcedure
         columns: { id: true, position: true },
       });
 
+      const existingIds = new Set(existingStages.map((s) => s.id));
+      // Когда entityId задан и у сущности ещё нет своих этапов — все этапы создаём заново, id игнорируем
+      const isInitialCreate = entityId !== null && existingStages.length === 0;
+
       const inputIdsRaw = input.stages
         .map((s) => s.id)
         .filter((id): id is string => !!id);
       const inputIds = new Set(inputIdsRaw);
-      if (inputIdsRaw.length !== inputIds.size) {
+      if (!isInitialCreate && inputIdsRaw.length !== inputIds.size) {
         throw new ORPCError("BAD_REQUEST", {
           message: "Обнаружены дублирующиеся id этапов",
         });
       }
-      const existingIds = new Set(existingStages.map((s) => s.id));
-      // Когда entityId задан и у сущности ещё нет своих этапов — все этапы создаём заново, id игнорируем
-      const isInitialCreate = entityId !== null && existingStages.length === 0;
       if (!isInitialCreate) {
         for (const id of inputIds) {
           if (!existingIds.has(id)) {
@@ -130,8 +131,10 @@ export const updateStages = protectedProcedure
       for (let i = 0; i < input.stages.length; i++) {
         const s = input.stages[i];
         if (!s) continue;
-        const shouldUpdate = !isInitialCreate && s.id && existingIds.has(s.id);
-        if (shouldUpdate) {
+        const stageId = s.id;
+        const shouldUpdate =
+          !isInitialCreate && stageId && existingIds.has(stageId);
+        if (shouldUpdate && stageId) {
           await tx
             .update(pipelineStage)
             .set({
@@ -140,7 +143,7 @@ export const updateStages = protectedProcedure
               color: s.color ?? null,
               updatedAt: new Date(),
             })
-            .where(and(eq(pipelineStage.id, s.id), ownershipWhere));
+            .where(and(eq(pipelineStage.id, stageId), ownershipWhere));
         } else {
           await tx.insert(pipelineStage).values({
             workspaceId: input.workspaceId,
