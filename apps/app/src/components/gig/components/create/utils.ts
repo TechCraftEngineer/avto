@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { GigDocument } from "~/hooks/use-gig-chat";
-import type { GigDraft } from "./components/types";
-import type { WizardState } from "./components/wizard-types";
+import type { GigDraft } from "./types";
+import type { WizardState } from "./wizard-types";
 
 export const aiDocumentSchema = z.object({
   title: z.string().optional(),
@@ -45,7 +45,11 @@ export function buildWizardMessage(wizard: WizardState): string {
   if (wizard.subtype) parts.push(`Тип: ${wizard.subtype.label}`);
   if (wizard.features.length > 0 && wizard.subtype) {
     const labels = wizard.features
-      .map((fId) => wizard.subtype?.features.find((f) => f.id === fId)?.label)
+      .map(
+        (fId: string) =>
+          wizard.subtype?.features.find((f: { id: string }) => f.id === fId)
+            ?.label,
+      )
       .filter(Boolean);
     parts.push(`Функции: ${labels.join(", ")}`);
   }

@@ -3,12 +3,15 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import {
+  GigConversationChat,
+  GigForm,
+  GigPreview,
+  ProgressCard,
+  useCreateGig,
+} from "~/components/gig";
 import { PageHeader } from "~/components/layout";
 import { env } from "~/env";
-
-import { GigForm, GigPreview, ProgressCard } from "./components";
-import { GigConversationChat } from "./components/gig-conversation-chat";
-import { useCreateGig } from "./use-create-gig";
 
 interface PageProps {
   params: Promise<{ orgSlug: string; slug: string }>;

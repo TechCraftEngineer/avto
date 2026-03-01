@@ -12,8 +12,7 @@ import { z } from "zod";
 import { type GigDocument, useGigChat } from "~/hooks/use-gig-chat";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useORPC } from "~/orpc/react";
-
-import { type FormValues, formSchema, type GigDraft } from "./components/types";
+import { type FormValues, formSchema, type GigDraft } from "./types";
 import {
   aiDocumentSchema,
   computeAssistantMessageFromChanges,

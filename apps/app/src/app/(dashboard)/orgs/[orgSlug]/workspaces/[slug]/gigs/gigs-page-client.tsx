@@ -304,46 +304,44 @@ export function GigsPageClient() {
               onCardClick={handleStatsCardClick}
             />
 
-            <>
-              <GigsFilters
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                typeFilter={typeFilter}
-                onTypeFilterChange={setTypeFilter}
-                statusFilter={statusFilter}
-                onStatusFilterChange={setStatusFilter}
-                sortBy={sortBy}
-                onSortByChange={setSortBy}
-                displayMode={displayMode}
-                onDisplayModeChange={setDisplayMode}
-                quickFilter={quickFilter}
-                onQuickFilterChange={setQuickFilter}
-                groupBy={groupBy}
-                onGroupByChange={setGroupBy}
-                orgSlug={orgSlug || ""}
-                workspaceSlug={workspaceSlug || ""}
-                newResponsesCount={stats.newResponses}
-              />
+            <GigsFilters
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              typeFilter={typeFilter}
+              onTypeFilterChange={setTypeFilter}
+              statusFilter={statusFilter}
+              onStatusFilterChange={setStatusFilter}
+              sortBy={sortBy}
+              onSortByChange={setSortBy}
+              displayMode={displayMode}
+              onDisplayModeChange={setDisplayMode}
+              quickFilter={quickFilter}
+              onQuickFilterChange={setQuickFilter}
+              groupBy={groupBy}
+              onGroupByChange={setGroupBy}
+              orgSlug={orgSlug || ""}
+              workspaceSlug={workspaceSlug || ""}
+              newResponsesCount={stats.newResponses}
+            />
 
-              <GigsList
-                gigs={gigs}
-                filteredGigs={gigsWithActive}
-                isLoading={isLoading}
-                displayMode={displayMode}
-                searchQuery={searchQuery}
-                typeFilter={typeFilter}
-                statusFilter={statusFilter}
-                orgSlug={orgSlug || ""}
-                workspaceSlug={workspaceSlug || ""}
-                onDelete={handleDeleteClick}
-                onDuplicate={handleDuplicate}
-                onToggleActive={handleToggleActive}
-                onSyncResponses={handleSyncResponses}
-                tableSortField={displayMode === "table" ? sortBy : null}
-                tableSortDirection={sortDirection}
-                onTableSort={handleTableSort}
-              />
-            </>
+            <GigsList
+              gigs={gigs}
+              filteredGigs={gigsWithActive}
+              isLoading={isLoading}
+              displayMode={displayMode}
+              searchQuery={searchQuery}
+              typeFilter={typeFilter}
+              statusFilter={statusFilter}
+              orgSlug={orgSlug || ""}
+              workspaceSlug={workspaceSlug || ""}
+              onDelete={handleDeleteClick}
+              onDuplicate={handleDuplicate}
+              onToggleActive={handleToggleActive}
+              onSyncResponses={handleSyncResponses}
+              tableSortField={displayMode === "table" ? sortBy : null}
+              tableSortDirection={sortDirection}
+              onTableSort={handleTableSort}
+            />
           </div>
         </div>
       </div>

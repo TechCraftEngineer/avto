@@ -7,5 +7,5 @@ export { ProgressCard } from "./progress-card";
 export { QuickReplies } from "./quick-replies";
 export { QuizStepBlock } from "./quiz-step-block";
 export * from "./types";
-export { WizardChat } from "./wizard-chat";
+export * from "./use-create-gig";
 export * from "./wizard-types";
