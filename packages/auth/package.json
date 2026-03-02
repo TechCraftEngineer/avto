@@ -24,7 +24,6 @@
     "zod": "4.3.6"
   },
   "devDependencies": {
-    "@better-auth/cli": "1.4.20",
     "@qbs-autonaim/tsconfig": "workspace:*",
     "typescript": "5.9.3"
   }
