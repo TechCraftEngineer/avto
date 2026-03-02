@@ -40,11 +40,6 @@ const sidebarNavItems = [
     href: "/settings/integrations",
     icon: Globe,
   },
-  {
-    title: "Сценарии интервью",
-    href: "/settings/interview-scenarios",
-    icon: MessageSquare,
-  },
 ];
 
 export function SettingsSidebar() {

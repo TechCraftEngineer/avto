@@ -77,7 +77,7 @@ export function VacancyLayoutClient({
     return (
       <div className="flex flex-1 flex-col min-w-0">
         <div className="@container/main flex flex-1 flex-col gap-2">
-          <div className="flex flex-col gap-4 px-4 py-4 md:gap-6 md:py-6 lg:px-6">
+          <div className="flex flex-col gap-4 px-4 py-4 md:gap-6 md:py-6 md:px-6">
             <Skeleton className="h-11 w-32 md:h-10 md:w-40 mb-2 md:mb-4" />
             <div className="space-y-4 md:space-y-6">
               <Skeleton className="h-11 w-full md:h-10 md:w-64" />
@@ -138,7 +138,7 @@ export function VacancyLayoutClient({
     return (
       <div className="flex flex-1 flex-col min-w-0">
         <div className="@container/main flex flex-1 flex-col gap-2">
-          <div className="flex flex-col gap-4 px-4 py-4 md:gap-6 md:py-6 lg:px-6">
+          <div className="flex flex-col gap-4 px-4 py-4 md:gap-6 md:py-6 md:px-6">
             <Skeleton className="h-11 w-32 md:h-10 md:w-40 mb-2 md:mb-4" />
             <div className="space-y-4 md:space-y-6">
               <Skeleton className="h-11 w-full md:h-10 md:w-64" />
@@ -162,7 +162,7 @@ export function VacancyLayoutClient({
   return (
     <div className="flex flex-1 flex-col min-w-0">
       <div className="@container/main flex flex-1 flex-col gap-2 min-w-0">
-        <div className="flex flex-col gap-4 px-4 lg:px-6">
+        <div className="flex flex-col gap-4 -mx-4 px-4 md:mx-0 md:px-6">
           <div className="mb-2 md:mb-4 -ml-2">
             <Button
               variant="ghost"
@@ -183,7 +183,7 @@ export function VacancyLayoutClient({
 
           <div className="space-y-4 md:space-y-6">
             <section
-              className="-mx-4 overflow-x-auto px-4 lg:mx-0 lg:px-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               aria-label="Навигация по разделам вакансии"
             >
               <nav className="flex min-w-max flex-wrap items-center gap-1">
