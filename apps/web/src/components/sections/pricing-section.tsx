@@ -1,170 +1,162 @@
 "use client"
 
 import { useState } from "react"
-import { Badge } from "@qbs-autonaim/ui/components/badge"
 import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
-import { Check, Sparkles } from "lucide-react"
+import { Check } from "lucide-react"
 import { env } from "@/env"
+import { cn } from "@qbs-autonaim/ui"
+
+const PLANS = [
+  {
+    name: "Бесплатный",
+    price: "Бесплатно",
+    priceAnnual: "Бесплатно",
+    description: "Для тестирования продукта",
+    features: ["25 откликов/мес", "1 вакансия", "AI-скрининг", "Базовые шаблоны"],
+    cta: "Начать бесплатно",
+    href: env.NEXT_PUBLIC_APP_URL,
+    popular: false,
+  },
+  {
+    name: "Стартовый",
+    price: "490 ₽",
+    priceAnnual: "390 ₽",
+    description: "Микробизнес и фриланс",
+    features: ["150 откликов/мес", "3 вакансии", "AI-скрининг", "Базовые шаблоны"],
+    cta: "Выбрать тариф",
+    href: env.NEXT_PUBLIC_APP_URL,
+    popular: false,
+  },
+  {
+    name: "Профессиональный",
+    price: "1 490 ₽",
+    priceAnnual: "1 190 ₽",
+    description: "Малый и средний бизнес",
+    features: ["1 000 откликов/мес", "10 вакансий", "AI-интервью в Telegram", "Расширенная аналитика", "Приоритетная поддержка"],
+    cta: "Выбрать тариф",
+    href: env.NEXT_PUBLIC_APP_URL,
+    popular: true,
+  },
+  {
+    name: "Корпоративный",
+    price: "от 4 990 ₽",
+    priceAnnual: "от 3 990 ₽",
+    description: "Агентства и крупные компании",
+    features: ["Безлимит откликов", "Безлимит вакансий", "API и расширенная аналитика", "Персональный менеджер", "Кастомные интеграции"],
+    cta: "Связаться с нами",
+    href: `${env.NEXT_PUBLIC_APP_URL}/contact?plan=enterprise`,
+    popular: false,
+  },
+] as const
 
 export function PricingSection() {
   const [isAnnual, setIsAnnual] = useState(false)
 
-  const plans = [
-    {
-      name: "Бесплатный",
-      price: "Бесплатно",
-      priceAnnual: "Бесплатно",
-      description: "Для тестирования продукта",
-      features: [
-        "До 25 откликов в месяц",
-        "1 активная вакансия",
-        "AI-скрининг резюме",
-        "Базовые шаблоны",
-      ],
-      cta: "Начать бесплатно",
-      href: `${env.NEXT_PUBLIC_APP_URL}`,
-      popular: false,
-    },
-    {
-      name: "Стартовый",
-      price: "490 ₽",
-      priceAnnual: "390 ₽",
-      description: "Для микробизнеса и фрилансеров",
-      features: [
-        "До 150 откликов в месяц",
-        "До 3 активных вакансий",
-        "AI-скрининг резюме",
-        "Базовые шаблоны",
-      ],
-      cta: "Выбрать тариф",
-      href: `${env.NEXT_PUBLIC_APP_URL}`,
-      popular: false,
-    },
-    {
-      name: "Профессиональный",
-      price: "1 490 ₽",
-      priceAnnual: "1 190 ₽",
-      description: "Для малого и среднего бизнеса и IT-компаний",
-      features: [
-        "До 1 000 откликов в месяц",
-        "До 10 активных вакансий",
-        "AI-интервью в Telegram и веб-чате",
-        "Расширенная аналитика",
-        "Приоритетная поддержка",
-      ],
-      cta: "Выбрать тариф",
-      href: `${env.NEXT_PUBLIC_APP_URL}`,
-      popular: true,
-    },
-    {
-      name: "Корпоративный",
-      price: "от 4 990 ₽",
-      priceAnnual: "от 3 990 ₽",
-      description: "Для агентств и крупных компаний",
-      features: [
-        "Неограниченные отклики",
-        "Неограниченные вакансии",
-        "Расширенная аналитика и API",
-        "Персональный менеджер",
-        "Кастомные интеграции",
-      ],
-      cta: "Связаться с нами",
-      href: `${env.NEXT_PUBLIC_APP_URL}/contact?plan=enterprise`,
-      popular: false,
-    },
-  ]
-
   return (
-    <section id="pricing" className="relative bg-muted/30 py-24 md:py-32 overflow-hidden">
-      {/* Top border */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-border to-transparent" />
+    <section id="pricing" className="relative py-28 md:py-36 lg:py-44">
+      <div className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto text-center mb-16">
+          <div className="inline-block mb-8 h-px w-12 bg-linear-to-r from-transparent via-amber-500/60 to-transparent" />
 
-      {/* Subtle gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_50%,oklch(0.96_0.01_265/0.2),transparent_70%)]" />
+          <p className="mb-6 text-[13px] font-medium text-muted-foreground uppercase tracking-[0.2em]">
+            Тарифы
+          </p>
 
-      <div className="container mx-auto px-4 relative">
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm mb-6">
-            <Sparkles className="h-4 w-4 text-foreground" />
-            <span className="text-muted-foreground">Тарифы</span>
-          </div>
-
-          <h2 className="mb-6 text-4xl font-bold tracking-tight text-foreground md:text-5xl text-balance">
+          <h2 className="mb-6 text-[2rem] font-semibold tracking-tight text-foreground sm:text-[2.25rem] lg:text-[2.5rem]">
             Прозрачные цены для каждой команды
           </h2>
-          <p className="mb-12 text-xl text-muted-foreground">Начните бесплатно. Масштабируйтесь по мере роста.</p>
 
-          <div className="mb-16 inline-flex items-center gap-3 rounded-full border border-border bg-card p-1">
+          <p className="mb-12 text-lg text-muted-foreground">
+            Начните бесплатно. Масштабируйтесь по мере роста.
+          </p>
+
+          <div className="inline-flex items-center gap-1 rounded-full border border-border bg-background p-1">
             <button
+              type="button"
               onClick={() => setIsAnnual(false)}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
-                !isAnnual ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={cn(
+                "rounded-full px-5 py-2.5 text-sm font-medium transition-colors",
+                !isAnnual
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
             >
               Помесячно
             </button>
             <button
+              type="button"
               onClick={() => setIsAnnual(true)}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
-                isAnnual ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={cn(
+                "rounded-full px-5 py-2.5 text-sm font-medium transition-colors flex items-center gap-2",
+                isAnnual
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
             >
               Ежегодно
-              <Badge variant="secondary" className="ml-2">
-                -20%
-              </Badge>
+              <span className="text-[11px] font-normal opacity-90">−20%</span>
             </button>
           </div>
         </div>
 
-        <div className="mx-auto grid max-w-7xl gap-6 sm:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-          {plans.map((plan) => (
-            <Card
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
+          {PLANS.map((plan) => (
+            <article
               key={plan.name}
-              className={`relative border transition-all flex flex-col ${
+              className={cn(
+                "relative flex flex-col rounded-xl border bg-card overflow-hidden",
                 plan.popular
-                  ? "border-foreground shadow-xl lg:scale-105"
-                  : "border-border hover:border-foreground/20 hover:shadow-lg"
-              }`}
+                  ? "border-amber-500/50 ring-1 ring-amber-500/20"
+                  : "border-border"
+              )}
             >
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                  <Badge className="bg-foreground text-background border-0 px-4 py-1">Популярный</Badge>
-                </div>
+                <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-amber-500 to-transparent" />
               )}
-              <CardHeader className="text-center pb-6 pt-8 sm:pb-8">
-                <CardTitle className="text-xl sm:text-2xl mb-2">{plan.name}</CardTitle>
-                <CardDescription className="text-sm sm:text-base min-h-10 sm:min-h-12">{plan.description}</CardDescription>
-                <div className="mt-4 sm:mt-6">
-                  <span className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">{isAnnual ? plan.priceAnnual : plan.price}</span>
-                  {plan.price !== "Бесплатно" && plan.price !== "По запросу" && (
-                    <span className="text-muted-foreground ml-1 text-sm sm:text-base">/мес</span>
+
+              <div className="flex flex-1 flex-col p-6 sm:p-7">
+                {plan.popular && (
+                  <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.15em] text-amber-600 dark:text-amber-400">
+                    Популярный
+                  </p>
+                )}
+
+                <h3 className="text-lg font-semibold text-foreground mb-1">
+                  {plan.name}
+                </h3>
+                <p className="text-sm text-muted-foreground mb-6 min-h-10">
+                  {plan.description}
+                </p>
+
+                <div className="mb-6">
+                  <span className="text-2xl font-semibold tabular-nums text-foreground sm:text-3xl">
+                    {isAnnual ? plan.priceAnnual : plan.price}
+                  </span>
+                  {plan.price !== "Бесплатно" && (
+                    <span className="text-sm text-muted-foreground ml-1">/мес</span>
                   )}
                 </div>
-              </CardHeader>
-              <CardContent className="pb-6 sm:pb-8 flex-1">
-                <ul className="space-y-2.5 sm:space-y-3">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-2.5 sm:gap-3 text-sm">
-                      <Check className="h-4 w-4 sm:h-5 sm:w-5 text-foreground shrink-0 mt-0.5" />
-                      <span className="text-muted-foreground">{feature}</span>
+
+                <ul className="space-y-3 flex-1">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-3 text-sm text-muted-foreground">
+                      <Check className="h-4 w-4 shrink-0 mt-0.5 text-foreground/70" strokeWidth={2.5} />
+                      {feature}
                     </li>
                   ))}
                 </ul>
-              </CardContent>
-              <CardFooter className="pt-0 pb-6 sm:pb-8">
-                <Button 
-                  className="w-full min-h-[44px]" 
-                  variant={plan.popular ? "default" : "outline"}
-                  asChild
-                >
-                  <a href={plan.href}>
-                    {plan.cta}
-                  </a>
-                </Button>
-              </CardFooter>
-            </Card>
+
+                <div className="mt-6 pt-6 border-t border-border">
+                  <Button
+                    className="w-full h-11 font-medium"
+                    variant={plan.popular ? "default" : "outline"}
+                    asChild
+                  >
+                    <a href={plan.href}>{plan.cta}</a>
+                  </Button>
+                </div>
+              </div>
+            </article>
           ))}
         </div>
       </div>
