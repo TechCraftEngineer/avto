@@ -48,7 +48,7 @@
     "better-auth": "1.5.1",
     "date-fns": "4.1.0",
     "jspdf": "^4.2.0",
-    "lucide-react": "0.575.0",
+    "lucide-react": "0.576.0",
     "motion": "^12.34.3",
     "next": "16.1.6",
     "nuqs": "^2.8.9",
