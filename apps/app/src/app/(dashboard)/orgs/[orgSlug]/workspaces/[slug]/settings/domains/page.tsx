@@ -17,10 +17,10 @@ export default function WorkspaceDomainsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <Skeleton className="h-8 w-64" />
-          <Skeleton className="mt-1 h-4 w-96" />
+          <Skeleton className="h-8 w-full max-w-64 sm:w-64" />
+          <Skeleton className="mt-1 h-4 w-full max-w-96 sm:w-96" />
         </div>
-        <Skeleton className="h-64 w-full" />
+        <Skeleton className="h-48 w-full sm:h-64" />
       </div>
     );
   }
@@ -39,7 +39,9 @@ export default function WorkspaceDomainsPage() {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-4">
         <p className="font-medium text-red-900">Ошибка загрузки</p>
-        <p className="mt-1 text-sm text-red-700">{errorMessage}</p>
+        <p className="mt-1 text-sm text-red-700 wrap-break-word">
+          {errorMessage}
+        </p>
       </div>
     );
   }

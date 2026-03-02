@@ -47,14 +47,14 @@ export function DomainCard({ domain, workspaceId }: DomainCardProps) {
     <>
       <Card>
         <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2">
-              <Globe className="h-5 w-5 text-muted-foreground" />
-              <CardTitle className="font-mono text-base">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex min-w-0 items-center gap-2">
+              <Globe className="h-5 w-5 shrink-0 text-muted-foreground" />
+              <CardTitle className="min-w-0 truncate font-mono text-base">
                 {domain.domain}
               </CardTitle>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {domain.isPrimary && (
                 <Badge variant="default" className="gap-1">
                   <Star className="h-3 w-3" />
@@ -111,7 +111,7 @@ export function DomainCard({ domain, workspaceId }: DomainCardProps) {
                 </p>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row">
                 <Button
                   variant="outline"
                   size="sm"
