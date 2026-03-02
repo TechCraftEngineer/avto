@@ -1,7 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "@qbs-autonaim/tailwind-config/theme";
 
 @custom-variant dark (&:is(.dark *));
+@source "../../../../packages/ui/src/**/*.{ts,tsx}";
+
 
 /* Updated color palette to neutral gray scale - removed all blue/purple tones */
 :root {
