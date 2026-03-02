@@ -10,7 +10,8 @@ import {
   PricingSection,
   FAQSection,
   CTASection,
-  RAGIntelligenceSection
+  RAGIntelligenceSection,
+  DataFlowSection,
 } from "@/components/sections"
 import { ROICalculator } from "@/components/interactive"
 
@@ -33,6 +34,9 @@ export default function Home() {
 
         {/* 5. How It Works - Simple 4-step process */}
         <HowItWorks />
+
+        {/* 5.5. Data Flow - Visual pipeline from HH/SuperJob to candidate card */}
+        <DataFlowSection />
 
         {/* 6. Features - All capabilities including Prequalification and White-label */}
         <FeaturesSection />
