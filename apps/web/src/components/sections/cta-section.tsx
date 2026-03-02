@@ -25,17 +25,16 @@ export function CTASection() {
         <div className="flex justify-center mb-8">
           <div className="inline-flex items-center gap-2 rounded-full bg-neutral-800 border border-amber-500/30 px-4 py-2 text-sm font-medium text-neutral-300 shadow-[0_0_20px_rgba(251,191,36,0.15)]">
             <Sparkles className="h-5 w-5 text-amber-400" />
-            Доверяют более 1000+ HR-специалистов
+            Подбор персонала для компаний по всей России
           </div>
         </div>
 
         <h2 className="mb-6 text-4xl font-bold tracking-tight text-white md:text-6xl leading-tight text-balance text-center">
-          Автоматизируйте найм персонала с помощью искусственного интеллекта
+          Автоматизация подбора персонала — от откликов к офферу
         </h2>
 
         <p className="mb-12 text-lg md:text-xl text-neutral-300 leading-relaxed text-center max-w-3xl mx-auto">
-          Сократите время закрытия вакансий на 70% с помощью QBS Автонайм. Автоматический AI-скрининг, голосовые
-          интервью через Telegram и интеграция с HeadHunter — всё в одной платформе для эффективного подбора кандидатов.
+          QBS Автонайм: скрининг резюме, HeadHunter и SuperJob в одном окне, интервью в Telegram. Система автоматизации рекрутинга для российского рынка. Соответствие 152-ФЗ.
         </p>
 
         {/* Buttons */}
@@ -57,7 +56,7 @@ export function CTASection() {
 
         <div className="text-center mb-8">
           <p className="text-sm text-neutral-500 mb-4">
-            Бесплатная регистрация • Без кредитной карты • Настройка за 5 минут
+            Регистрация бесплатно • Без привязки карты • Подключение HeadHunter за 2 минуты
           </p>
         </div>
 

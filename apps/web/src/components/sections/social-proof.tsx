@@ -9,17 +9,17 @@ export function SocialProof() {
     {
       icon: Users,
       value: "100 000+",
-      label: "кандидатов обработано",
+      label: "резюме прошло скрининг",
     },
     {
       icon: Target,
       value: "94%",
-      label: "точность AI-скрининга",
+      label: "точность отсева при подборе персонала",
     },
     {
       icon: Clock,
       value: "в 10 раз",
-      label: "быстрее ручного отбора",
+      label: "быстрее ручного скрининга резюме",
     },
   ]
 
@@ -38,7 +38,7 @@ export function SocialProof() {
     <section className="bg-muted/30 py-16 md:py-20">
       <div className="container mx-auto px-4">
         <p className="text-center text-xs uppercase tracking-wider text-muted-foreground/60 mb-12 font-medium">
-          Нам доверяют ведущие российские компании
+          Система подбора персонала для российского рынка
         </p>
 
         <div className="relative overflow-hidden mb-16">

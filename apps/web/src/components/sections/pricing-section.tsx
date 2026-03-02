@@ -11,7 +11,7 @@ const PLANS = [
     name: "Бесплатный",
     price: "Бесплатно",
     priceAnnual: "Бесплатно",
-    description: "Для тестирования продукта",
+    description: "Попробовать платформу",
     features: ["25 откликов/мес", "1 вакансия", "AI-скрининг", "Базовые шаблоны"],
     cta: "Начать бесплатно",
     href: env.NEXT_PUBLIC_APP_URL,
@@ -21,7 +21,7 @@ const PLANS = [
     name: "Стартовый",
     price: "490 ₽",
     priceAnnual: "390 ₽",
-    description: "Микробизнес и фриланс",
+    description: "Небольшой объём вакансий",
     features: ["150 откликов/мес", "3 вакансии", "AI-скрининг", "Базовые шаблоны"],
     cta: "Выбрать тариф",
     href: env.NEXT_PUBLIC_APP_URL,
@@ -31,7 +31,7 @@ const PLANS = [
     name: "Профессиональный",
     price: "1 490 ₽",
     priceAnnual: "1 190 ₽",
-    description: "Малый и средний бизнес",
+    description: "Активный набор, несколько рекрутеров",
     features: ["1 000 откликов/мес", "10 вакансий", "AI-интервью в Telegram", "Расширенная аналитика", "Приоритетная поддержка"],
     cta: "Выбрать тариф",
     href: env.NEXT_PUBLIC_APP_URL,
@@ -41,7 +41,7 @@ const PLANS = [
     name: "Корпоративный",
     price: "от 4 990 ₽",
     priceAnnual: "от 3 990 ₽",
-    description: "Агентства и крупные компании",
+    description: "Высокий объём, API, персональная настройка",
     features: ["Безлимит откликов", "Безлимит вакансий", "API и расширенная аналитика", "Персональный менеджер", "Кастомные интеграции"],
     cta: "Связаться с нами",
     href: `${env.NEXT_PUBLIC_APP_URL}/contact?plan=enterprise`,
@@ -63,11 +63,11 @@ export function PricingSection() {
           </p>
 
           <h2 className="mb-6 text-[2rem] font-semibold tracking-tight text-foreground sm:text-[2.25rem] lg:text-[2.5rem]">
-            Прозрачные цены для каждой команды
+            Тарифы на автоматизацию подбора персонала
           </h2>
 
           <p className="mb-12 text-lg text-muted-foreground">
-            Начните бесплатно. Масштабируйтесь по мере роста.
+            Бесплатный тариф для теста. Оплата в рублях. Годовая подписка — скидка 20%.
           </p>
 
           <div className="inline-flex items-center gap-1 rounded-full border border-border bg-background p-1">

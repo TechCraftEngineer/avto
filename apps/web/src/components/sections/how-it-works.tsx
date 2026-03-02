@@ -9,9 +9,9 @@ export function HowItWorks() {
     {
       number: "01",
       icon: Link2,
-      title: "Подключите источники",
+      title: "Подключение HeadHunter и SuperJob",
       description:
-        "Интеграция с hh.ru, SuperJob и другими площадками за 2 минуты. Все отклики автоматически синхронизируются.",
+        "Интеграция с hh.ru, SuperJob, Avito — авторизация один раз, отклики синхронизируются автоматически.",
       color: "text-red-500",
       bgColor: "bg-red-500/10",
       features: ["hh.ru", "SuperJob", "Avito"],
@@ -19,30 +19,30 @@ export function HowItWorks() {
     {
       number: "02",
       icon: Brain,
-      title: "AI анализирует резюме",
+      title: "Скрининг резюме по вашим критериям",
       description:
-        "Искусственный интеллект оценивает каждого кандидата по 50+ параметрам и выставляет рейтинг соответствия.",
+        "Автоматический отбор резюме: система оценивает кандидатов по настраиваемым параметрам и выставляет рейтинг соответствия.",
       color: "text-violet-500",
       bgColor: "bg-violet-500/10",
-      features: ["50+ параметров", "Рейтинг", "Проф. + личные навыки"],
+      features: ["Ваши критерии", "Рейтинг", "Профиль кандидата"],
     },
     {
       number: "03",
       icon: MessageCircle,
-      title: "Автоматическое интервью",
-      description: "AI-бот проводит голосовые интервью в Telegram 24/7. Кандидаты отвечают когда им удобно.",
+      title: "Интервью в мессенджере",
+      description: "Кандидат получает приглашение и проходит интервью в Telegram или веб-чате в удобное время.",
       color: "text-[#0088cc]",
       bgColor: "bg-[#0088cc]/10",
-      features: ["Telegram", "Голос + Текст", "24/7"],
+      features: ["Telegram", "Голос или текст", "24/7"],
     },
     {
       number: "04",
       icon: CheckCircle,
-      title: "Финальный список",
-      description: "Получите отсортированный список лучших кандидатов с полной аналитикой и рекомендациями.",
+      title: "Лонг-лист готов",
+      description: "Отсортированный список с транскрипциями, оценками и рекомендациями — остаётся провести финальные интервью.",
       color: "text-emerald-500",
       bgColor: "bg-emerald-500/10",
-      features: ["Топ кандидаты", "Аналитика", "Рекомендации"],
+      features: ["Топ кандидаты", "Транскрипции", "Рекомендации"],
     },
   ]
 
@@ -72,9 +72,9 @@ export function HowItWorks() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-6 text-balance"
           >
-            От отклика до найма
+            Подбор персонала: 4 шага
             <br />
-            <span className="text-muted-foreground">за 4 простых шага</span>
+            <span className="text-muted-foreground">от HeadHunter до оффера</span>
           </motion.h2>
 
           <motion.p
@@ -84,7 +84,7 @@ export function HowItWorks() {
             viewport={{ once: true }}
             className="text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            Автоматизируйте рутину найма и сфокусируйтесь на лучших кандидатах
+            HeadHunter, SuperJob, Avito → скрининг резюме → интервью в Telegram → лонг-лист. Без ручного копирования откликов
           </motion.p>
         </div>
 
@@ -144,8 +144,8 @@ export function HowItWorks() {
             <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center mb-4 mx-auto group-hover:bg-primary/10 transition-colors">
               <Clock className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
-            <h3 className="font-semibold text-foreground mb-2">Экономия времени</h3>
-            <p className="text-sm text-muted-foreground">С 5 часов до 15 минут в день на первичный отбор</p>
+            <h3 className="font-semibold text-foreground mb-2">Меньше рутины</h3>
+            <p className="text-sm text-muted-foreground">Первичный отбор за 15 минут вместо 5 часов в день</p>
           </motion.div>
 
           <motion.div
@@ -158,8 +158,8 @@ export function HowItWorks() {
             <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center mb-4 mx-auto group-hover:bg-primary/10 transition-colors">
               <Shield className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
-            <h3 className="font-semibold text-foreground mb-2">Точность оценки</h3>
-            <p className="text-sm text-muted-foreground">AI анализирует по 50+ параметрам соответствия</p>
+            <h3 className="font-semibold text-foreground mb-2">Настраиваемая оценка</h3>
+            <p className="text-sm text-muted-foreground">Параметры и веса под специфику ваших вакансий</p>
           </motion.div>
 
           <motion.div
@@ -172,8 +172,8 @@ export function HowItWorks() {
             <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center mb-4 mx-auto group-hover:bg-primary/10 transition-colors">
               <Zap className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
-            <h3 className="font-semibold text-foreground mb-2">Мгновенный старт</h3>
-            <p className="text-sm text-muted-foreground">Подключите HH.ru за 2 минуты и начните</p>
+            <h3 className="font-semibold text-foreground mb-2">Быстрое подключение</h3>
+            <p className="text-sm text-muted-foreground">hh.ru за 2 минуты — первый отклик уже в платформе</p>
           </motion.div>
         </div>
 

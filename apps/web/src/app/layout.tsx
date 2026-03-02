@@ -16,25 +16,26 @@ const geistMono = Geist_Mono({
 
 
 export const metadata: Metadata = {
-  title: "QBS Автонайм — AI-платформа автоматизации подбора персонала | Рекрутинг с ИИ",
+  title: "QBS Автонайм — автоматизация подбора персонала | Скрининг резюме, HeadHunter, SuperJob",
   description:
-    "Автоматизируйте подбор персонала с помощью искусственного интеллекта. AI-скрининг резюме, голосовые интервью в Telegram, интеграция с hh.ru. Сократите время найма на 70%. Бесплатный старт.",
+    "Система автоматизации подбора персонала для российского рынка. Скрининг резюме за секунды, интервью в Telegram и веб-чате, интеграция с hh.ru и SuperJob. Соответствие 152-ФЗ. Бесплатный тариф.",
   keywords: [
-    "автоматизация найма",
-    "AI рекрутинг",
     "подбор персонала",
-    "HR автоматизация",
-    "искусственный интеллект HR",
-    "автонайм",
-    "рекрутинг бот",
-    "HH.ru интеграция",
-    "Telegram рекрутинг",
+    "автоматизация подбора персонала",
+    "скрининг резюме",
+    "рекрутинг",
+    "система подбора персонала",
+    "HeadHunter интеграция",
+    "hh.ru автоматизация",
+    "SuperJob",
+    "подбор сотрудников",
+    "HR-автоматизация",
+    "автоматизация найма",
+    "программа для подбора персонала",
     "скрининг кандидатов",
-    "автоматический подбор персонала",
-    "AI HR",
-    "умный рекрутинг",
-    "автоматизация HR",
-    "бот для найма",
+    "Telegram рекрутинг",
+    "автоматический отбор резюме",
+    "как ускорить подбор персонала",
   ],
   authors: [{ name: "QBS" }],
   creator: "QBS",
@@ -44,21 +45,21 @@ export const metadata: Metadata = {
     locale: "ru_RU",
     url: "https://avtonaim.qbsoft.ru",
     siteName: "QBS Автонайм",
-    title: "QBS Автонайм — Автоматизация подбора персонала с ИИ",
-    description: "AI-скрининг резюме, голосовые интервью, интеграция с hh.ru. Сократите время найма на 70%.",
+    title: "QBS Автонайм — автоматизация подбора персонала и скрининга резюме",
+    description: "Автоматизация подбора персонала: скрининг резюме, интеграция с HeadHunter и SuperJob, интервью в Telegram. Для российского рынка. Соответствие 152-ФЗ.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "QBS Автонайм — AI платформа для найма",
+        alt: "QBS Автонайм — автоматизация подбора персонала и скрининга резюме",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "QBS Автонайм — AI-платформа для автоматизации найма",
-    description: "Автоматизируйте подбор персонала с помощью ИИ. Экономьте до 90% времени на рутине.",
+    title: "QBS Автонайм — автоматизация подбора персонала в России",
+    description: "Скрининг резюме, HeadHunter, SuperJob, Telegram. Автоматизация найма для HR-команд.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -107,27 +108,29 @@ export default function RootLayout({
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "SoftwareApplication",
-              name: "QBS Автонайм",
-              applicationCategory: "BusinessApplication",
-              operatingSystem: "Web",
-              description: "AI-платформа для автоматизации найма персонала. Интеграция с HH.ru и Telegram.",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "RUB",
-                description: "Бесплатный тариф до 50 кандидатов в месяц",
-              },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.9",
-                ratingCount: "127",
-              },
-            }),
-          }}
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "SoftwareApplication",
+                name: "QBS Автонайм",
+                applicationCategory: "BusinessApplication",
+                operatingSystem: "Web",
+                inLanguage: "ru",
+                description: "Система автоматизации подбора персонала. Скрининг резюме, интеграция с HeadHunter, SuperJob, Telegram. Для HR-команд в России. Соответствие 152-ФЗ о персональных данных.",
+                offers: {
+                  "@type": "Offer",
+                  price: "0",
+                  priceCurrency: "RUB",
+                  description: "Бесплатный тариф для тестирования",
+                },
+                aggregateRating: {
+                  "@type": "AggregateRating",
+                  ratingValue: "4.9",
+                  ratingCount: "127",
+                  bestRating: "5",
+                },
+              }),
+            }}
         />
       </head>
       <body className={`${geistSans.className} antialiased`}>
