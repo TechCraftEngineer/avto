@@ -206,8 +206,8 @@ function ProfileContent({
   return (
     <div className="flex flex-col min-h-0 flex-1 overflow-hidden">
       {/* Заголовок с основной информацией */}
-      <div className="flex items-start gap-4 pb-4">
-        <Avatar className="h-16 w-16 border shrink-0">
+      <div className="flex items-start gap-3 sm:gap-4 pb-4">
+        <Avatar className="h-12 w-12 sm:h-16 sm:w-16 border shrink-0">
           <AvatarImage src={avatarUrl} alt={candidate.fullName} />
           <AvatarFallback className="text-lg font-medium bg-primary/10 text-primary">
             {initials}
@@ -217,7 +217,9 @@ function ProfileContent({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <h2 className="text-xl font-semibold">{candidate.fullName}</h2>
+              <h2 className="text-lg sm:text-xl font-semibold leading-tight">
+                {candidate.fullName}
+              </h2>
               {candidate.headline && (
                 <p className="text-sm text-muted-foreground">
                   {candidate.headline}
@@ -226,13 +228,13 @@ function ProfileContent({
             </div>
 
             {/* Меню действий и закрытие — сгруппированы в стиле shadcn */}
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="flex items-center gap-1 shrink-0 -mr-1">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 shrink-0"
+                    className="h-9 w-9 sm:h-8 sm:w-8 shrink-0 touch-manipulation"
                   >
                     <MoreVertical className="h-4 w-4" />
                     <span className="sr-only">Меню действий</span>
@@ -267,7 +269,7 @@ function ProfileContent({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 shrink-0 opacity-70 hover:opacity-100"
+                  className="h-9 w-9 sm:h-8 sm:w-8 shrink-0 opacity-70 hover:opacity-100 touch-manipulation"
                 >
                   <X className="h-4 w-4" />
                   <span className="sr-only">Закрыть</span>
@@ -298,11 +300,19 @@ function ProfileContent({
         defaultValue="info"
         className="flex-1 min-h-0 overflow-hidden flex flex-col"
       >
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="info">Информация</TabsTrigger>
-          <TabsTrigger value="chat">Сообщения</TabsTrigger>
-          <TabsTrigger value="responses">Отклики</TabsTrigger>
-          <TabsTrigger value="notes">Заметки</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1.5 p-1.5 h-auto min-h-10">
+          <TabsTrigger value="info" className="text-xs sm:text-sm py-2.5">
+            Информация
+          </TabsTrigger>
+          <TabsTrigger value="chat" className="text-xs sm:text-sm py-2.5">
+            Сообщения
+          </TabsTrigger>
+          <TabsTrigger value="responses" className="text-xs sm:text-sm py-2.5">
+            Отклики
+          </TabsTrigger>
+          <TabsTrigger value="notes" className="text-xs sm:text-sm py-2.5">
+            Заметки
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent
@@ -621,18 +631,25 @@ export function CandidateProfileDialog({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
-        className="w-full sm:max-w-lg overflow-y-auto"
+        side="bottom"
+        className="h-[90dvh] max-h-[90dvh] w-full overflow-hidden flex flex-col p-0 gap-0 rounded-t-xl overscroll-contain"
         showCloseButton={false}
       >
         <SheetHeader className="sr-only">
           <SheetTitle>Профиль кандидата {candidate.fullName}</SheetTitle>
         </SheetHeader>
-        <ProfileContent
-          candidate={candidate}
-          organizationId={organizationId}
-          onStatusChange={onStatusChange}
-          onOpenChange={onOpenChange}
-        />
+        {/* Ручка для жеста свайпа вниз (мобильная практика для bottom sheet) */}
+        <div className="flex shrink-0 justify-center pt-2 pb-1" aria-hidden>
+          <div className="h-1 w-10 rounded-full bg-muted-foreground/30" />
+        </div>
+        <div className="flex flex-col min-h-0 flex-1 overflow-hidden px-4 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <ProfileContent
+            candidate={candidate}
+            organizationId={organizationId}
+            onStatusChange={onStatusChange}
+            onOpenChange={onOpenChange}
+          />
+        </div>
       </SheetContent>
     </Sheet>
   );
