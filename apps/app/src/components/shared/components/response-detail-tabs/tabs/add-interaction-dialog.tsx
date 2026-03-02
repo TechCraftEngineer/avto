@@ -172,9 +172,9 @@ export function AddInteractionDialog({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl pr-8">
             <Plus className="h-5 w-5" />
             Добавить взаимодействие
           </DialogTitle>
@@ -216,7 +216,7 @@ export function AddInteractionDialog({
 
           <div className="space-y-2">
             <Label>Когда</Label>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -249,7 +249,7 @@ export function AddInteractionDialog({
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-[120px] justify-start text-left font-normal",
+                      "w-full sm:w-[120px] justify-start text-left font-normal",
                       !timeValue && "text-muted-foreground",
                     )}
                   >
@@ -343,14 +343,18 @@ export function AddInteractionDialog({
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={() => setOpen(false)}>
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">
+            <Button
+              variant="outline"
+              onClick={() => setOpen(false)}
+              className="w-full sm:w-auto min-h-11 touch-manipulation"
+            >
               Отмена
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={isPending}
-              className="gap-2"
+              className="w-full sm:w-auto gap-2 min-h-11 touch-manipulation"
             >
               {isPending && (
                 <Loader2 className="h-4 w-4 animate-spin shrink-0" />
