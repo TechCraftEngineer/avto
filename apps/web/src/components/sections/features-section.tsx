@@ -43,7 +43,7 @@ const features = [
     id: "voice-interview",
     icon: Mic,
     label: "Интервью",
-    title: "Интервью в Telegram и веб-чате",
+    title: "Интервью в веб-чате",
     description: "Кандидат проходит интервью в удобное время — голосом или текстом. Транскрипция сохраняется, ответы оцениваются автоматически",
     color: "text-sky-500",
     bgColor: "bg-sky-500/10",
@@ -171,7 +171,7 @@ export function FeaturesSection() {
             viewport={{ once: true }}
             className="text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            Скрининг резюме из HeadHunter и SuperJob, интервью в Telegram, преквалификация, воронка найма — плюс white-label для корпоративного сайта
+            Скрининг резюме из HeadHunter и SuperJob, интервью в веб-чате, преквалификация, воронка найма — плюс white-label для корпоративного сайта
           </motion.p>
         </div>
 

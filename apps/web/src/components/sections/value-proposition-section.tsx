@@ -65,7 +65,7 @@ export function ValuePropositionSection() {
                 value: "94%",
                 label: "точность первичного отбора",
                 icon: TrendingUp,
-                description: "В лонг-лист попадают только подходящие",
+                description: "В список отобранных попадают только подходящие",
               },
               {
                 value: "24/7",
@@ -108,12 +108,12 @@ export function ValuePropositionSection() {
             <div className="space-y-8">
               <div className="max-w-3xl mx-auto text-center">
                 <h3 className="text-2xl font-semibold text-foreground mb-3">Все этапы подбора персонала в одном месте</h3>
-                <p className="text-muted-foreground mb-8">Скрининг резюме, интервью, лонг-лист — от отклика на hh.ru до оффера</p>
+                <p className="text-muted-foreground mb-8">Скрининг резюме, интервью, список отобранных — от отклика на hh.ru до оффера</p>
                 <ul className="grid sm:grid-cols-2 gap-4 text-left">
                   {[
                     "Скрининг резюме по вашим критериям за секунды",
-                    "Интервью в Telegram и веб-чате в любое время",
-                    "Единый лонг-лист по всем вакансиям",
+                    "Интервью в веб-чате в любое время",
+                    "Единый список отобранных по всем вакансиям",
                     "hh.ru, SuperJob, Avito — без ручного копирования",
                   ].map((item, index) => (
                     <motion.li

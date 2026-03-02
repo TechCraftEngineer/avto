@@ -34,7 +34,7 @@ export function CTASection() {
         </h2>
 
         <p className="mb-12 text-lg md:text-xl text-neutral-300 leading-relaxed text-center max-w-3xl mx-auto">
-          QBS Автонайм: скрининг резюме, HeadHunter и SuperJob в одном окне, интервью в Telegram. Система автоматизации рекрутинга для российского рынка. Соответствие 152-ФЗ.
+          QBS Автонайм: скрининг резюме, HeadHunter и SuperJob в одном окне, интервью в веб-чате. Система автоматизации рекрутинга для российского рынка. Соответствие 152-ФЗ.
         </p>
 
         {/* Buttons */}

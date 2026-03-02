@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { YandexMetrika } from "@/components/yandex-metrika"
+import { SITE_CONFIG } from "@/lib/seo-constants"
 import "./globals.css"
 
 const geistSans = Geist({ 
@@ -16,9 +17,10 @@ const geistMono = Geist_Mono({
 
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_CONFIG.url),
   title: "QBS Автонайм — автоматизация подбора персонала | Скрининг резюме, HeadHunter, SuperJob",
   description:
-    "Система автоматизации подбора персонала для российского рынка. Скрининг резюме за секунды, интервью в Telegram и веб-чате, интеграция с hh.ru и SuperJob. Соответствие 152-ФЗ. Бесплатный тариф.",
+    "Система автоматизации подбора персонала для российского рынка. Скрининг резюме за секунды, интервью в веб-чате, интеграция с hh.ru и SuperJob. Соответствие 152-ФЗ. Бесплатный тариф.",
   keywords: [
     "подбор персонала",
     "автоматизация подбора персонала",
@@ -33,7 +35,7 @@ export const metadata: Metadata = {
     "автоматизация найма",
     "программа для подбора персонала",
     "скрининг кандидатов",
-    "Telegram рекрутинг",
+    "веб-чат интервью",
     "автоматический отбор резюме",
     "как ускорить подбор персонала",
   ],
@@ -46,7 +48,7 @@ export const metadata: Metadata = {
     url: "https://avtonaim.qbsoft.ru",
     siteName: "QBS Автонайм",
     title: "QBS Автонайм — автоматизация подбора персонала и скрининга резюме",
-    description: "Автоматизация подбора персонала: скрининг резюме, интеграция с HeadHunter и SuperJob, интервью в Telegram. Для российского рынка. Соответствие 152-ФЗ.",
+    description: "Автоматизация подбора персонала: скрининг резюме, интеграция с HeadHunter и SuperJob, интервью в веб-чате. Для российского рынка. Соответствие 152-ФЗ.",
     images: [
       {
         url: "/og-image.png",
@@ -59,7 +61,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "QBS Автонайм — автоматизация подбора персонала в России",
-    description: "Скрининг резюме, HeadHunter, SuperJob, Telegram. Автоматизация найма для HR-команд.",
+    description: "Скрининг резюме, HeadHunter, SuperJob, веб-чат интервью. Автоматизация найма для HR-команд.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -116,7 +118,7 @@ export default function RootLayout({
                 applicationCategory: "BusinessApplication",
                 operatingSystem: "Web",
                 inLanguage: "ru",
-                description: "Система автоматизации подбора персонала. Скрининг резюме, интеграция с HeadHunter, SuperJob, Telegram. Для HR-команд в России. Соответствие 152-ФЗ о персональных данных.",
+                description: "Система автоматизации подбора персонала. Скрининг резюме, интеграция с HeadHunter, SuperJob, интервью в веб-чате. Для HR-команд в России. Соответствие 152-ФЗ о персональных данных.",
                 offers: {
                   "@type": "Offer",
                   price: "0",

@@ -21,8 +21,6 @@ import {
 import { Button } from "@qbs-autonaim/ui/components/button"
 
 export function VoiceInterviewSection() {
-  const [selectedPlatform, setSelectedPlatform] = useState<"telegram" | "webchat">("telegram")
-
   return (
     <section className="relative bg-background py-20 md:py-32 overflow-hidden">
       {/* Top separator line with gradient fade */}
@@ -39,7 +37,7 @@ export function VoiceInterviewSection() {
         <div className="mx-auto max-w-4xl text-center mb-16">
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm font-medium text-muted-foreground mb-6 shadow-sm">
             <Mic className="h-5 w-5 text-primary" />
-            Голосовые интервью в Telegram и Веб-чате
+            Интервью в веб-чате
           </div>
 
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-6 text-balance">
@@ -55,7 +53,7 @@ export function VoiceInterviewSection() {
                 <Mic className="h-4 w-4 text-violet-500" />
               </span>
             </span>{" "}
-            в Telegram или веб-чате, транскрибирует{" "}
+            в веб-чате, транскрибирует{" "}
             <span className="inline-flex items-center gap-1 text-foreground font-medium">
               ответы
               <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/20">
@@ -74,35 +72,11 @@ export function VoiceInterviewSection() {
         </div>
 
         <div className="flex justify-center mb-8">
-          <div className="inline-flex rounded-lg border border-border bg-card p-1 shadow-sm">
-            <button
-              onClick={() => setSelectedPlatform("telegram")}
-              className={`px-6 py-2.5 rounded-md text-sm font-medium transition-all ${
-                selectedPlatform === "telegram"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.5 1.201-.82 1.23-.697.064-1.226-.461-1.901-.903-1.056-.692-1.653-1.123-2.678-1.799-1.185-.781-.417-1.21.258-1.911.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.139-5.062 3.345-.479.329-.913.489-1.302.481-.428-.009-1.252-.241-1.865-.44-.752-.244-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.831-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.477-1.635.099-.002.321.023.465.14.121.099.154.232.17.326.016.094.036.308.02.475z" />
-                </svg>
-                Telegram
-              </div>
-            </button>
-            <button
-              onClick={() => setSelectedPlatform("webchat")}
-              className={`px-6 py-2.5 rounded-md text-sm font-medium transition-all ${
-                selectedPlatform === "webchat"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4" />
-                Веб-чат
-              </div>
-            </button>
+          <div className="inline-flex rounded-lg border border-border bg-card px-6 py-2.5 shadow-sm">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <MessageSquare className="h-4 w-4" />
+              Веб-чат
+            </div>
           </div>
         </div>
 
@@ -175,7 +149,7 @@ export function VoiceInterviewSection() {
               VIDEO PLACEHOLDER: Голосовое интервью в действии
               Файл: /videos/qbs-voice-interview-demo.mp4
               Что записать:
-              - Реальное голосовое интервью в Telegram или веб-чате (20-30 секунд)
+              - Реальное интервью в веб-чате (20-30 секунд)
               - Показать: Вопрос AI → Кандидат отвечает голосом → Транскрибация появляется → AI анализирует
               - Акцент на скорости транскрибации и точности
               - Показать оценку soft skills в конце
@@ -205,7 +179,7 @@ export function VoiceInterviewSection() {
 
             {/* Fallback: Keep interactive demos */}
             <div className="opacity-50">
-              {selectedPlatform === "telegram" ? <TelegramAppDemo /> : <WebChatDemo />}
+              <WebChatDemo />
             </div>
           </div>
         </div>

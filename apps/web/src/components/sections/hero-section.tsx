@@ -21,7 +21,7 @@ export function HeroSection() {
           </h1>
 
           <p className="mb-12 max-w-xl mx-auto text-lg text-muted-foreground leading-[1.7]">
-            Система автоматизации рекрутинга: скрининг резюме за секунды, интервью 24/7 в Telegram и веб-чате. Интеграция с HeadHunter, SuperJob и Avito — отклики сами попадают в платформу.
+            Система автоматизации рекрутинга: скрининг резюме за секунды, интервью 24/7 в веб-чате. Интеграция с HeadHunter, SuperJob и Avito — отклики сами попадают в платформу.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">

@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "QBS Автонайм — AI-платформа автоматизации подбора персонала",
     short_name: "QBS Автонайм",
     description:
-      "Автоматизируйте подбор персонала с помощью искусственного интеллекта. AI-скрининг резюме, голосовые интервью в Telegram, интеграция с hh.ru.",
+      "Автоматизируйте подбор персонала с помощью искусственного интеллекта. AI-скрининг резюме, интервью в веб-чате, интеграция с hh.ru.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

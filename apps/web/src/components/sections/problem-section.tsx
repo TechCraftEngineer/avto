@@ -87,7 +87,7 @@ export function ProblemSection() {
                 <ul className="space-y-4">
                   {[
                     "Автоматический скрининг резюме за секунды",
-                    "AI-интервью в Telegram 24/7",
+                    "AI-интервью в веб-чате 24/7",
                     "Единый дашборд для всех вакансий",
                     "Интеграция с hh.ru, SuperJob и другими",
                   ].map((item, index) => (

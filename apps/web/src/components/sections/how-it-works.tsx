@@ -29,16 +29,16 @@ export function HowItWorks() {
     {
       number: "03",
       icon: MessageCircle,
-      title: "Интервью в мессенджере",
-      description: "Кандидат получает приглашение и проходит интервью в Telegram или веб-чате в удобное время.",
+      title: "Интервью в веб-чате",
+      description: "Кандидат получает приглашение и проходит интервью в веб-чате в удобное время.",
       color: "text-[#0088cc]",
       bgColor: "bg-[#0088cc]/10",
-      features: ["Telegram", "Голос или текст", "24/7"],
+      features: ["Веб-чат", "Голос или текст", "24/7"],
     },
     {
       number: "04",
       icon: CheckCircle,
-      title: "Лонг-лист готов",
+      title: "Список отобранных готов",
       description: "Отсортированный список с транскрипциями, оценками и рекомендациями — остаётся провести финальные интервью.",
       color: "text-emerald-500",
       bgColor: "bg-emerald-500/10",
@@ -84,7 +84,7 @@ export function HowItWorks() {
             viewport={{ once: true }}
             className="text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            HeadHunter, SuperJob, Avito → скрининг резюме → интервью в Telegram → лонг-лист. Без ручного копирования откликов
+            HeadHunter, SuperJob, Avito → скрининг резюме → интервью в веб-чате → список отобранных. Без ручного копирования откликов
           </motion.p>
         </div>
 
