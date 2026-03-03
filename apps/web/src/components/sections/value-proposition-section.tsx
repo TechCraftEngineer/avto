@@ -26,7 +26,7 @@ export function ValuePropositionSection() {
               className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-6"
             >
               <Zap className="h-4 w-4" />
-              Почему QBS Автонайм
+              Ценностное предложение
             </motion.div>
 
             <motion.h2
@@ -36,9 +36,9 @@ export function ValuePropositionSection() {
               viewport={{ once: true }}
               className="text-3xl md:text-5xl font-bold tracking-tight text-foreground mb-6 text-balance leading-tight"
             >
-              Найм — это результаты,
+              Автоматизация подбора персонала —
               <br className="hidden md:block" />
-              <span className="text-muted-foreground">а не бесконечные отклики</span>
+              <span className="text-muted-foreground">без таблиц и ручного скрининга резюме</span>
             </motion.h2>
 
             <motion.p
@@ -48,9 +48,7 @@ export function ValuePropositionSection() {
               viewport={{ once: true }}
               className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
             >
-              Единая платформа, которая объединяет <span className="text-foreground font-semibold">автоматизацию</span>,{" "}
-              <span className="text-foreground font-semibold">аналитику</span> и{" "}
-              <span className="text-foreground font-semibold">AI-интервью</span>
+              Скрининг резюме, первичные интервью, учёт кандидатов и аналитика подбора — в единой системе для HR-команд
             </motion.p>
           </div>
 
@@ -59,21 +57,21 @@ export function ValuePropositionSection() {
             {[
               {
                 value: "70%",
-                label: "сокращение времени найма",
+                label: "сокращение цикла найма",
                 icon: Zap,
-                description: "От отклика до оффера за 3 дня",
+                description: "От отклика до оффера — за дни, не недели",
               },
               {
                 value: "94%",
-                label: "точность AI-скрининга",
+                label: "точность первичного отбора",
                 icon: TrendingUp,
-                description: "Только релевантные кандидаты",
+                description: "В список отобранных попадают только подходящие",
               },
               {
                 value: "24/7",
-                label: "автоматические интервью",
+                label: "интервью без дедлайнов",
                 icon: Users,
-                description: "AI работает без выходных",
+                description: "Кандидаты проходят в удобное время",
               },
             ].map((stat, index) => (
               <motion.div
@@ -109,14 +107,14 @@ export function ValuePropositionSection() {
           >
             <div className="space-y-8">
               <div className="max-w-3xl mx-auto text-center">
-                <h3 className="text-2xl font-semibold text-foreground mb-3">Всё в одном месте</h3>
-                <p className="text-muted-foreground mb-8">Единый дашборд для управления всеми этапами найма</p>
+                <h3 className="text-2xl font-semibold text-foreground mb-3">Все этапы подбора персонала в одном месте</h3>
+                <p className="text-muted-foreground mb-8">Скрининг резюме, интервью, список отобранных — от отклика на hh.ru до оффера</p>
                 <ul className="grid sm:grid-cols-2 gap-4 text-left">
                   {[
-                    "Автоматический скрининг резюме за секунды",
-                    "AI-интервью в Telegram 24/7",
-                    "Единый дашборд для всех вакансий",
-                    "Интеграция с hh.ru, SuperJob и другими",
+                    "Скрининг резюме по вашим критериям за секунды",
+                    "Интервью в веб-чате в любое время",
+                    "Единый список отобранных по всем вакансиям",
+                    "hh.ru, SuperJob, Avito — без ручного копирования",
                   ].map((item, index) => (
                     <motion.li
                       key={index}
@@ -145,7 +143,7 @@ export function ValuePropositionSection() {
                 <div className="relative bg-muted/50 border border-border rounded-xl overflow-hidden">
                   <ScreenshotPreview
                     src="/screenshots/app-dashboard-recent-activity-1920x1080.png"
-                    alt="Dashboard - Обработка кандидатов в реальном времени"
+                    alt="Дашборд подбора персонала — кандидаты и вакансии в реальном времени"
                     height="aspect-video"
                   />
                 </div>
@@ -159,7 +157,7 @@ export function ValuePropositionSection() {
               href="/features"
               className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors group"
             >
-              Узнать больше о возможностях
+              Подробнее о возможностях
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>

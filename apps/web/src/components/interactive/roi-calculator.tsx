@@ -56,10 +56,10 @@ export function ROICalculator() {
           </div>
 
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 text-balance">
-            Рассчитайте вашу <span className="text-primary">экономию</span>
+            Калькулятор экономии на <span className="text-primary">подборе персонала</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Узнайте, сколько времени и денег вы сэкономите с QBS Автонайм. Настройте параметры под ваши процессы.
+            Вакансий в месяц, среднее время закрытия, зарплата HR — узнайте, сколько рублей и часов сэкономите при автоматизации подбора
           </p>
         </div>
 
@@ -69,7 +69,7 @@ export function ROICalculator() {
             <div className="bg-card border border-border rounded-2xl p-8 shadow-sm">
               <h3 className="text-lg font-semibold mb-8 flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
-                Ваши параметры
+                Текущая ситуация
               </h3>
 
               <div className="space-y-8">
@@ -145,7 +145,7 @@ export function ROICalculator() {
             <div className="space-y-4">
               {/* Main result card */}
               <div className="bg-gradient-to-br from-primary/10 via-violet-500/10 to-accent/10 border border-primary/20 rounded-2xl p-8">
-                <div className="text-sm text-muted-foreground mb-2">Ваша экономия в месяц</div>
+                <div className="text-sm text-muted-foreground mb-2">Потенциальная экономия в месяц</div>
                 <div className="text-5xl font-bold text-foreground mb-2">
                   {calculations.moneySaved.toLocaleString("ru-RU")} ₽
                 </div>

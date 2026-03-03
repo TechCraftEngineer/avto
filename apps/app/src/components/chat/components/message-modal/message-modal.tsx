@@ -65,18 +65,20 @@ export function MessageModal({
         }
       }}
     >
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-md">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Написать сообщение</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-lg sm:text-xl pr-8">
+              Написать сообщение
+            </DialogTitle>
+            <DialogDescription className="text-sm">
               {candidateName
                 ? `Отправить сообщение кандидату ${candidateName}`
                 : "Отправить сообщение кандидату"}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-2 sm:py-4">
             <div className="space-y-2">
               <Label htmlFor="message">Сообщение</Label>
               <Textarea
@@ -96,19 +98,20 @@ export function MessageModal({
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
+              className="w-full sm:w-auto min-h-11 touch-manipulation"
             >
               Отмена
             </Button>
             <Button
               type="submit"
               disabled={!message.trim() || isLoading}
-              className="min-w-[100px]"
+              className="w-full sm:w-auto min-w-0 sm:min-w-[100px] min-h-11 touch-manipulation"
             >
               {isLoading ? (
                 <>

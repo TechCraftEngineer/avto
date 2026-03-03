@@ -73,16 +73,20 @@ export function Step3Password({
           )}
         />
 
-        <DialogFooter className="gap-2">
+        <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button
             type="button"
             variant="outline"
             onClick={onCancel}
-            className="h-11"
+            className="h-11 w-full sm:w-auto touch-manipulation"
           >
             Отмена
           </Button>
-          <Button type="submit" disabled={isLoading} className="h-11">
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="h-11 w-full sm:w-auto touch-manipulation"
+          >
             {isLoading ? "Проверка..." : "Войти"}
           </Button>
         </DialogFooter>

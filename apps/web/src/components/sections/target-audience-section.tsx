@@ -9,9 +9,9 @@ export function TargetAudienceSection() {
     {
       icon: Briefcase,
       title: "HR-менеджеры",
-      description: "Автоматизируйте рутинные задачи и сфокусируйтесь на стратегических решениях",
+      description: "Меньше Excel и рассылок — больше живого общения с финальными кандидатами",
       stat: "20+ ч/нед",
-      statLabel: "экономия времени",
+      statLabel: "экономия на рутине",
       link: "/audiences/hr-managers",
       color: "text-violet-500",
       bgColor: "bg-violet-500",
@@ -19,9 +19,9 @@ export function TargetAudienceSection() {
     {
       icon: Building2,
       title: "Руководители",
-      description: "Масштабируйте найм без увеличения HR-команды",
-      stat: "300%",
-      statLabel: "рост без затрат",
+      description: "Закрывайте вакансии без расширения HR-штата",
+      stat: "3×",
+      statLabel: "объём без роста команды",
       link: "/audiences/company-leaders",
       color: "text-blue-500",
       bgColor: "bg-blue-500",
@@ -29,9 +29,9 @@ export function TargetAudienceSection() {
     {
       icon: Rocket,
       title: "Стартапы",
-      description: "Быстро находите таланты для роста вашего бизнеса",
+      description: "Первый найм за пару дней вместо поиска рекрутера на аутсорсе",
       stat: "48 ч",
-      statLabel: "первый найм",
+      statLabel: "от вакансии до интервью",
       link: "/audiences/startups",
       color: "text-amber-500",
       bgColor: "bg-amber-500",
@@ -39,9 +39,9 @@ export function TargetAudienceSection() {
     {
       icon: TrendingUp,
       title: "Агентства",
-      description: "Увеличивайте количество успешных размещений",
-      stat: "5x",
-      statLabel: "больше кандидатов",
+      description: "Больше размещений при той же команде за счёт автоматизации скрининга",
+      stat: "5×",
+      statLabel: "обработанных кандидатов",
       link: "/audiences/recruitment-agencies",
       color: "text-emerald-500",
       bgColor: "bg-emerald-500",
@@ -63,15 +63,15 @@ export function TargetAudienceSection() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border bg-card text-sm mb-6">
             <Sparkles className="h-4 w-4 text-foreground" />
-            <span className="text-muted-foreground">Для кого</span>
+            <span className="text-muted-foreground">Аудитория</span>
           </div>
 
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-balance mb-4">
-            Создано для тех, кто <span className="text-muted-foreground">ценит своё время</span>
+            Система подбора персонала <span className="text-muted-foreground">для разных команд</span>
           </h2>
 
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Независимо от размера команды, QBS помогает находить лучших кандидатов быстрее
+            HR-менеджеры, руководители, стартапы и кадровые агентства — автоматизация подбора под любой объём найма
           </p>
         </motion.div>
 

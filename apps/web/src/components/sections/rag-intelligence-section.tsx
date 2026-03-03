@@ -42,7 +42,7 @@ export function RAGIntelligenceSection() {
             className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm font-medium text-muted-foreground mb-6 shadow-sm"
           >
             <Brain className="h-5 w-5 text-violet-500" />
-            <span className="text-muted-foreground">AI-Аналитик с памятью</span>
+            <span className="text-muted-foreground">Аналитик с доступом к данным</span>
           </motion.div>
 
           <motion.h2
@@ -52,7 +52,7 @@ export function RAGIntelligenceSection() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-6 text-balance"
           >
-            AI помнит <span className="text-violet-500">всё о ваших кандидатах</span>
+            Аналитика по кандидатам и вакансиям — <span className="text-violet-500">вопрос на русском, ответ из ваших данных</span>
           </motion.h2>
 
           <motion.p
@@ -62,8 +62,7 @@ export function RAGIntelligenceSection() {
             viewport={{ once: true }}
             className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed"
           >
-            Задавайте вопросы на естественном языке — AI найдёт ответы в ваших данных: резюме кандидатов, истории
-            откликов, аналитике найма и внутренних документах
+            Вопрос на русском — ответ из вашей базы: резюме, история откликов, воронка, внутренние документы. Без выдумок, только факты
           </motion.p>
         </div>
 
@@ -81,7 +80,7 @@ export function RAGIntelligenceSection() {
               <div>
                 <h3 className="text-2xl font-bold text-foreground mb-4">Источники данных</h3>
                 <p className="text-muted-foreground mb-6">
-                  AI анализирует внутренние источники вашей компании в реальном времени
+                  Система ищет ответы во внутренних источниках вашей компании в реальном времени
                 </p>
               </div>
 
@@ -149,13 +148,13 @@ export function RAGIntelligenceSection() {
                     <Sparkles className="h-4 w-4 text-violet-500" />
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-foreground mb-1">Как это работает?</div>
+                    <div className="text-sm font-semibold text-foreground mb-1">Принцип работы</div>
                     <div className="text-xs text-muted-foreground leading-relaxed">
-                      1. Вы задаёте вопрос
+                      1. Вы задаёте вопрос на естественном языке
                       <br />
-                      2. AI ищет релевантные данные в ваших источниках
+                      2. Система находит релевантные фрагменты в ваших источниках
                       <br />
-                      3. Генерирует точный ответ на основе найденной информации
+                      3. Формирует ответ только на основе найденных данных
                       <br />
                     </div>
                   </div>
@@ -182,7 +181,7 @@ export function RAGIntelligenceSection() {
                       AI
                     </div>
                     <div>
-                      <div className="font-semibold text-foreground">QBS AI-Аналитик</div>
+                      <div className="font-semibold text-foreground">QBS Аналитик</div>
                       <div className="text-xs text-emerald-500 flex items-center gap-1">
                         <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                         RAG активен
@@ -311,18 +310,18 @@ export function RAGIntelligenceSection() {
           {[
             {
               icon: CheckCircle2,
-              title: "Точные ответы",
-              description: "AI ссылается на реальные данные, а не придумывает",
+              title: "Только факты",
+              description: "Ответы строятся на ваших данных, без галлюцинаций",
             },
             {
               icon: Sparkles,
               title: "Естественный язык",
-              description: "Задавайте вопросы как живому аналитику",
+              description: "Задавайте вопросы как в разговоре с аналитиком",
             },
             {
               icon: Database,
-              title: "Ваши данные",
-              description: "Работает только с вашими внутренними источниками",
+              title: "Изоляция данных",
+              description: "Доступ только к внутренним источникам вашей компании",
             },
           ].map((benefit, i) => (
             <div
@@ -344,7 +343,7 @@ export function RAGIntelligenceSection() {
             className="inline-flex items-center gap-2 px-6 py-3 bg-violet-500 hover:bg-violet-600 text-white rounded-lg font-medium transition-colors"
           >
             <Brain className="h-5 w-5" />
-            Узнать больше об AI-Аналитике
+            Подробнее об аналитике
           </a>
         </div>
       </div>
@@ -362,7 +361,7 @@ function RAGResponse({ questionIndex }: { questionIndex: number }) {
         <div className="space-y-2 text-sm">
           {[
             { id: "active", color: "blue-500", label: "87 активных кандидатов", desc: "" },
-            { id: "screened", color: "emerald-500", label: "23 прошли AI-скрининг", desc: " (Top 30%)" },
+            { id: "screened", color: "emerald-500", label: "23 прошли скрининг", desc: " (топ 30%)" },
             { id: "interview", color: "amber-500", label: "12 на этапе интервью", desc: "" },
           ].map((stat) => (
             <div key={stat.id} className="flex items-center gap-2">
@@ -426,7 +425,7 @@ function RAGResponse({ questionIndex }: { questionIndex: number }) {
         </div>
         <div className="mt-3 pt-3 border-t border-border text-xs text-muted-foreground flex items-center gap-1">
           <Users className="h-3 w-3" />
-          Источник: AI-скрининг по вакансии #3421
+          Источник: Скрининг по вакансии #3421
         </div>
       </div>
     )
@@ -456,7 +455,7 @@ function RAGResponse({ questionIndex }: { questionIndex: number }) {
         <div className="mt-3 pt-3 border-t border-border">
           <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
             <Sparkles className="h-3 w-3" />
-            <span className="font-semibold">Рекомендация AI:</span>
+            <span className="font-semibold">Рекомендация:</span>
           </p>
           <p className="text-xs text-muted-foreground">
             Рассмотрите возможность пересмотра описания вакансий или увеличения бюджета на продвижение

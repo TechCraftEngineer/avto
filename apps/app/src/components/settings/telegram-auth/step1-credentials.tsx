@@ -135,16 +135,20 @@ export function Step1Credentials({
           )}
         />
 
-        <DialogFooter className="gap-2">
+        <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button
             type="button"
             variant="outline"
             onClick={onCancel}
-            className="h-11"
+            className="h-11 w-full sm:w-auto touch-manipulation"
           >
             Отмена
           </Button>
-          <Button type="submit" disabled={isLoading} className="h-11">
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="h-11 w-full sm:w-auto touch-manipulation"
+          >
             <Send className="mr-2 h-4 w-4" />
             {isLoading ? "Отправка..." : "Отправить код"}
           </Button>

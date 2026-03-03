@@ -27,15 +27,15 @@ const features = [
   {
     id: "ai-screening",
     icon: Brain,
-    label: "AI-скрининг",
-    title: "Умный анализ резюме",
-    description: "AI анализирует резюме по 50+ параметрам и выставляет рейтинг соответствия за секунды",
+    label: "Скрининг",
+    title: "Скрининг резюме по вашим критериям",
+    description: "Автоматический отбор резюме: система оценивает кандидатов по настраиваемым параметрам — навыки, опыт, релевантность — и выставляет рейтинг за секунды",
     color: "text-violet-500",
     bgColor: "bg-violet-500/10",
     stats: [
-      { label: "Точность оценки", value: "97%" },
-      { label: "Время анализа", value: "< 5 сек" },
-      { label: "Параметров", value: "50+" },
+      { label: "Точность отсева", value: "97%" },
+      { label: "Время на резюме", value: "< 5 сек" },
+      { label: "Настраиваемых параметров", value: "50+" },
     ],
     demo: "screening",
   },
@@ -43,14 +43,14 @@ const features = [
     id: "voice-interview",
     icon: Mic,
     label: "Интервью",
-    title: "AI-интервью в Telegram и веб-чате",
-    description: "Бот проводит голосовые интервью 24/7, транскрибирует ответы и оценивает личные качества кандидата",
+    title: "Интервью в веб-чате",
+    description: "Кандидат проходит интервью в удобное время — голосом или текстом. Транскрипция сохраняется, ответы оцениваются автоматически",
     color: "text-sky-500",
     bgColor: "bg-sky-500/10",
     stats: [
-      { label: "Транскрибация", value: "98.5%" },
+      { label: "Качество транскрипции", value: "98.5%" },
       { label: "Доступность", value: "24/7" },
-      { label: "Конверсия", value: "+40%" },
+      { label: "Рост конверсии", value: "+40%" },
     ],
     demo: "interview",
   },
@@ -58,15 +58,15 @@ const features = [
     id: "prequalification",
     icon: Target,
     label: "Преквалификация",
-    title: "Преквалификация до отклика",
+    title: "Проверка до отклика",
     description:
-      "Кандидат загружает резюме, общается с AI и получает честную оценку соответствия — только после этого отправляет отклик",
+      "Кнопка на сайте: кандидат загружает резюме, проходит короткий чат и получает оценку соответствия. Откликаются только те, кто подходит",
     color: "text-amber-500",
     bgColor: "bg-amber-500/10",
     stats: [
-      { label: "Нерелевантных", value: "-65%" },
-      { label: "Экономия времени", value: "4ч/день" },
-      { label: "Удовлетворенность", value: "+40%" },
+      { label: "Меньше нерелевантных", value: "-65%" },
+      { label: "Экономия на скрининге", value: "4ч/день" },
+      { label: "Удовлетворённость кандидатов", value: "+40%" },
     ],
     demo: "prequalification",
   },
@@ -74,14 +74,14 @@ const features = [
     id: "analytics",
     icon: BarChart3,
     label: "Аналитика",
-    title: "Воронка найма под контролем",
-    description: "Отслеживайте конверсию на каждом этапе и оптимизируйте процесс найма с AI-рекомендациями",
+    title: "Воронка и метрики",
+    description: "Конверсия по этапам, время до найма, узкие места — данные для оптимизации процесса с опорой на факты",
     color: "text-emerald-500",
     bgColor: "bg-emerald-500/10",
     stats: [
-      { label: "Экономия времени", value: "85%" },
-      { label: "AI-рекомендации", value: "94%" },
-      { label: "Время до найма", value: "3 дня" },
+      { label: "Экономия на отчётности", value: "85%" },
+      { label: "Точность прогнозов", value: "94%" },
+      { label: "Цикл найма", value: "от 3 дней" },
     ],
     demo: "analytics",
   },
@@ -89,29 +89,29 @@ const features = [
     id: "integrations",
     icon: Link2,
     label: "Интеграции",
-    title: "Работает с вашими инструментами",
-    description: "Подключите hh.ru, SuperJob, Avito, Telegram и 10+ других сервисов за несколько минут",
+    title: "Интеграция HeadHunter и SuperJob",
+    description: "Подключение hh.ru, SuperJob, Avito, Telegram — отклики с площадок подбора персонала попадают в систему автоматически",
     color: "text-blue-500",
     bgColor: "bg-blue-500/10",
     stats: [
-      { label: "Интеграций", value: "10+" },
-      { label: "Настройка", value: "2 мин" },
-      { label: "Синхронизация", value: "15 сек" },
+      { label: "Поддерживаемых сервисов", value: "10+" },
+      { label: "Время настройки", value: "2 мин" },
+      { label: "Интервал синхронизации", value: "15 сек" },
     ],
     demo: "integrations",
   },
   {
     id: "whitelabel",
     icon: Globe,
-    label: "Брендинг",
-    title: "AI-рекрутер на вашем домене",
+    label: "Белый лейбл",
+    title: "Под вашим брендом",
     description:
-      "Встраивайте AI-рекрутера на свой корпоративный сайт с полным брендингом — логотип, цвета, домен компании",
+      "Чат-рекрутер на корпоративном сайте или в career-разделе: свой домен, логотип и цвета без упоминания QBS",
     color: "text-purple-500",
     bgColor: "bg-purple-500/10",
     stats: [
-      { label: "Настройка", value: "5 мин" },
-      { label: "Брендинг", value: "100%" },
+      { label: "Настройка витрины", value: "5 мин" },
+      { label: "Кастомизация", value: "100%" },
       { label: "Поддержка", value: "24/7" },
     ],
     demo: "whitelabel",
@@ -149,7 +149,7 @@ export function FeaturesSection() {
             className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm mb-6"
           >
             <Sparkles className="h-4 w-4 text-foreground" />
-            <span className="text-muted-foreground">Возможности платформы</span>
+            <span className="text-muted-foreground">Функционал</span>
           </motion.div>
 
           <motion.h2
@@ -159,9 +159,9 @@ export function FeaturesSection() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-6 text-balance"
           >
-            Всё для найма
+            Всё для подбора персонала
             <br />
-            <span className="text-muted-foreground">в одной платформе</span>
+            <span className="text-muted-foreground">скрининг резюме, интервью, аналитика</span>
           </motion.h2>
 
           <motion.p
@@ -171,7 +171,7 @@ export function FeaturesSection() {
             viewport={{ once: true }}
             className="text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            AI-скрининг, голосовые интервью, преквалификация, аналитика и собственный брендинг — всё в едином интерфейсе
+            Скрининг резюме из HeadHunter и SuperJob, интервью в веб-чате, преквалификация, воронка найма — плюс white-label для корпоративного сайта
           </motion.p>
         </div>
 
@@ -254,10 +254,10 @@ export function FeaturesSection() {
         {/* Bottom quick features */}
         <div className="mt-20 grid md:grid-cols-4 gap-6 max-w-5xl mx-auto">
           {[
-            { icon: Zap, title: "Мгновенный старт", desc: "Настройка за 2 минуты" },
-            { icon: Users, title: "Для команд", desc: "Совместная работа" },
-            { icon: Target, title: "97% точность", desc: "AI-оценка кандидатов" },
-            { icon: CheckCircle2, title: "152-ФЗ / 115-ФЗ", desc: "Полное соответствие РФ" },
+            { icon: Zap, title: "Быстрый старт", desc: "Подключение за 2 минуты" },
+            { icon: Users, title: "Командный режим", desc: "Общий доступ и роли" },
+            { icon: Target, title: "97% точность отсева", desc: "По вашим критериям" },
+            { icon: CheckCircle2, title: "152-ФЗ / 115-ФЗ", desc: "Соответствие требованиям РФ" },
           ].map((item, i) => (
             <motion.div
               key={i}
@@ -406,7 +406,7 @@ function PrequalificationDemo() {
             <MessageSquare className="h-5 w-5 text-amber-500" />
           </div>
           <div className="flex-1">
-            <div className="text-sm font-medium text-foreground">AI-чат</div>
+            <div className="text-sm font-medium text-foreground">Чат-ассистент</div>
             <div className="text-xs text-muted-foreground">Общение с ассистентом</div>
           </div>
           <CheckCircle2 className="h-5 w-5 text-emerald-500" />
@@ -473,13 +473,13 @@ function WhiteLabelDemo() {
               C
             </div>
             <div>
-              <div className="font-semibold text-foreground text-sm">Company AI-рекрутер</div>
+              <div className="font-semibold text-foreground text-sm">Career Chat Company</div>
               <div className="text-xs text-emerald-500">онлайн</div>
             </div>
           </div>
           <div className="space-y-2">
             <div className="bg-muted rounded-lg px-3 py-2 text-sm text-foreground max-w-[80%]">
-              Привет! Я AI-ассистент Company. Расскажи о себе.
+              Привет! Я ассистент по подбору Company. Расскажи о себе.
             </div>
           </div>
         </div>

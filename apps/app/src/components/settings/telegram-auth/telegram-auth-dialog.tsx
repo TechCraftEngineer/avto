@@ -200,12 +200,12 @@ export function TelegramAuthDialog({
 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader className="space-y-3">
-          <DialogTitle className="text-2xl font-semibold">
+      <DialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-lg">
+        <DialogHeader className="space-y-2 sm:space-y-3">
+          <DialogTitle className="text-xl font-semibold sm:text-2xl pr-8">
             Подключить Telegram
           </DialogTitle>
-          <DialogDescription className="text-base">
+          <DialogDescription className="text-sm sm:text-base">
             {stepDescriptions[step]}
           </DialogDescription>
         </DialogHeader>

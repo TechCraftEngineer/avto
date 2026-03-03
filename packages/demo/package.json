@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@qbs-autonaim/db": "workspace:*",
-    "axios": "1.13.5",
+    "axios": "1.13.6",
     "drizzle-orm": "0.45.1"
   },
   "devDependencies": {

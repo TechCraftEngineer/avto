@@ -12,7 +12,7 @@
   "dependencies": {
     "@langfuse/tracing": "4.6.1",
     "@opentelemetry/api": "1.9.0",
-    "@orpc/server": "1.13.5",
+    "@orpc/server": "1.13.6",
     "@qbs-autonaim/ai": "workspace:*",
     "@qbs-autonaim/api": "workspace:*",
     "@qbs-autonaim/config": "workspace:*",
@@ -20,7 +20,7 @@
     "@qbs-autonaim/jobs": "workspace:*",
     "@qbs-autonaim/lib": "workspace:*",
     "@qbs-autonaim/server-utils": "workspace:*",
-    "ai": "6.0.104",
+    "ai": "6.0.105",
     "hono": "4.12.3",
     "resumable-stream": "^2.2.10",
     "superjson": "2.2.6",

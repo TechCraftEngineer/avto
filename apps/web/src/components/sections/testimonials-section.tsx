@@ -12,8 +12,8 @@ const testimonials = [
     company: "TechCorp",
     avatar: "/professional-man-hr-director.jpg",
     rating: 5,
-    text: "QBS кардинально изменил наш процесс найма. Мы обрабатываем тысячи откликов ежемесячно — с QBS мы легко находим лучших кандидатов и экономим 90% времени рекрутеров.",
-    metric: "90% экономия времени",
+    text: "Мы обрабатываем тысячи откликов в месяц. Раньше это съедало всё время рекрутеров. С QBS первичный отбор идёт автоматически — фокус переключился на живые интервью с сильными кандидатами.",
+    metric: "90% меньше времени на скрининг",
   },
   {
     id: 2,
@@ -22,8 +22,8 @@ const testimonials = [
     company: "ТехноСофт",
     avatar: "/professional-hr-director.png",
     rating: 5,
-    text: "QBS Автонайм полностью изменил наш подход к найму. Раньше на обработку 100 откликов уходило 2 недели, теперь — 2 дня. AI-скрининг отсеивает нерелевантных кандидатов с точностью 94%.",
-    metric: "Сократили время найма на 80%",
+    text: "100 откликов раньше — это 2 недели ручной работы. Сейчас — 2 дня до списка отобранных. Скрининг по нашим критериям отсекает нерелевантных, остаются только те, кого имеет смысл звать на интервью.",
+    metric: "Сократили цикл на 80%",
   },
   {
     id: 3,
@@ -32,8 +32,8 @@ const testimonials = [
     company: "StartupHub",
     avatar: "/professional-man-ceo-startup.jpg",
     rating: 5,
-    text: "Как основатель стартапа, я не мог позволить себе штат рекрутеров. QBS стал нашим виртуальным HR-отделом. За 3 месяца наняли 15 разработчиков без единого рекрутера в штате.",
-    metric: "15 наймов за 3 месяца",
+    text: "Стартап не потянет штатного рекрутера. QBS закрыл этот разрыв: за 3 месяца наняли 15 разработчиков. Интеграция с hh.ru, интервью в веб-чате — всё работает из коробки.",
+    metric: "15 наймов без рекрутера",
   },
   {
     id: 4,
@@ -42,8 +42,8 @@ const testimonials = [
     company: "РитейлПро",
     avatar: "/professional-woman-recruitment-manager.jpg",
     rating: 5,
-    text: "Интеграция с Telegram через MTProto — это находка! Кандидаты отвечают в 3 раза чаще, чем на email. Голосовые интервью экономят по 4 часа в день каждому рекрутеру.",
-    metric: "3x конверсия в отклики",
+    text: "Кандидаты отвечают в веб-чате в 3 раза чаще, чем на email. Интервью в веб-чате — каждый рекрутер экономит по 4 часа в день на первичных созвонах.",
+    metric: "3× рост откликов в мессенджере",
   },
   {
     id: 5,
@@ -52,7 +52,7 @@ const testimonials = [
     company: "ФинТех Банк",
     avatar: "/professional-man-finance-hr.jpg",
     rating: 5,
-    text: "Безопасность данных для нас критична. QBS соответствует всем требованиям ФЗ-152. AI-аналитика помогла оптимизировать воронку найма и увеличить конверсию в оффер на 45%.",
+    text: "Для банка критична безопасность данных. QBS соответствует 152-ФЗ. Аналитика по воронке помогла увидеть узкие места и увеличить конверсию в оффер на 45%.",
     metric: "+45% конверсия в оффер",
   },
 ]
@@ -100,14 +100,14 @@ export function TestimonialsSection() {
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm mb-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm mb-6">
             <Quote className="h-4 w-4 text-primary" />
-            <span>Отзывы клиентов</span>
+            <span>Отзывы</span>
           </div>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 text-balance">
-            Что говорят наши <span className="text-primary">клиенты</span>
+            Отзывы о системе <span className="text-primary">подбора персонала</span>
           </h2>
-          <p className="text-lg text-muted-foreground">Более 500 компаний уже автоматизировали найм с QBS Автонайм</p>
+          <p className="text-lg text-muted-foreground">HR-директора и рекрутеры об автоматизации подбора персонала</p>
         </div>
 
         {/* Main testimonial card */}
@@ -202,9 +202,9 @@ export function TestimonialsSection() {
         >
           {[
             { value: "500+", label: "Компаний" },
-            { value: "50K+", label: "Наймов" },
-            { value: "94%", label: "Точность AI" },
-            { value: "4.9", label: "Средний рейтинг" },
+            { value: "50K+", label: "Успешных наймов" },
+            { value: "94%", label: "Точность отсева" },
+            { value: "4.9", label: "Рейтинг" },
           ].map((stat, index) => (
             <div key={index} className="text-center p-6 rounded-2xl bg-card border border-border">
               <div className="text-3xl md:text-4xl font-bold text-foreground mb-1">{stat.value}</div>

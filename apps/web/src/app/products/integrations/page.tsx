@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default function IntegrationsPage() {
   const integrations = [
     { name: "HeadHunter", short: "hh", color: "bg-red-500", description: "Крупнейший job-портал России" },
-    { name: "Telegram", short: "TG", color: "bg-sky-500", description: "Бот для интервью и уведомлений" },
+    { name: "Telegram", short: "TG", color: "bg-sky-500", description: "Уведомления и коммуникация" },
     { name: "SuperJob", short: "SJ", color: "bg-blue-600", description: "Популярная платформа поиска работы" },
     { name: "Avito", short: "AV", color: "bg-green-500", description: "Вакансии на крупнейшей доске объявлений" },
     { name: "WhatsApp", short: "WA", color: "bg-emerald-500", description: "Коммуникация с кандидатами" },

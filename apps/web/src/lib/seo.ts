@@ -13,7 +13,7 @@ const defaultMetadata = {
   siteName: "QBS Автонайм",
   defaultTitle: "QBS Автонайм — AI-платформа автоматизации подбора персонала",
   defaultDescription:
-    "Автоматизируйте подбор персонала с помощью искусственного интеллекта. AI-скрининг резюме, голосовые интервью в Telegram, интеграция с hh.ru. Сократите время найма на 70%.",
+    "Автоматизируйте подбор персонала с помощью искусственного интеллекта. AI-скрининг резюме, интервью в веб-чате, интеграция с hh.ru. Сократите время найма на 70%.",
   siteUrl: "https://avtonaim.qbsoft.ru",
   ogImage: "/og-image.png",
   twitterHandle: "@qbs_autonaim",
@@ -98,7 +98,7 @@ export const structuredData = {
     url: "https://avtonaim.qbsoft.ru",
     logo: "https://avtonaim.qbsoft.ru/logo.png",
     description:
-      "AI-платформа для автоматизации найма персонала. Интеграция с HH.ru и Telegram.",
+      "AI-платформа для автоматизации найма персонала. Интеграция с HH.ru, интервью в веб-чате.",
     address: {
       "@type": "PostalAddress",
       addressCountry: "RU",
@@ -124,7 +124,7 @@ export const structuredData = {
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     description:
-      "AI-платформа для автоматизации найма персонала. Интеграция с HH.ru и Telegram.",
+      "AI-платформа для автоматизации найма персонала. Интеграция с HH.ru, интервью в веб-чате.",
     offers: {
       "@type": "Offer",
       price: "0",
@@ -138,7 +138,7 @@ export const structuredData = {
     },
     featureList: [
       "AI-скрининг резюме",
-      "Голосовые интервью в Telegram",
+      "Интервью в веб-чате",
       "Интеграция с HH.ru",
       "Автоматическая оценка кандидатов",
       "Аналитика и отчеты",

@@ -74,9 +74,9 @@ export function HhWelcomeMessageModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-xl">
+      <DialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl pr-8">
             <MessageSquare className="h-5 w-5" />
             Приглашение на интервью
           </DialogTitle>
@@ -108,15 +108,15 @@ export function HhWelcomeMessageModal({
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Приглашение на интервью"
-                rows={10}
+                rows={8}
                 className="font-sans text-base resize-none"
                 aria-label="Приглашение на интервью"
               />
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                   onClick={handleCopy}
                   variant="default"
-                  className="gap-2 flex-1"
+                  className="gap-2 flex-1 w-full sm:w-auto min-h-11 touch-manipulation"
                 >
                   <ClipboardCopy className="h-4 w-4" />
                   Скопировать
@@ -125,7 +125,7 @@ export function HhWelcomeMessageModal({
                   onClick={handleGenerate}
                   variant="outline"
                   disabled={isGenerating}
-                  className="gap-2"
+                  className="gap-2 w-full sm:w-auto min-h-11 touch-manipulation"
                 >
                   {isGenerating ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

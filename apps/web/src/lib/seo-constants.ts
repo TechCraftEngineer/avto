@@ -7,7 +7,7 @@ export const SITE_CONFIG = {
   url: "https://avtonaim.qbsoft.ru",
   ogImage: "/og-image.png",
   description:
-    "Автоматизируйте подбор персонала с помощью искусственного интеллекта. AI-скрининг резюме, голосовые интервью в Telegram, интеграция с hh.ru.",
+    "Автоматизируйте подбор персонала с помощью искусственного интеллекта. AI-скрининг резюме, интервью в веб-чате, интеграция с hh.ru.",
   links: {
     telegram: "https://t.me/qbs_autonaim",
     vk: "https://vk.com/qbs_autonaim",
@@ -24,7 +24,7 @@ export const COMMON_KEYWORDS = [
   "автонайм",
   "рекрутинг бот",
   "HH.ru интеграция",
-  "Telegram рекрутинг",
+  "веб-чат интервью",
   "скрининг кандидатов",
 ] as const
 
@@ -60,7 +60,7 @@ export const FEATURE_KEYWORDS = {
   voiceInterview: [
     "голосовые интервью",
     "автоматические собеседования",
-    "интервью в Telegram",
+    "интервью в веб-чате",
   ],
   hhIntegration: [
     "интеграция с HH.ru",
