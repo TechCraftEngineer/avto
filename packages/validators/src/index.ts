@@ -18,7 +18,6 @@ export {
   vacancyResponseStatusFilterSchema,
   vacancyResponseStatusValues,
 } from "./api-common";
-
 // Company
 export {
   type CompanyFormValues,
@@ -26,6 +25,11 @@ export {
   companyFormSchema,
   companyPartialSchema,
 } from "./company";
+// Create global candidate (manual add)
+export {
+  type CreateGlobalCandidateFormValues,
+  createGlobalCandidateFormSchema,
+} from "./create-global-candidate";
 // Data table
 export {
   type DataTableItemData,

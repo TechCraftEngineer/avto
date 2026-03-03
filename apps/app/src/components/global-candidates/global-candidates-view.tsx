@@ -1,12 +1,14 @@
 "use client";
 
+import { Button } from "@qbs-autonaim/ui/components/button";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Users } from "lucide-react";
+import { UserPlus, Users } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useORPC } from "~/orpc/react";
 import {
+  AddCandidateDialog,
   CandidateCard,
   CandidateFilters,
   CandidateProfileDialog,
@@ -55,6 +57,7 @@ export function GlobalCandidatesView() {
   const [selectedCandidate, setSelectedCandidate] =
     useState<GlobalCandidate | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   // Дебаунс поиска
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -180,13 +183,21 @@ export function GlobalCandidatesView() {
               onReset={handleFiltersReset}
             />
           </div>
-          <div className="hidden sm:block">
+          <div className="hidden sm:flex items-center gap-2">
+            <Button
+              size="sm"
+              onClick={() => setIsAddDialogOpen(true)}
+              className="gap-1.5"
+            >
+              <UserPlus className="size-4" />
+              Добавить кандидата
+            </Button>
             <ViewSwitcher view={view} onViewChange={handleViewChange} />
           </div>
         </div>
 
         {/* Информация о количестве */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
             {candidatesData?.total !== undefined && (
               <>
@@ -196,6 +207,15 @@ export function GlobalCandidatesView() {
               </>
             )}
           </p>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setIsAddDialogOpen(true)}
+            className="gap-1.5 sm:hidden"
+          >
+            <UserPlus className="size-4" />
+            Добавить
+          </Button>
         </div>
       </div>
 
@@ -239,6 +259,12 @@ export function GlobalCandidatesView() {
           )}
         </div>
       )}
+
+      {/* Диалог добавления кандидата */}
+      <AddCandidateDialog
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+      />
 
       {/* Диалог профиля */}
       <CandidateProfileDialog

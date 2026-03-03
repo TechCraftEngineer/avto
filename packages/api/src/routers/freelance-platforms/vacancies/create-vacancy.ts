@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { vacancy } from "@qbs-autonaim/db/schema";
+import { platformSourceValues, vacancy } from "@qbs-autonaim/db/schema";
 import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import {
   vacancyRequirementsSchema,
@@ -14,15 +14,7 @@ const createVacancyInputSchema = z.object({
   title: z.string().min(1).max(500),
   description: z.string().optional(),
   requirements: vacancyRequirementsSchema.optional(),
-  platformSource: z.enum([
-    "HH",
-    "AVITO",
-    "SUPERJOB",
-    "HABR",
-    "FL_RU",
-    "FREELANCE_RU",
-    "WEB_LINK",
-  ]),
+  platformSource: z.enum(platformSourceValues),
   platformUrl: z.url().optional(),
 });
 

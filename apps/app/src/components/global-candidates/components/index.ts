@@ -1,3 +1,4 @@
+export { AddCandidateDialog } from "./add-candidate-dialog";
 export { AttachToVacancyDialog } from "./attach-to-vacancy-dialog";
 export { CandidateCard } from "./candidate-card";
 export { CandidateFilters } from "./candidate-filters";
