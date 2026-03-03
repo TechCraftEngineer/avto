@@ -5,6 +5,7 @@
  * Адаптирована для работы в контексте браузерного расширения (синхронный DOM).
  */
 
+import { ContactInfoSchema } from "../../shared/schemas";
 import type {
   BasicInfo,
   ContactInfo,
@@ -576,30 +577,40 @@ export function parseSkills(doc: Document = document): string[] {
   return skills;
 }
 
-/** Простая проверка формата email */
-function isValidEmail(s: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim());
-}
+/** Маркеры дополнения/доб. номера — обрезаем всё после них */
+const EXTENSION_REGEX = /\b(?:ext|x|extension|доб|доб\.)\b/i;
+/** Разделители (запятая, точка с запятой и т.п.) — берём только часть до них */
+const TRAILING_SEP_REGEX = /[;,/]\s*/;
 
-/** Проверяет, что строка похожа на номер телефона (7–15 цифр, без лишнего мусора) */
-function isValidPhone(s: string): boolean {
-  const t = s.trim();
-  if (t.length < 7 || t.length > 25) return false;
-  const digits = t.replace(/\D/g, "");
-  return digits.length >= 7 && digits.length <= 15;
-}
-
-/** Нормализует номер: оставляет цифры и ведущий + */
+/** Нормализует номер: убирает дополнения (ext, доб и т.п.), оставляет цифры и ведущий + */
 function normalizePhone(s: string): string {
   const trimmed = s.trim();
-  const hasPlus = trimmed.startsWith("+");
-  const digits = trimmed.replace(/\D/g, "");
+  const firstNonSpace = trimmed.match(/\S/)?.[0];
+  const hasPlus = firstNonSpace === "+";
+
+  let main = trimmed;
+  const extMatch = main.match(EXTENSION_REGEX);
+  if (extMatch?.index !== undefined && extMatch.index >= 0) {
+    main = main.slice(0, extMatch.index).trim();
+  }
+  const sepMatch = main.match(TRAILING_SEP_REGEX);
+  if (sepMatch?.index !== undefined && sepMatch.index >= 0) {
+    main = main.slice(0, sepMatch.index).trim();
+  }
+  const digits = main.replace(/\D/g, "");
   return (hasPlus ? "+" : "") + digits;
 }
+
+const SAFE_DEFAULT: ContactInfo = {
+  email: null,
+  phone: null,
+  socialLinks: [],
+};
 
 /**
  * Извлекает контакты из видимой секции и контактной информации.
  * Для полных контактов (email, phone) нужен overlay — пользователь может открыть вручную.
+ * Валидация выполняется через ContactInfoSchema.
  */
 export function parseContacts(doc: Document = document): ContactInfo {
   const contactSection =
@@ -607,26 +618,29 @@ export function parseContacts(doc: Document = document): ContactInfo {
     doc.querySelector("section[data-view-name*='contact']") ??
     null;
 
-  let email: string | null = null;
+  let emailRaw: string | null = null;
   const emailEl = contactSection?.querySelector('a[href^="mailto:"]');
   if (emailEl) {
     const raw = emailEl
       .getAttribute("href")
       ?.replace(/^mailto:/i, "")
       .trim();
-    if (raw && isValidEmail(raw)) email = raw;
+    if (raw) {
+      const address = raw.split(/[?;]/)[0]?.trim();
+      emailRaw = address || null;
+    }
   }
 
-  let phone: string | null = null;
+  let phoneRaw: string | null = null;
   if (contactSection) {
     const candidates = contactSection.querySelectorAll(
       "span.t-14.t-black.t-normal, span.t-14, a.t-14",
     );
     for (const el of candidates) {
       const raw = el.textContent?.trim();
-      if (raw && isValidPhone(raw)) {
-        phone = normalizePhone(raw);
-        break;
+      if (raw) {
+        phoneRaw = normalizePhone(raw);
+        if (phoneRaw) break;
       }
     }
   }
@@ -638,5 +652,14 @@ export function parseContacts(doc: Document = document): ContactInfo {
       socialLinks.push(href);
   });
 
-  return { email, phone, socialLinks };
+  const result = ContactInfoSchema.safeParse({
+    email: emailRaw ?? null,
+    phone: phoneRaw && phoneRaw.length > 0 ? phoneRaw : null,
+    socialLinks,
+  });
+  if (!result.success) {
+    console.warn("[parseContacts] validation failed:", result.error);
+    return SAFE_DEFAULT;
+  }
+  return result.data;
 }
