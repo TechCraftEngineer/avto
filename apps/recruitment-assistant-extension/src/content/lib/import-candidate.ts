@@ -96,7 +96,7 @@ export async function importToVacancyWithExisting(
   );
 }
 
-const VALID_PLATFORM_SOURCES = ["HH", "WEB_LINK"] as const;
+const VALID_PLATFORM_SOURCES = ["HH", "LINKEDIN", "WEB_LINK"] as const;
 type ValidPlatformSource = (typeof VALID_PLATFORM_SOURCES)[number];
 
 function isValidPlatformSource(value: unknown): value is ValidPlatformSource {
@@ -110,6 +110,7 @@ function inferPlatformSourceFromContext(): ValidPlatformSource {
   if (typeof window !== "undefined") {
     const host = window.location.host.toLowerCase();
     if (host.includes("hh.") || host.includes("headhunter")) return "HH";
+    if (host.includes("linkedin")) return "LINKEDIN";
   }
   return "WEB_LINK";
 }
@@ -246,11 +247,13 @@ async function importToVacancy(
   vacancyId: string,
   globalCandidateId?: string,
 ): Promise<void> {
+  const platformLower = data.platform?.toLowerCase() ?? "";
   const platformSource =
-    data.platform?.toLowerCase().includes("headhunter") ||
-    data.platform?.toLowerCase().includes("hh")
+    platformLower.includes("headhunter") || platformLower.includes("hh")
       ? "HH"
-      : "WEB_LINK";
+      : platformLower.includes("linkedin")
+        ? "LINKEDIN"
+        : "WEB_LINK";
 
   const profileUrl =
     data.profileUrl ||

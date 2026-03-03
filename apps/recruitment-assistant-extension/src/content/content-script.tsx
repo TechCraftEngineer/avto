@@ -235,11 +235,13 @@ export class ContentScript {
     profileUrl: string | undefined;
     responseText: string;
   } {
+    const platformLower = data.platform?.toLowerCase() ?? "";
     const platformSource =
-      data.platform?.toLowerCase().includes("headhunter") ||
-      data.platform?.toLowerCase().includes("hh")
+      platformLower.includes("headhunter") || platformLower.includes("hh")
         ? "HH"
-        : "WEB_LINK";
+        : platformLower.includes("linkedin")
+          ? "LINKEDIN"
+          : "WEB_LINK";
     const profileUrl =
       data.profileUrl ||
       (typeof window !== "undefined" ? window.location.href : undefined);
