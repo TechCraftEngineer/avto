@@ -199,7 +199,7 @@ export function parseAbout(doc: Document = document): string {
     if (text.startsWith("About")) {
       const spans = card.querySelectorAll('span[aria-hidden="true"]');
       if (spans.length > 1) {
-        const about = spans[1].textContent?.trim();
+        const about = spans[1]?.textContent?.trim();
         if (about) return about;
       }
       const rest = text.replace(/^About\s*/i, "").trim();
@@ -216,6 +216,7 @@ function parseMainPageExperience(item: Element): ExperienceEntry | null {
   const links = item.querySelectorAll("a");
   if (links.length < 2) return null;
   const detailLink = links[1];
+  if (!detailLink) return null;
   const texts = extractUniqueTextsFromElement(detailLink);
   if (texts.length < 2) return null;
 
@@ -243,9 +244,10 @@ function parseExperienceEntity(
   const children = entity.querySelectorAll(":scope > *");
   if (children.length < 2) return null;
 
-  const companyLink = children[0].querySelector("a");
+  const companyLink = children[0]?.querySelector("a");
   const companyUrl = companyLink?.getAttribute("href") ?? null;
   const detailContainer = children[1];
+  if (!detailContainer) return null;
   const detailChildren = detailContainer.querySelectorAll(":scope > *");
   if (detailChildren.length === 0) return null;
 
@@ -257,10 +259,12 @@ function parseExperienceEntity(
   }
 
   const firstDetail = detailChildren[0];
+  if (!firstDetail) return null;
   const nestedEls = firstDetail.querySelectorAll(":scope > *");
   if (nestedEls.length === 0) return null;
 
   const spanContainer = nestedEls[0];
+  if (!spanContainer) return null;
   const outerSpans = spanContainer.querySelectorAll(":scope > *");
 
   let position = "";
@@ -279,7 +283,9 @@ function parseExperienceEntity(
 
   const [startDate, endDate] = parseWorkTimes(workTimes);
   const rawDesc =
-    detailChildren[1]?.textContent?.trim().replace(company, "").trim() ?? null;
+    (detailChildren[1]?.textContent?.trim() ?? "")
+      .replace(company, "")
+      .trim() || null;
   const description = [rawDesc, location].filter(Boolean).join(" • ") || null;
 
   return {
@@ -300,21 +306,22 @@ function parseNestedExperience(
   void companyUrl; // ExperienceEntry has no linkedin_url field
   const result: ExperienceEntry[] = [];
   const firstDetail = detailChildren[0];
+  if (!firstDetail) return result;
   const nestedEls = firstDetail.querySelectorAll(":scope > *");
   if (nestedEls.length === 0) return result;
 
   const spanContainer = nestedEls[0];
+  if (!spanContainer) return result;
   const outerSpans = spanContainer.querySelectorAll(":scope > *");
   let company = "";
   if (outerSpans.length >= 1)
     company =
       outerSpans[0]
-        .querySelector('span[aria-hidden="true"]')
+        ?.querySelector('span[aria-hidden="true"]')
         ?.textContent?.trim() ?? "";
 
-  const nestedContainer = detailChildren[1]?.querySelector(
-    ".pvs-list__container",
-  );
+  const detailSecond = detailChildren[1];
+  const nestedContainer = detailSecond?.querySelector(".pvs-list__container");
   if (!nestedContainer) return result;
 
   const nestedItems = nestedContainer.querySelectorAll(
@@ -326,10 +333,12 @@ function parseNestedExperience(
     if (!linkChildren?.length) return;
 
     const firstChild = linkChildren[0];
+    if (!firstChild) return;
     const nestedEls2 = firstChild.querySelectorAll(":scope > *");
     if (nestedEls2.length === 0) return;
 
     const spansContainer = nestedEls2[0];
+    if (!spansContainer) return;
     const positionSpans = spansContainer.querySelectorAll(":scope > *");
 
     let position = "";
@@ -345,7 +354,9 @@ function parseNestedExperience(
 
     const [startDate, endDate] = parseWorkTimes(workTimes);
     const rawDesc =
-      linkChildren[1]?.textContent?.trim().replace(position, "").trim() ?? null;
+      (linkChildren[1]?.textContent?.trim() ?? "")
+        .replace(position, "")
+        .trim() || null;
     const description = [rawDesc, location].filter(Boolean).join(" • ") || null;
 
     result.push({
@@ -391,6 +402,7 @@ export function parseExperiences(doc: Document = document): ExperienceEntry[] {
     const links = item.querySelectorAll("a, link");
     if (links.length >= 2) {
       const detailLink = links[1];
+      if (!detailLink) return;
       const texts = extractUniqueTextsFromElement(detailLink);
       if (texts.length >= 2) {
         const position = texts[0] ?? "";
@@ -426,14 +438,17 @@ function parseEducationEntity(
   if (children.length < 2) return null;
 
   const detailContainer = children[1];
+  if (!detailContainer) return null;
   const detailChildren = detailContainer.querySelectorAll(":scope > *");
   if (detailChildren.length === 0) return null;
 
   const firstDetail = detailChildren[0];
+  if (!firstDetail) return null;
   const nestedEls = firstDetail.querySelectorAll(":scope > *");
   if (nestedEls.length === 0) return null;
 
   const spanContainer = nestedEls[0];
+  if (!spanContainer) return null;
   const outerSpans = spanContainer.querySelectorAll(":scope > *");
 
   let institution = "";
@@ -454,13 +469,14 @@ function parseEducationEntity(
 
   const [startDate, endDate] = parseEducationTimes(times);
   const description =
-    detailChildren[1]?.textContent?.trim().replace(institution, "").trim() ??
-    null;
+    (detailChildren[1]?.textContent?.trim() ?? "")
+      .replace(institution, "")
+      .trim() || null;
 
   return {
     institution,
     degree,
-    fieldOfStudy: description ?? undefined,
+    fieldOfStudy: description || undefined,
     startDate,
     endDate,
   };
@@ -470,6 +486,7 @@ function parseMainPageEducation(item: Element): EducationEntry | null {
   const links = item.querySelectorAll("a");
   if (!links.length) return null;
   const detailLink = links.length > 1 ? links[1] : links[0];
+  if (!detailLink) return null;
   const texts = extractUniqueTextsFromElement(detailLink);
   if (!texts.length) return null;
 
@@ -477,7 +494,7 @@ function parseMainPageEducation(item: Element): EducationEntry | null {
   let degree: string | null = null;
   let times = "";
   if (texts.length === 3) {
-    degree = texts[1];
+    degree = texts[1] ?? null;
     times = texts[2] ?? "";
   } else if (texts.length === 2) {
     const second = texts[1] ?? "";
@@ -490,7 +507,7 @@ function parseMainPageEducation(item: Element): EducationEntry | null {
   const [startDate, endDate] = parseEducationTimes(times);
   return {
     institution,
-    degree,
+    degree: degree ?? null,
     fieldOfStudy: undefined,
     startDate,
     endDate,
