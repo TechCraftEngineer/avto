@@ -62,12 +62,13 @@ function extractUniqueTextsFromElement(el: Element): string[] {
   return result;
 }
 
-/** Находит секцию по заголовку h2 */
-function findSectionByHeading(text: string): Element | null {
-  const headings = document.querySelectorAll("h2");
+/** Находит секцию по заголовку h2 в переданном документе */
+function findSectionByHeading(doc: Document, text: string): Element | null {
+  const headings = doc.querySelectorAll("h2");
+  const target = text.toLowerCase();
   for (const h of headings) {
-    if (h.textContent?.trim().toLowerCase().includes(text.toLowerCase()))
-      return h.closest("section") || h.parentElement?.closest("section") || h;
+    if (h.textContent?.trim().toLowerCase().includes(target))
+      return h.closest("section") ?? h.parentElement?.closest("section") ?? h;
   }
   return null;
 }
@@ -365,7 +366,7 @@ function parseNestedExperience(
 export function parseExperiences(doc: Document = document): ExperienceEntry[] {
   const entries: ExperienceEntry[] = [];
   const section =
-    findSectionByHeading("Experience") ??
+    findSectionByHeading(doc, "Experience") ??
     doc.querySelector("#experience") ??
     doc.querySelector('[id*="experience"]');
 
@@ -502,7 +503,7 @@ function parseMainPageEducation(item: Element): EducationEntry | null {
 export function parseEducations(doc: Document = document): EducationEntry[] {
   const entries: EducationEntry[] = [];
   const section =
-    findSectionByHeading("Education") ??
+    findSectionByHeading(doc, "Education") ??
     doc.querySelector("#education") ??
     doc.querySelector('[id*="education"]');
 
@@ -533,7 +534,7 @@ export function parseSkills(doc: Document = document): string[] {
   const skills: string[] = [];
   const section =
     doc.querySelector("#skills") ??
-    findSectionByHeading("Skills") ??
+    findSectionByHeading(doc, "Skills") ??
     doc.querySelector('[id*="skills"]');
 
   if (!section) return skills;
@@ -558,6 +559,27 @@ export function parseSkills(doc: Document = document): string[] {
   return skills;
 }
 
+/** Простая проверка формата email */
+function isValidEmail(s: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim());
+}
+
+/** Проверяет, что строка похожа на номер телефона (7–15 цифр, без лишнего мусора) */
+function isValidPhone(s: string): boolean {
+  const t = s.trim();
+  if (t.length < 7 || t.length > 25) return false;
+  const digits = t.replace(/\D/g, "");
+  return digits.length >= 7 && digits.length <= 15;
+}
+
+/** Нормализует номер: оставляет цифры и ведущий + */
+function normalizePhone(s: string): string {
+  const trimmed = s.trim();
+  const hasPlus = trimmed.startsWith("+");
+  const digits = trimmed.replace(/\D/g, "");
+  return (hasPlus ? "+" : "") + digits;
+}
+
 /**
  * Извлекает контакты из видимой секции и контактной информации.
  * Для полных контактов (email, phone) нужен overlay — пользователь может открыть вручную.
@@ -566,20 +588,31 @@ export function parseContacts(doc: Document = document): ContactInfo {
   const contactSection =
     doc.querySelector("section.pv-contact-info") ??
     doc.querySelector("section[data-view-name*='contact']") ??
-    doc.querySelector(".pv-profile-section") ??
-    doc;
+    null;
 
+  let email: string | null = null;
   const emailEl = contactSection?.querySelector('a[href^="mailto:"]');
-  const email =
-    emailEl
-      ?.getAttribute("href")
+  if (emailEl) {
+    const raw = emailEl
+      .getAttribute("href")
       ?.replace(/^mailto:/i, "")
-      .trim() ?? null;
+      .trim();
+    if (raw && isValidEmail(raw)) email = raw;
+  }
 
-  const phoneEl = contactSection?.querySelector(
-    "span.t-14.t-black.t-normal, [class*='phone']",
-  );
-  const phone = phoneEl?.textContent?.trim() ?? null;
+  let phone: string | null = null;
+  if (contactSection) {
+    const candidates = contactSection.querySelectorAll(
+      "span.t-14.t-black.t-normal, span.t-14, a.t-14",
+    );
+    for (const el of candidates) {
+      const raw = el.textContent?.trim();
+      if (raw && isValidPhone(raw)) {
+        phone = normalizePhone(raw);
+        break;
+      }
+    }
+  }
 
   const socialLinks: string[] = [];
   contactSection?.querySelectorAll('a[href^="http"]').forEach((link) => {
