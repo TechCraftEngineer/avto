@@ -10,26 +10,22 @@ import {
   WorkspaceRepository,
 } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
+import {
+  type PlatformSource,
+  platformSourceValues,
+} from "@qbs-autonaim/db/schema";
 import { normalizePlatformProfileUrl, parseFullName } from "@qbs-autonaim/lib";
 import type { Context } from "hono";
 import { z } from "zod";
 
-const platformSourceEnum = z.enum([
-  "HH",
-  "AVITO",
-  "SUPERJOB",
-  "HABR",
-  "FL_RU",
-  "FREELANCE_RU",
-  "WEB_LINK",
-]);
+const platformSourceSchema = z.enum(platformSourceValues);
 
 const bodySchema = z.object({
   /** Если передан — используем существующего кандидата, только обновляем связь с организацией */
   globalCandidateId: z
     .uuid({ error: "Некорректный формат ID кандидата" })
     .optional(),
-  platformSource: platformSourceEnum,
+  platformSource: platformSourceSchema,
   freelancerName: z.string().max(500).optional(),
   contactInfo: z
     .object({
@@ -52,21 +48,12 @@ const bodySchema = z.object({
 });
 
 function mapPlatformToSource(
-  _src: z.infer<typeof platformSourceEnum>,
+  _src: z.infer<typeof platformSourceSchema>,
 ): "APPLICANT" | "SOURCING" | "IMPORT" | "MANUAL" | "REFERRAL" {
   return "SOURCING";
 }
 
-function mapOriginalSource(
-  src: z.infer<typeof platformSourceEnum>,
-):
-  | "HH"
-  | "AVITO"
-  | "SUPERJOB"
-  | "HABR"
-  | "FL_RU"
-  | "FREELANCE_RU"
-  | "WEB_LINK" {
+function mapOriginalSource(src: PlatformSource): PlatformSource {
   return src;
 }
 
@@ -79,14 +66,7 @@ function normalizeCandidateData(data: {
   telegramUsername?: string | null;
   resumeUrl?: string | null;
   source: "APPLICANT" | "SOURCING" | "IMPORT" | "MANUAL" | "REFERRAL";
-  originalSource?:
-    | "HH"
-    | "AVITO"
-    | "SUPERJOB"
-    | "HABR"
-    | "FL_RU"
-    | "FREELANCE_RU"
-    | "WEB_LINK";
+  originalSource?: PlatformSource;
 }) {
   const normalized = { ...data };
   if (normalized.email) {

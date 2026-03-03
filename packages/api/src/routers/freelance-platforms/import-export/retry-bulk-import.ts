@@ -1,6 +1,7 @@
 import { and, eq } from "@qbs-autonaim/db";
 import {
   freelanceImportHistory,
+  platformSourceValues,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import { z } from "zod";
@@ -18,15 +19,7 @@ const retryBulkImportInputSchema = z.object({
       rawText: z.string(),
     }),
   ),
-  platformSource: z.enum([
-    "HH",
-    "AVITO",
-    "SUPERJOB",
-    "HABR",
-    "FL_RU",
-    "FREELANCE_RU",
-    "WEB_LINK",
-  ]),
+  platformSource: z.enum(platformSourceValues),
 });
 
 /**

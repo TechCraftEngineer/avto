@@ -2,6 +2,7 @@ import { ORPCError } from "@orpc/server";
 import { and, eq, GlobalCandidateRepository } from "@qbs-autonaim/db";
 import {
   freelanceImportHistory,
+  platformSourceValues,
   type Response,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
@@ -13,15 +14,7 @@ import { CandidateService } from "../../../services/candidate.service";
 
 const importSingleResponseInputSchema = z.object({
   vacancyId: z.uuid(),
-  platformSource: z.enum([
-    "HH",
-    "AVITO",
-    "SUPERJOB",
-    "HABR",
-    "FL_RU",
-    "FREELANCE_RU",
-    "WEB_LINK",
-  ]),
+  platformSource: z.enum(platformSourceValues),
   freelancerName: z.string().min(1).max(500).optional(),
   contactInfo: z
     .object({

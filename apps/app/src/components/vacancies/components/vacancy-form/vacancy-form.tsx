@@ -50,6 +50,7 @@ const VacancyRequirementsEditor = dynamic(
 );
 
 import type { VacancyRequirements } from "@qbs-autonaim/db/schema";
+import { platformSourceValues } from "@qbs-autonaim/db/schema";
 import { vacancyRequirementsSchema } from "@qbs-autonaim/validators";
 import type { UseFormReturn } from "react-hook-form";
 import { useWorkspace } from "~/hooks/use-workspace";
@@ -59,15 +60,7 @@ const vacancyFormSchema = z.object({
   title: z.string().min(1, "Название обязательно").max(500),
   description: z.string().optional(),
   requirements: vacancyRequirementsSchema.optional(),
-  platformSource: z.enum([
-    "HH",
-    "AVITO",
-    "SUPERJOB",
-    "HABR",
-    "FL_RU",
-    "FREELANCE_RU",
-    "WEB_LINK",
-  ]),
+  platformSource: z.enum(platformSourceValues),
   platformUrl: z
     .url({ error: "Некорректный URL" })
     .optional()
@@ -178,9 +171,12 @@ export function VacancyForm({ onSuccess }: VacancyFormProps) {
                   <SelectItem value="AVITO">Avito</SelectItem>
                   <SelectItem value="SUPERJOB">SuperJob</SelectItem>
                   <SelectItem value="HABR">Habr Career</SelectItem>
+                  <SelectItem value="KWORK">Kwork</SelectItem>
                   <SelectItem value="FL_RU">FL.ru</SelectItem>
                   <SelectItem value="FREELANCE_RU">Freelance.ru</SelectItem>
                   <SelectItem value="WEB_LINK">Веб-ссылка</SelectItem>
+                  <SelectItem value="TELEGRAM">Telegram</SelectItem>
+                  <SelectItem value="MANUAL">Ручной ввод</SelectItem>
                 </SelectContent>
               </Select>
               <FormDescription>

@@ -7,7 +7,7 @@ import { phoneSchema } from "./phone";
 
 const englishLevelEnum = z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]);
 const workFormatEnum = z.enum(["remote", "office", "hybrid"]);
-const genderEnum = z.enum(["male", "female", "other"]);
+const genderEnum = z.enum(["male", "female"]);
 
 export const createGlobalCandidateFormSchema = z.object({
   fullName: z

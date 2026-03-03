@@ -20,19 +20,16 @@ import {
 } from "@qbs-autonaim/ui/components/form";
 import { Input } from "@qbs-autonaim/ui/components/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@qbs-autonaim/ui/components/select";
-import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@qbs-autonaim/ui/components/tabs";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@qbs-autonaim/ui/components/toggle-group";
 import {
   type CreateGlobalCandidateFormValues,
   createGlobalCandidateFormSchema,
@@ -63,7 +60,6 @@ const WORK_FORMAT_OPTIONS = [
 const GENDER_OPTIONS = [
   { value: "male", label: "Мужской" },
   { value: "female", label: "Женский" },
-  { value: "other", label: "Другой" },
 ] as const;
 
 function parsedResumeToFormValues(
@@ -118,11 +114,12 @@ function parsedResumeToFormValues(
           }
         })()
       : undefined,
-    gender: pi?.gender?.toLowerCase() as
-      | "male"
-      | "female"
-      | "other"
-      | undefined,
+    gender: (() => {
+      const g = pi?.gender?.toLowerCase();
+      return g === "male" || g === "female"
+        ? (g as "male" | "female")
+        : undefined;
+    })(),
     citizenship: pi?.citizenship ?? undefined,
     headline: headline ?? undefined,
     skills: skills.length > 0 ? skills : undefined,
@@ -297,15 +294,17 @@ export function AddCandidateDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-2xl lg:max-w-4xl w-[calc(100vw-1.5rem)] sm:w-[42rem] lg:w-[56rem] max-h-[90dvh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
-          <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-full bg-primary/10">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
               <UserPlus className="size-5 text-primary" />
             </div>
-            <div>
-              <DialogTitle className="text-xl">Добавить кандидата</DialogTitle>
-              <DialogDescription>
+            <div className="min-w-0">
+              <DialogTitle className="text-lg sm:text-xl">
+                Добавить кандидата
+              </DialogTitle>
+              <DialogDescription className="text-sm">
                 Заполните данные вручную или загрузите резюме PDF для
                 автозаполнения
               </DialogDescription>
@@ -317,13 +316,17 @@ export function AddCandidateDialog({
           value={activeTab}
           onValueChange={(v) => setActiveTab(v as "manual" | "pdf")}
         >
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="manual">Вручную</TabsTrigger>
-            <TabsTrigger value="pdf">Из PDF</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 h-9 sm:h-10">
+            <TabsTrigger value="manual" className="text-sm sm:text-base">
+              Вручную
+            </TabsTrigger>
+            <TabsTrigger value="pdf" className="text-sm sm:text-base">
+              Из PDF
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="pdf" className="mt-4">
-            <label className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/30 py-12 px-6 transition-colors hover:border-muted-foreground/40 hover:bg-muted/50 cursor-pointer">
+            <label className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/30 py-8 sm:py-12 px-4 sm:px-6 transition-colors hover:border-muted-foreground/40 hover:bg-muted/50 cursor-pointer min-h-[140px] sm:min-h-[180px]">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -360,8 +363,8 @@ export function AddCandidateDialog({
                 onSubmit={form.handleSubmit(handleSubmit)}
                 className="space-y-4"
               >
-                <div className="space-y-4">
-                  <p className="text-sm font-medium text-muted-foreground">
+                <div className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-x-6 lg:gap-y-4">
+                  <p className="text-sm font-medium text-muted-foreground lg:col-span-2">
                     Основное
                   </p>
                   <FormField
@@ -395,11 +398,11 @@ export function AddCandidateDialog({
                   />
                 </div>
 
-                <div className="space-y-4">
-                  <p className="text-sm font-medium text-muted-foreground">
+                <div className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-x-6 lg:gap-y-4">
+                  <p className="text-sm font-medium text-muted-foreground lg:col-span-2">
                     Контакты
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:col-span-2 gap-4">
                     <FormField
                       control={form.control}
                       name="email"
@@ -438,7 +441,7 @@ export function AddCandidateDialog({
                     control={form.control}
                     name="telegramUsername"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="sm:col-span-2">
                         <FormLabel>Telegram</FormLabel>
                         <FormControl>
                           <Input placeholder="@username" {...field} />
@@ -449,8 +452,8 @@ export function AddCandidateDialog({
                   />
                 </div>
 
-                <div className="space-y-4">
-                  <p className="text-sm font-medium text-muted-foreground">
+                <div className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-x-6 lg:gap-y-4">
+                  <p className="text-sm font-medium text-muted-foreground lg:col-span-2">
                     Профиль
                   </p>
                   <FormField
@@ -468,9 +471,25 @@ export function AddCandidateDialog({
                   />
                   <FormField
                     control={form.control}
-                    name="skills"
+                    name="citizenship"
                     render={({ field }) => (
                       <FormItem>
+                        <FormLabel>Гражданство</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Российская Федерация"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="skills"
+                    render={({ field }) => (
+                      <FormItem className="lg:col-span-2">
                         <FormLabel>Навыки</FormLabel>
                         <FormControl>
                           <Input
@@ -494,7 +513,7 @@ export function AddCandidateDialog({
                       </FormItem>
                     )}
                   />
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:col-span-2 gap-4">
                     <FormField
                       control={form.control}
                       name="experienceYears"
@@ -552,104 +571,137 @@ export function AddCandidateDialog({
                       )}
                     />
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="englishLevel"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Уровень английского</FormLabel>
-                          <Select
-                            value={field.value ?? ""}
-                            onValueChange={(v) =>
-                              field.onChange(v || undefined)
-                            }
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Выберите" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {ENGLISH_LEVEL_OPTIONS.map((o) => (
-                                <SelectItem key={o.value} value={o.value}>
-                                  {o.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="workFormat"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Формат работы</FormLabel>
-                          <Select
-                            value={field.value ?? ""}
-                            onValueChange={(v) =>
-                              field.onChange(v || undefined)
-                            }
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Выберите" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {WORK_FORMAT_OPTIONS.map((o) => (
-                                <SelectItem key={o.value} value={o.value}>
-                                  {o.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
                   <FormField
                     control={form.control}
                     name="gender"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="lg:col-span-2">
                         <FormLabel>Пол</FormLabel>
-                        <Select
-                          value={field.value ?? ""}
-                          onValueChange={(v) => field.onChange(v || undefined)}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Выберите" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
+                        <FormControl>
+                          <ToggleGroup
+                            type="single"
+                            value={field.value ?? ""}
+                            onValueChange={(v) =>
+                              field.onChange(v || undefined)
+                            }
+                            variant="outline"
+                            className="flex flex-wrap gap-1 sm:flex-nowrap"
+                          >
                             {GENDER_OPTIONS.map((o) => (
-                              <SelectItem key={o.value} value={o.value}>
+                              <ToggleGroupItem
+                                key={o.value}
+                                value={o.value}
+                                aria-label={o.label}
+                                className="flex-1 min-w-0"
+                              >
                                 {o.label}
-                              </SelectItem>
+                              </ToggleGroupItem>
                             ))}
-                          </SelectContent>
-                        </Select>
+                          </ToggleGroup>
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                   <FormField
                     control={form.control}
-                    name="citizenship"
+                    name="workFormat"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Гражданство</FormLabel>
+                      <FormItem className="lg:col-span-2">
+                        <FormLabel>Формат работы</FormLabel>
                         <FormControl>
-                          <Input
-                            placeholder="Российская Федерация"
-                            {...field}
-                          />
+                          <ToggleGroup
+                            type="single"
+                            value={field.value ?? ""}
+                            onValueChange={(v) =>
+                              field.onChange(v || undefined)
+                            }
+                            variant="outline"
+                            className="flex flex-wrap gap-1 sm:flex-nowrap"
+                          >
+                            {WORK_FORMAT_OPTIONS.map((o) => (
+                              <ToggleGroupItem
+                                key={o.value}
+                                value={o.value}
+                                aria-label={o.label}
+                                className="flex-1 min-w-0"
+                              >
+                                {o.label}
+                              </ToggleGroupItem>
+                            ))}
+                          </ToggleGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="englishLevel"
+                    render={({ field }) => (
+                      <FormItem className="lg:col-span-2">
+                        <FormLabel>Уровень английского</FormLabel>
+                        <FormControl>
+                          <ToggleGroup
+                            type="single"
+                            value={field.value ?? ""}
+                            onValueChange={(v) =>
+                              field.onChange(v || undefined)
+                            }
+                            variant="outline"
+                            className="grid grid-cols-3 sm:grid-cols-6 gap-1"
+                          >
+                            {ENGLISH_LEVEL_OPTIONS.map((o) => (
+                              <ToggleGroupItem
+                                key={o.value}
+                                value={o.value}
+                                aria-label={o.label}
+                                className="min-w-0"
+                              >
+                                {o.value}
+                              </ToggleGroupItem>
+                            ))}
+                          </ToggleGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="readyForRelocation"
+                    render={({ field }) => (
+                      <FormItem className="lg:col-span-2">
+                        <FormLabel>Готов к переезду</FormLabel>
+                        <FormControl>
+                          <ToggleGroup
+                            type="single"
+                            value={
+                              field.value === undefined
+                                ? ""
+                                : field.value
+                                  ? "yes"
+                                  : "no"
+                            }
+                            onValueChange={(v) =>
+                              field.onChange(
+                                v === "yes"
+                                  ? true
+                                  : v === "no"
+                                    ? false
+                                    : undefined,
+                              )
+                            }
+                            variant="outline"
+                            className="flex flex-wrap gap-1 w-fit"
+                          >
+                            <ToggleGroupItem value="yes" aria-label="Да">
+                              Да
+                            </ToggleGroupItem>
+                            <ToggleGroupItem value="no" aria-label="Нет">
+                              Нет
+                            </ToggleGroupItem>
+                          </ToggleGroup>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -676,17 +728,21 @@ export function AddCandidateDialog({
                   )}
                 />
 
-                <div className="flex gap-3 pt-2">
+                <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-4 sm:pt-6">
                   <Button
                     type="button"
                     variant="outline"
-                    className="flex-1"
+                    className="flex-1 h-10 sm:h-11"
                     onClick={() => handleOpenChange(false)}
                     disabled={isPending}
                   >
                     Отмена
                   </Button>
-                  <Button type="submit" className="flex-1" disabled={isPending}>
+                  <Button
+                    type="submit"
+                    className="flex-1 h-10 sm:h-11"
+                    disabled={isPending}
+                  >
                     {createMutation.isPending
                       ? "Добавление…"
                       : "Добавить кандидата"}

@@ -14,6 +14,8 @@ import {
 import { db } from "@qbs-autonaim/db/client";
 import {
   freelanceImportHistory,
+  type PlatformSource,
+  platformSourceValues,
   response as responseTable,
   vacancy as vacancySchema,
 } from "@qbs-autonaim/db/schema";
@@ -24,21 +26,13 @@ import { processPdfUpload } from "./hh-import/utils/pdf";
 import { processPhotoUpload } from "./hh-import/utils/photo";
 import { processResumeText } from "./hh-import/utils/resume-text";
 
-const platformSourceEnum = z.enum([
-  "HH",
-  "AVITO",
-  "SUPERJOB",
-  "HABR",
-  "FL_RU",
-  "FREELANCE_RU",
-  "WEB_LINK",
-]);
+const platformSourceSchema = z.enum(platformSourceValues);
 
 const bodySchema = z.object({
   vacancyId: z.uuid(),
   /** Если передан — используем существующего кандидата вместо findOrCreate */
   globalCandidateId: z.uuid().optional(),
-  platformSource: platformSourceEnum,
+  platformSource: platformSourceSchema,
   freelancerName: z.string().max(500).optional(),
   contactInfo: z
     .object({
@@ -64,21 +58,14 @@ const bodySchema = z.object({
 });
 
 function mapPlatformToSource(
-  _src: z.infer<typeof platformSourceEnum>,
+  _src: z.infer<typeof platformSourceSchema>,
 ): "APPLICANT" | "SOURCING" | "IMPORT" | "MANUAL" | "REFERRAL" {
   return "SOURCING";
 }
 
 function mapOriginalSource(
-  src: z.infer<typeof platformSourceEnum>,
-):
-  | "HH"
-  | "AVITO"
-  | "SUPERJOB"
-  | "HABR"
-  | "FL_RU"
-  | "FREELANCE_RU"
-  | "WEB_LINK" {
+  src: z.infer<typeof platformSourceSchema>,
+): z.infer<typeof platformSourceSchema> {
   return src;
 }
 
@@ -107,14 +94,7 @@ function normalizeCandidateData(data: {
   telegramUsername?: string | null;
   resumeUrl?: string | null;
   source: "APPLICANT" | "SOURCING" | "IMPORT" | "MANUAL" | "REFERRAL";
-  originalSource?:
-    | "HH"
-    | "AVITO"
-    | "SUPERJOB"
-    | "HABR"
-    | "FL_RU"
-    | "FREELANCE_RU"
-    | "WEB_LINK";
+  originalSource?: PlatformSource;
 }) {
   const normalized = { ...data };
   if (normalized.email) {
