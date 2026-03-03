@@ -2,6 +2,7 @@ export { exportCandidateData } from "./export-candidate";
 export { extractCandidateData } from "./extract-candidate-data";
 export type { CheckDuplicateResult } from "./import-candidate";
 export {
+  buildResponseText,
   checkDuplicateCandidate,
   importCandidateData,
   importToGlobalOnly,

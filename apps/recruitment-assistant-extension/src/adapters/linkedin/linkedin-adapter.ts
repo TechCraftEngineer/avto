@@ -13,6 +13,7 @@ import {
   parseEducations,
   parseExperiences,
   parseSkills,
+  scrollToLoadContent,
 } from "../../parsers/linkedin";
 import type {
   BasicInfo,
@@ -83,10 +84,11 @@ export class LinkedInAdapter extends PlatformAdapter {
   }
 
   /**
-   * Извлекает все данные профиля с предварительным раскрытием «See more».
-   * Переопределяет extractAll для улучшения полноты данных.
+   * Извлекает все данные профиля с предварительной загрузкой контента.
+   * linkedin_scraper: scroll + expand see more перед парсингом.
    */
   override extractAll() {
+    scrollToLoadContent();
     expandSeeMoreButtons(5);
     return super.extractAll();
   }

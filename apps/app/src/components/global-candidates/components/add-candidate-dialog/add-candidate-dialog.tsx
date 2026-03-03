@@ -57,6 +57,8 @@ const WORK_FORMAT_OPTIONS = [
   { value: "hybrid", label: "Гибрид" },
 ] as const;
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 МБ
+
 const GENDER_OPTIONS = [
   { value: "male", label: "Мужской" },
   { value: "female", label: "Женский" },
@@ -221,6 +223,13 @@ export function AddCandidateDialog({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file || !workspaceId) return;
+
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error("Файл слишком большой", {
+          description: "Максимальный размер: 10 МБ",
+        });
+        return;
+      }
 
       const validation = /\.(pdf|docx)$/i.test(file.name);
       if (!validation) {

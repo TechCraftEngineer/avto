@@ -5,7 +5,11 @@
  * При указании vacancyId — импорт идёт в конкретную вакансию (POST /api/extension/import-resume).
  */
 
-import type { CandidateData } from "../../shared/types";
+import type {
+  CandidateData,
+  EducationEntry,
+  ExperienceEntry,
+} from "../../shared/types";
 import { showNotification } from "./notifications";
 
 export interface CheckDuplicateResult {
@@ -99,6 +103,103 @@ export async function importToVacancyWithExisting(
 const VALID_PLATFORM_SOURCES = ["HH", "LINKEDIN", "WEB_LINK"] as const;
 type ValidPlatformSource = (typeof VALID_PLATFORM_SOURCES)[number];
 
+/** Извлекает username Telegram из socialLinks (t.me/xxx, telegram.me/xxx) */
+function extractTelegramFromSocialLinks(
+  socialLinks?: string[] | null,
+): string | undefined {
+  if (!socialLinks?.length) return undefined;
+  for (const link of socialLinks) {
+    const match = link.match(
+      /(?:t\.me|telegram\.me)\/(?:dg\/)?([a-zA-Z0-9_]{4,32})/i,
+    );
+    if (match?.[1]) return match[1];
+  }
+  return undefined;
+}
+
+/** Преобразует данные расширения в profileData для import-resume */
+function buildProfileDataForImport(
+  data: CandidateData,
+  profileUrl: string | undefined,
+  aboutMe?: string,
+): {
+  platform?: string;
+  profileUrl?: string;
+  aboutMe?: string;
+  skills?: string[];
+  experience?: Array<{
+    company?: string;
+    position?: string;
+    period?: string;
+    description?: string;
+  }>;
+  education?: Array<{
+    institution?: string;
+    degree?: string;
+    period?: string;
+    field?: string;
+    startDate?: string;
+    endDate?: string;
+  }>;
+  parsedAt: string;
+} {
+  const mapExp = (e: ExperienceEntry) => {
+    const start =
+      e.startDate instanceof Date
+        ? e.startDate.toISOString().slice(0, 7)
+        : e.startDate;
+    const end =
+      e.endDate instanceof Date
+        ? e.endDate.toISOString().slice(0, 7)
+        : e.endDate;
+    const period = [start, end].filter(Boolean).join(" — ") || undefined;
+    return {
+      company: e.company ?? undefined,
+      position: e.position,
+      period,
+      description: e.description ?? undefined,
+    };
+  };
+  const mapEdu = (e: EducationEntry) => {
+    const start = e.startDate;
+    const end = e.endDate;
+    const period = [start, end].filter(Boolean).join(" — ") || undefined;
+    return {
+      institution: e.institution,
+      degree: e.degree ?? undefined,
+      period,
+      field: e.field ?? e.fieldOfStudy ?? undefined,
+      startDate: e.startDate,
+      endDate: e.endDate,
+    };
+  };
+  return {
+    platform: data.platform,
+    profileUrl,
+    aboutMe: aboutMe || undefined,
+    skills: data.skills?.length ? data.skills : undefined,
+    experience: data.experience?.length
+      ? data.experience.map(mapExp)
+      : undefined,
+    education: data.education?.length ? data.education.map(mapEdu) : undefined,
+    parsedAt: new Date().toISOString(),
+  };
+}
+
+/** API import-resume/import-candidate-global принимает только HH, WEB_LINK и др. — без LINKEDIN */
+const API_ACCEPTED_SOURCES = [
+  "MANUAL",
+  "HH",
+  "AVITO",
+  "SUPERJOB",
+  "HABR",
+  "KWORK",
+  "FL_RU",
+  "FREELANCE_RU",
+  "WEB_LINK",
+  "TELEGRAM",
+] as const;
+
 function isValidPlatformSource(value: unknown): value is ValidPlatformSource {
   return (
     typeof value === "string" &&
@@ -113,6 +214,49 @@ function inferPlatformSourceFromContext(): ValidPlatformSource {
     if (host.includes("linkedin")) return "LINKEDIN";
   }
   return "WEB_LINK";
+}
+
+/** Преобразует внутренний platformSource в значение, принимаемое API */
+function toApiPlatformSource(
+  source: ValidPlatformSource,
+): (typeof API_ACCEPTED_SOURCES)[number] {
+  if (source === "LINKEDIN") return "WEB_LINK";
+  if (source === "HH") return "HH";
+  return "WEB_LINK";
+}
+
+export function buildResponseText(
+  data: CandidateData,
+  rawSource: ValidPlatformSource | string,
+): string {
+  const isLinkedIn = String(rawSource).toUpperCase() === "LINKEDIN";
+  const parts: string[] = [];
+  if (data.basicInfo.currentPosition)
+    parts.push(data.basicInfo.currentPosition);
+  if (data.basicInfo.location)
+    parts.push(`Локация: ${data.basicInfo.location}`);
+  if (data.skills?.length) parts.push(`Навыки: ${data.skills.join(", ")}`);
+  if (isLinkedIn && data.experience?.length) {
+    const expLines = data.experience.map((e) => {
+      const duration =
+        e.startDate || e.endDate
+          ? [e.startDate, e.endDate].filter(Boolean).join(" — ")
+          : "";
+      return `• ${e.position}${e.company ? ` в ${e.company}` : ""}${duration ? ` (${duration})` : ""}`;
+    });
+    parts.push(`Опыт:\n${expLines.join("\n")}`);
+  }
+  if (isLinkedIn && data.education?.length) {
+    const eduLines = data.education.map((e) => {
+      const years =
+        e.startDate || e.endDate
+          ? [e.startDate, e.endDate].filter(Boolean).join(" — ")
+          : "";
+      return `• ${e.institution}${e.degree ? `, ${e.degree}` : ""}${years ? ` (${years})` : ""}`;
+    });
+    parts.push(`Образование:\n${eduLines.join("\n")}`);
+  }
+  return parts.filter(Boolean).join("\n\n") || "Импортировано из расширения";
 }
 
 export async function importToGlobalOnly(
@@ -147,23 +291,26 @@ export async function importToGlobalOnly(
     throw new Error("Требуется авторизация");
   }
 
+  const rawSource =
+    "globalCandidateId" in options
+      ? isValidPlatformSource(options.platformSource)
+        ? options.platformSource
+        : inferPlatformSourceFromContext()
+      : isValidPlatformSource(options.candidateData.platformSource)
+        ? options.candidateData.platformSource
+        : inferPlatformSourceFromContext();
+
   const body =
     "globalCandidateId" in options
       ? {
           globalCandidateId: options.globalCandidateId,
-          platformSource: isValidPlatformSource(options.platformSource)
-            ? options.platformSource
-            : inferPlatformSourceFromContext(),
+          platformSource: toApiPlatformSource(rawSource),
           freelancerName: "",
           responseText: "",
         }
       : {
           ...options.candidateData,
-          platformSource: isValidPlatformSource(
-            options.candidateData.platformSource,
-          )
-            ? options.candidateData.platformSource
-            : inferPlatformSourceFromContext(),
+          platformSource: toApiPlatformSource(rawSource),
         };
 
   const { getExtensionApiUrl } = await import("../../config");
@@ -248,24 +395,19 @@ async function importToVacancy(
   globalCandidateId?: string,
 ): Promise<void> {
   const platformLower = data.platform?.toLowerCase() ?? "";
-  const platformSource =
+  const rawSource =
     platformLower.includes("headhunter") || platformLower.includes("hh")
       ? "HH"
       : platformLower.includes("linkedin")
         ? "LINKEDIN"
         : "WEB_LINK";
+  const platformSource = toApiPlatformSource(rawSource);
 
   const profileUrl =
     data.profileUrl ||
     (typeof window !== "undefined" ? window.location.href : undefined);
 
-  const responseText = [
-    data.basicInfo.currentPosition || "",
-    data.basicInfo.location ? `Локация: ${data.basicInfo.location}` : "",
-    data.skills?.length ? `Навыки: ${data.skills.join(", ")}` : "",
-  ]
-    .filter(Boolean)
-    .join("\n\n");
+  const responseText = buildResponseText(data, rawSource);
 
   const candidateName = data.basicInfo.fullName ?? "Кандидат";
 
@@ -273,7 +415,27 @@ async function importToVacancy(
   let resumePdfBase64: string | undefined;
   let resumeTextHtml: string | undefined;
 
-  if (platformSource === "HH" && typeof document !== "undefined") {
+  if (rawSource === "LINKEDIN" && typeof document !== "undefined") {
+    const photoSrc = data.basicInfo?.photoUrl;
+    if (
+      photoSrc &&
+      !photoSrc.includes("placeholder") &&
+      !photoSrc.includes("blank")
+    ) {
+      try {
+        const { fetchImageAsBase64ViaExtension } = await import(
+          "../../parsers/hh-employer/fetch-resume-html"
+        );
+        const { base64, contentType } =
+          await fetchImageAsBase64ViaExtension(photoSrc);
+        photoUrl = `data:${contentType};base64,${base64}`;
+      } catch {
+        // Сеть или таймаут — продолжаем без фото
+      }
+    }
+  }
+
+  if (rawSource === "HH" && typeof document !== "undefined") {
     const { fetchPhotoAsBase64, fetchResumePdfAsBase64 } = await import(
       "../../parsers/hh-employer/fetch-resume-html"
     );
@@ -320,6 +482,25 @@ async function importToVacancy(
     }
   }
 
+  const telegram = extractTelegramFromSocialLinks(data.contacts?.socialLinks);
+
+  let aboutMe: string | undefined;
+  if (rawSource === "LINKEDIN" && typeof document !== "undefined") {
+    const { parseAbout } = await import("../../parsers/linkedin");
+    aboutMe = parseAbout(document) || undefined;
+  }
+
+  const profileDataForImport = buildProfileDataForImport(
+    data,
+    profileUrl,
+    aboutMe,
+  );
+  const hasStructuredData =
+    profileDataForImport.experience?.length ||
+    profileDataForImport.education?.length ||
+    profileDataForImport.skills?.length ||
+    profileDataForImport.aboutMe;
+
   const { getExtensionApiUrl } = await import("../../config");
   const body: Record<string, unknown> = {
     vacancyId,
@@ -329,7 +510,8 @@ async function importToVacancy(
     contactInfo: {
       email: data.contacts?.email || undefined,
       phone: data.contacts?.phone || undefined,
-      platformProfileUrl: profileUrl, // обязателен при скрытых контактах (HH)
+      telegram: telegram || undefined,
+      platformProfileUrl: profileUrl,
     },
     responseText: responseText || "Импортировано из расширения",
   };
@@ -337,6 +519,12 @@ async function importToVacancy(
   if (photoUrl) body.photoUrl = photoUrl;
   if (resumePdfBase64) body.resumePdfBase64 = resumePdfBase64;
   if (resumeTextHtml) body.resumeTextHtml = resumeTextHtml;
+  if (hasStructuredData) {
+    body.profileData = profileDataForImport;
+  }
+  if (data.skills?.length) {
+    body.skills = data.skills;
+  }
 
   const resp = await chrome.runtime.sendMessage({
     type: "API_REQUEST",
