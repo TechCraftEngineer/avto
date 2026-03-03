@@ -62,12 +62,13 @@ function extractUniqueTextsFromElement(el: Element): string[] {
   return result;
 }
 
-/** Находит секцию по заголовку h2 */
-function findSectionByHeading(text: string): Element | null {
-  const headings = document.querySelectorAll("h2");
+/** Находит секцию по заголовку h2 в переданном документе */
+function findSectionByHeading(doc: Document, text: string): Element | null {
+  const headings = doc.querySelectorAll("h2");
+  const target = text.toLowerCase();
   for (const h of headings) {
-    if (h.textContent?.trim().toLowerCase().includes(text.toLowerCase()))
-      return h.closest("section") || h.parentElement?.closest("section") || h;
+    if (h.textContent?.trim().toLowerCase().includes(target))
+      return h.closest("section") ?? h.parentElement?.closest("section") ?? h;
   }
   return null;
 }
@@ -198,7 +199,7 @@ export function parseAbout(doc: Document = document): string {
     if (text.startsWith("About")) {
       const spans = card.querySelectorAll('span[aria-hidden="true"]');
       if (spans.length > 1) {
-        const about = spans[1].textContent?.trim();
+        const about = spans[1]?.textContent?.trim();
         if (about) return about;
       }
       const rest = text.replace(/^About\s*/i, "").trim();
@@ -215,6 +216,7 @@ function parseMainPageExperience(item: Element): ExperienceEntry | null {
   const links = item.querySelectorAll("a");
   if (links.length < 2) return null;
   const detailLink = links[1];
+  if (!detailLink) return null;
   const texts = extractUniqueTextsFromElement(detailLink);
   if (texts.length < 2) return null;
 
@@ -242,9 +244,10 @@ function parseExperienceEntity(
   const children = entity.querySelectorAll(":scope > *");
   if (children.length < 2) return null;
 
-  const companyLink = children[0].querySelector("a");
+  const companyLink = children[0]?.querySelector("a");
   const companyUrl = companyLink?.getAttribute("href") ?? null;
   const detailContainer = children[1];
+  if (!detailContainer) return null;
   const detailChildren = detailContainer.querySelectorAll(":scope > *");
   if (detailChildren.length === 0) return null;
 
@@ -256,10 +259,12 @@ function parseExperienceEntity(
   }
 
   const firstDetail = detailChildren[0];
+  if (!firstDetail) return null;
   const nestedEls = firstDetail.querySelectorAll(":scope > *");
   if (nestedEls.length === 0) return null;
 
   const spanContainer = nestedEls[0];
+  if (!spanContainer) return null;
   const outerSpans = spanContainer.querySelectorAll(":scope > *");
 
   let position = "";
@@ -278,7 +283,9 @@ function parseExperienceEntity(
 
   const [startDate, endDate] = parseWorkTimes(workTimes);
   const rawDesc =
-    detailChildren[1]?.textContent?.trim().replace(company, "").trim() ?? null;
+    (detailChildren[1]?.textContent?.trim() ?? "")
+      .replace(company, "")
+      .trim() || null;
   const description = [rawDesc, location].filter(Boolean).join(" • ") || null;
 
   return {
@@ -299,21 +306,22 @@ function parseNestedExperience(
   void companyUrl; // ExperienceEntry has no linkedin_url field
   const result: ExperienceEntry[] = [];
   const firstDetail = detailChildren[0];
+  if (!firstDetail) return result;
   const nestedEls = firstDetail.querySelectorAll(":scope > *");
   if (nestedEls.length === 0) return result;
 
   const spanContainer = nestedEls[0];
+  if (!spanContainer) return result;
   const outerSpans = spanContainer.querySelectorAll(":scope > *");
   let company = "";
   if (outerSpans.length >= 1)
     company =
       outerSpans[0]
-        .querySelector('span[aria-hidden="true"]')
+        ?.querySelector('span[aria-hidden="true"]')
         ?.textContent?.trim() ?? "";
 
-  const nestedContainer = detailChildren[1]?.querySelector(
-    ".pvs-list__container",
-  );
+  const detailSecond = detailChildren[1];
+  const nestedContainer = detailSecond?.querySelector(".pvs-list__container");
   if (!nestedContainer) return result;
 
   const nestedItems = nestedContainer.querySelectorAll(
@@ -325,10 +333,12 @@ function parseNestedExperience(
     if (!linkChildren?.length) return;
 
     const firstChild = linkChildren[0];
+    if (!firstChild) return;
     const nestedEls2 = firstChild.querySelectorAll(":scope > *");
     if (nestedEls2.length === 0) return;
 
     const spansContainer = nestedEls2[0];
+    if (!spansContainer) return;
     const positionSpans = spansContainer.querySelectorAll(":scope > *");
 
     let position = "";
@@ -344,7 +354,9 @@ function parseNestedExperience(
 
     const [startDate, endDate] = parseWorkTimes(workTimes);
     const rawDesc =
-      linkChildren[1]?.textContent?.trim().replace(position, "").trim() ?? null;
+      (linkChildren[1]?.textContent?.trim() ?? "")
+        .replace(position, "")
+        .trim() || null;
     const description = [rawDesc, location].filter(Boolean).join(" • ") || null;
 
     result.push({
@@ -365,7 +377,7 @@ function parseNestedExperience(
 export function parseExperiences(doc: Document = document): ExperienceEntry[] {
   const entries: ExperienceEntry[] = [];
   const section =
-    findSectionByHeading("Experience") ??
+    findSectionByHeading(doc, "Experience") ??
     doc.querySelector("#experience") ??
     doc.querySelector('[id*="experience"]');
 
@@ -390,6 +402,7 @@ export function parseExperiences(doc: Document = document): ExperienceEntry[] {
     const links = item.querySelectorAll("a, link");
     if (links.length >= 2) {
       const detailLink = links[1];
+      if (!detailLink) return;
       const texts = extractUniqueTextsFromElement(detailLink);
       if (texts.length >= 2) {
         const position = texts[0] ?? "";
@@ -425,14 +438,17 @@ function parseEducationEntity(
   if (children.length < 2) return null;
 
   const detailContainer = children[1];
+  if (!detailContainer) return null;
   const detailChildren = detailContainer.querySelectorAll(":scope > *");
   if (detailChildren.length === 0) return null;
 
   const firstDetail = detailChildren[0];
+  if (!firstDetail) return null;
   const nestedEls = firstDetail.querySelectorAll(":scope > *");
   if (nestedEls.length === 0) return null;
 
   const spanContainer = nestedEls[0];
+  if (!spanContainer) return null;
   const outerSpans = spanContainer.querySelectorAll(":scope > *");
 
   let institution = "";
@@ -453,13 +469,14 @@ function parseEducationEntity(
 
   const [startDate, endDate] = parseEducationTimes(times);
   const description =
-    detailChildren[1]?.textContent?.trim().replace(institution, "").trim() ??
-    null;
+    (detailChildren[1]?.textContent?.trim() ?? "")
+      .replace(institution, "")
+      .trim() || null;
 
   return {
     institution,
     degree,
-    fieldOfStudy: description ?? undefined,
+    fieldOfStudy: description || undefined,
     startDate,
     endDate,
   };
@@ -469,6 +486,7 @@ function parseMainPageEducation(item: Element): EducationEntry | null {
   const links = item.querySelectorAll("a");
   if (!links.length) return null;
   const detailLink = links.length > 1 ? links[1] : links[0];
+  if (!detailLink) return null;
   const texts = extractUniqueTextsFromElement(detailLink);
   if (!texts.length) return null;
 
@@ -476,7 +494,7 @@ function parseMainPageEducation(item: Element): EducationEntry | null {
   let degree: string | null = null;
   let times = "";
   if (texts.length === 3) {
-    degree = texts[1];
+    degree = texts[1] ?? null;
     times = texts[2] ?? "";
   } else if (texts.length === 2) {
     const second = texts[1] ?? "";
@@ -489,7 +507,7 @@ function parseMainPageEducation(item: Element): EducationEntry | null {
   const [startDate, endDate] = parseEducationTimes(times);
   return {
     institution,
-    degree,
+    degree: degree ?? null,
     fieldOfStudy: undefined,
     startDate,
     endDate,
@@ -502,7 +520,7 @@ function parseMainPageEducation(item: Element): EducationEntry | null {
 export function parseEducations(doc: Document = document): EducationEntry[] {
   const entries: EducationEntry[] = [];
   const section =
-    findSectionByHeading("Education") ??
+    findSectionByHeading(doc, "Education") ??
     doc.querySelector("#education") ??
     doc.querySelector('[id*="education"]');
 
@@ -533,7 +551,7 @@ export function parseSkills(doc: Document = document): string[] {
   const skills: string[] = [];
   const section =
     doc.querySelector("#skills") ??
-    findSectionByHeading("Skills") ??
+    findSectionByHeading(doc, "Skills") ??
     doc.querySelector('[id*="skills"]');
 
   if (!section) return skills;
@@ -558,6 +576,27 @@ export function parseSkills(doc: Document = document): string[] {
   return skills;
 }
 
+/** Простая проверка формата email */
+function isValidEmail(s: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim());
+}
+
+/** Проверяет, что строка похожа на номер телефона (7–15 цифр, без лишнего мусора) */
+function isValidPhone(s: string): boolean {
+  const t = s.trim();
+  if (t.length < 7 || t.length > 25) return false;
+  const digits = t.replace(/\D/g, "");
+  return digits.length >= 7 && digits.length <= 15;
+}
+
+/** Нормализует номер: оставляет цифры и ведущий + */
+function normalizePhone(s: string): string {
+  const trimmed = s.trim();
+  const hasPlus = trimmed.startsWith("+");
+  const digits = trimmed.replace(/\D/g, "");
+  return (hasPlus ? "+" : "") + digits;
+}
+
 /**
  * Извлекает контакты из видимой секции и контактной информации.
  * Для полных контактов (email, phone) нужен overlay — пользователь может открыть вручную.
@@ -566,20 +605,31 @@ export function parseContacts(doc: Document = document): ContactInfo {
   const contactSection =
     doc.querySelector("section.pv-contact-info") ??
     doc.querySelector("section[data-view-name*='contact']") ??
-    doc.querySelector(".pv-profile-section") ??
-    doc;
+    null;
 
+  let email: string | null = null;
   const emailEl = contactSection?.querySelector('a[href^="mailto:"]');
-  const email =
-    emailEl
-      ?.getAttribute("href")
+  if (emailEl) {
+    const raw = emailEl
+      .getAttribute("href")
       ?.replace(/^mailto:/i, "")
-      .trim() ?? null;
+      .trim();
+    if (raw && isValidEmail(raw)) email = raw;
+  }
 
-  const phoneEl = contactSection?.querySelector(
-    "span.t-14.t-black.t-normal, [class*='phone']",
-  );
-  const phone = phoneEl?.textContent?.trim() ?? null;
+  let phone: string | null = null;
+  if (contactSection) {
+    const candidates = contactSection.querySelectorAll(
+      "span.t-14.t-black.t-normal, span.t-14, a.t-14",
+    );
+    for (const el of candidates) {
+      const raw = el.textContent?.trim();
+      if (raw && isValidPhone(raw)) {
+        phone = normalizePhone(raw);
+        break;
+      }
+    }
+  }
 
   const socialLinks: string[] = [];
   contactSection?.querySelectorAll('a[href^="http"]').forEach((link) => {
