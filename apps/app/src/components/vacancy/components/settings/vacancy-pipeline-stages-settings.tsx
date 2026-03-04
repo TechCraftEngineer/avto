@@ -58,7 +58,7 @@ export function VacancyPipelineStagesSettings({
     }),
   );
 
-  const sortableIds = stages.map((s) => s.id ?? s.clientId!);
+  const sortableIds = stages.map((s, i) => s.id ?? s.clientId ?? `stage-${i}`);
 
   const content = (
     <div className="space-y-4">
@@ -122,7 +122,7 @@ export function VacancyPipelineStagesSettings({
               <div className="space-y-2">
                 {stages.map((stage, index) => (
                   <SortableStageRow
-                    key={stage.id ?? stage.clientId!}
+                    key={stage.id ?? stage.clientId ?? index}
                     stage={stage}
                     index={index}
                     onUpdate={handleUpdate}

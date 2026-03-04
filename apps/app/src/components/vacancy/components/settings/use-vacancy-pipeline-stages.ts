@@ -155,7 +155,7 @@ export function useVacancyPipelineStages(
     (event: DragEndEvent) => {
       const { active, over } = event;
       if (!over || active.id === over.id) return;
-      const ids = stages.map((s) => s.id ?? s.clientId!);
+      const ids = stages.map((s, i) => s.id ?? s.clientId ?? `stage-${i}`);
       const oldIndex = ids.indexOf(String(active.id));
       const newIndex = ids.indexOf(String(over.id));
       if (oldIndex === -1 || newIndex === -1) return;

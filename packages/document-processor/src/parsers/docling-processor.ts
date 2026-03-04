@@ -148,7 +148,7 @@ export class DoclingProcessor implements FormatParser {
         if (data.status === "failure" && (data.errors?.length ?? 0) > 0) {
           throw new DocumentProcessingError(
             DocumentProcessingErrorCode.CORRUPTED_FILE,
-            data.errors!.join("; "),
+            (data.errors ?? []).join("; "),
             { filename },
           );
         }
