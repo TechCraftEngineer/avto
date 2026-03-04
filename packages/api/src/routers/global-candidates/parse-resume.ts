@@ -52,7 +52,6 @@ export const parseResume = protectedProcedure
         content: fileBuffer,
         filename: input.filename,
       });
-
       return parsedResume;
     } catch (error) {
       if (error instanceof ResumeParserError) {

@@ -656,7 +656,8 @@ chrome.runtime.onMessage.addListener(
             logError("FETCH_IMAGE", err);
             sendResponse({
               success: false,
-              error: "Ошибка загрузки фото",
+              error:
+                err instanceof Error ? err.message : "Ошибка загрузки фото",
             });
           }
         })();

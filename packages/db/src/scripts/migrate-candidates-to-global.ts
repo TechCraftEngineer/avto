@@ -110,7 +110,10 @@ async function migrate() {
           fullName: c.full_name,
           headline: c.headline,
           birthDate: c.birth_date,
-          gender: c.gender as "male" | "female" | null,
+          gender:
+            c.gender === "male" || c.gender === "female"
+              ? (c.gender as "male" | "female")
+              : null,
           citizenship: c.citizenship,
           location: c.location,
           email: c.email,

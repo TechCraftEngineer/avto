@@ -697,9 +697,15 @@ export class ResumeParserService {
   /**
    * Структурирует текст резюме с помощью AI
    */
+  private static readonly AI_INPUT_MAX_LENGTH = 2000;
+
   private async structureWithAI(
     rawText: string,
   ): Promise<{ structured: StructuredResume; confidence: number }> {
+    const trimmedRawText = rawText.slice(
+      0,
+      ResumeParserService.AI_INPUT_MAX_LENGTH,
+    );
     const factory = new AgentFactory({
       model: this.model,
     });
@@ -712,15 +718,36 @@ export class ResumeParserService {
       attempt <= ResumeParserService.AI_STRUCTURING_MAX_RETRIES;
       attempt++
     ) {
-      const result = await agent.execute({ rawText }, {});
+      try {
+        const result = await agent.execute({ rawText: trimmedRawText }, {});
 
-      if (result.success && result.data) {
-        const structured = this.mapAgentOutputToStructuredResume(result.data);
-        const confidence = this.calculateConfidence(structured);
-        return { structured, confidence };
+        if (result.success && result.data) {
+          const structured = this.mapAgentOutputToStructuredResume(result.data);
+          const confidence = this.calculateConfidence(structured);
+          return { structured, confidence };
+        }
+
+        lastError = result.error;
+      } catch (err) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        const isRetryable =
+          errMsg.includes("timeout") ||
+          errMsg.includes("AbortError") ||
+          errMsg.includes("ECONNRESET") ||
+          errMsg.includes("ETIMEDOUT") ||
+          errMsg.includes("rate limit") ||
+          errMsg.includes("503");
+        lastError = errMsg;
+
+        if (
+          attempt >= ResumeParserService.AI_STRUCTURING_MAX_RETRIES ||
+          !isRetryable
+        ) {
+          break;
+        }
+        continue;
       }
 
-      lastError = result.error;
       const isSchemaError =
         lastError?.includes("did not match schema") ||
         lastError?.includes("No object generated");
@@ -729,7 +756,7 @@ export class ResumeParserService {
         attempt < ResumeParserService.AI_STRUCTURING_MAX_RETRIES &&
         isSchemaError
       ) {
-        continue; // retry
+        continue;
       }
 
       break;
@@ -754,6 +781,8 @@ export class ResumeParserService {
         email: p.email ?? undefined,
         phone: p.phone ?? undefined,
         location: p.location ?? undefined,
+        gender:
+          p.gender === "male" || p.gender === "female" ? p.gender : undefined,
       },
       experience: output.experience.map((exp) => ({
         company: exp.company ?? "",
