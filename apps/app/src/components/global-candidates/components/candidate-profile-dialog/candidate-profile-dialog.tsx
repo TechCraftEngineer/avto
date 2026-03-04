@@ -44,10 +44,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Briefcase,
   Building2,
+  Calendar,
   Clock,
   ExternalLink,
   FileText,
   Globe,
+  GraduationCap,
   Languages,
   Link2,
   Mail,
@@ -440,6 +442,127 @@ function ProfileContent({
                 </div>
               </div>
             )}
+
+            {/* Опыт работы */}
+            {candidateDetail?.profileData?.experience &&
+              candidateDetail.profileData.experience.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <Briefcase className="h-4 w-4" />
+                    Опыт работы
+                  </h4>
+                  <div className="space-y-3">
+                    {candidateDetail.profileData.experience.map((exp, i) => {
+                      const item =
+                        exp && typeof exp === "object" && "experience" in exp
+                          ? (
+                              exp as {
+                                experience?: {
+                                  company?: string;
+                                  position?: string;
+                                  period?: string;
+                                  description?: string;
+                                };
+                              }
+                            ).experience
+                          : (exp as {
+                              company?: string;
+                              position?: string;
+                              period?: string;
+                              description?: string;
+                            });
+                      const company = item?.company ?? item?.position ?? "";
+                      const position =
+                        "position" in (item ?? {}) ? item?.position : "";
+                      const period = item?.period ?? "";
+                      if (!company && !position && !period) return null;
+                      return (
+                        <div
+                          key={i}
+                          className="rounded-lg border bg-muted/30 p-3 space-y-1"
+                        >
+                          {(company || position) && (
+                            <div className="font-medium text-sm">
+                              {company}
+                              {company && position && " · "}
+                              {position}
+                            </div>
+                          )}
+                          {period && (
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                              <Calendar className="h-3 w-3" />
+                              {period}
+                            </div>
+                          )}
+                          {item?.description && (
+                            <p className="text-sm mt-1 text-muted-foreground">
+                              {item.description}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+            {/* Образование */}
+            {candidateDetail?.profileData?.education &&
+              candidateDetail.profileData.education.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <GraduationCap className="h-4 w-4" />
+                    Образование
+                  </h4>
+                  <div className="space-y-3">
+                    {candidateDetail.profileData.education.map((edu, i) => {
+                      const item = edu as {
+                        institution?: string;
+                        degree?: string;
+                        field?: string;
+                        period?: string;
+                        specialization?: string;
+                        startDate?: string;
+                        endDate?: string;
+                      };
+                      const institution = item?.institution ?? "";
+                      const degree = item?.degree ?? item?.specialization ?? "";
+                      const field = item?.field ?? "";
+                      const period =
+                        item?.period ??
+                        (item?.startDate && item?.endDate
+                          ? `${item.startDate} — ${item.endDate}`
+                          : (item?.startDate ?? item?.endDate ?? ""));
+                      if (!institution && !degree && !field) return null;
+                      return (
+                        <div
+                          key={i}
+                          className="rounded-lg border bg-muted/30 p-3 space-y-1"
+                        >
+                          {(institution || degree) && (
+                            <div className="font-medium text-sm">
+                              {institution}
+                              {institution && degree && " · "}
+                              {degree}
+                            </div>
+                          )}
+                          {field && (
+                            <div className="text-sm text-muted-foreground">
+                              {field}
+                            </div>
+                          )}
+                          {period && (
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                              <Calendar className="h-3 w-3" />
+                              {period}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
             {/* Резюме */}
             {candidate.resumeUrl && (

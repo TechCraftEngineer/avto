@@ -8,7 +8,7 @@ import { type NextRequest, NextResponse } from "next/server";
 
 const APP_SERVER_URL = process.env.APP_SERVER_URL || "http://localhost:7000";
 
-const ORPC_PROXY_TIMEOUT_MS = 120_000;
+const ORPC_PROXY_TIMEOUT_MS = 180_000;
 
 export async function GET(
   request: NextRequest,
