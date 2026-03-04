@@ -45,11 +45,7 @@ export const globalParsingStatusEnum = pgEnum("global_parsing_status", [
   "FAILED",
 ]);
 
-export const globalGenderEnum = pgEnum("global_gender", [
-  "male",
-  "female",
-  "other",
-]);
+export const globalGenderEnum = pgEnum("global_gender", ["male", "female"]);
 
 /**
  * Глобальный статус кандидата (не привязан к конкретной организации)

@@ -103,7 +103,7 @@ export interface GlobalCandidateData {
     | "TELEGRAM";
   location?: string | null;
   birthDate?: Date | null;
-  gender?: "male" | "female" | "other" | null;
+  gender?: "male" | "female" | null;
   citizenship?: string | null;
   workFormat?: "remote" | "office" | "hybrid" | null;
   englishLevel?: "A1" | "A2" | "B1" | "B2" | "C1" | "C2" | null;

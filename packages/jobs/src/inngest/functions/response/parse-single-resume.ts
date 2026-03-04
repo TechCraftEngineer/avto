@@ -25,7 +25,7 @@ function processResumeStructuredData(structuredData: {
     whatsapp?: string;
     location?: string;
     birthDate?: string;
-    gender?: "male" | "female" | "other";
+    gender?: "male" | "female";
     citizenship?: string;
   };
   experience?: Array<{

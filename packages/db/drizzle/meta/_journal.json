@@ -50,6 +50,13 @@
       "when": 1772347313343,
       "tag": "0006_round_killmonger",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1772612652086,
+      "tag": "0007_shallow_jackpot",
+      "breakpoints": true
     }
   ]
 }

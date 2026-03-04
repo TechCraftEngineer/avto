@@ -192,7 +192,11 @@ export function expandSeeMoreButtons(maxAttempts = 10): number {
  */
 export function parseBasicInfo(doc: Document = document): BasicInfo {
   const nameEl =
-    doc.querySelector("h1") ?? doc.querySelector("h1.text-heading-xlarge");
+    doc.querySelector("h1") ??
+    doc.querySelector("h1.text-heading-xlarge") ??
+    doc.querySelector(
+      'div[data-view-name="profile-top-card-verified-badge"] h2',
+    );
   const name = nameEl?.textContent?.trim() ?? "";
 
   const headlineEl =
@@ -213,6 +217,7 @@ export function parseBasicInfo(doc: Document = document): BasicInfo {
   const photoSelectors = [
     ".pv-top-card-profile-picture img",
     "img.pv-top-card-profile-picture__image",
+    'figure[data-view-name="image"] img',
     'img[data-delayed-url*="media"]',
     ".pv-top-card-photo img",
     'section[data-section="profile-photo"] img',
@@ -250,23 +255,14 @@ export function parseBasicInfo(doc: Document = document): BasicInfo {
 
 /**
  * Извлекает секцию "About".
- * linkedin_scraper: [data-view-name="profile-card"] с текстом "About"
+ * LinkedIn: [data-view-name="profile-card-about"] (исключаем h2, берём весь текст)
  */
 export function parseAbout(doc: Document = document): string {
-  const cards = doc.querySelectorAll('[data-view-name="profile-card"]');
-  for (const card of cards) {
-    const text = card.textContent?.trim() ?? "";
-    if (text.startsWith("About")) {
-      const spans = card.querySelectorAll('span[aria-hidden="true"]');
-      if (spans.length > 1) {
-        const about = spans[1]?.textContent?.trim();
-        if (about) return about;
-      }
-      const rest = text.replace(/^About\s*/i, "").trim();
-      if (rest) return rest;
-    }
-  }
-  return "";
+  const card = doc.querySelector('[data-view-name="profile-card-about"]');
+  if (!card) return "";
+  const clone = card.cloneNode(true) as HTMLElement;
+  clone.querySelector("h2")?.remove();
+  return clone.textContent?.trim() ?? "";
 }
 
 /**
@@ -430,11 +426,45 @@ function parseNestedExperience(
   return result;
 }
 
+/** Убирает все атрибуты с элемента и его потомков, возвращает innerHTML «голых» тегов */
+function stripAttributesFromElement(el: Element): string {
+  const clone = el.cloneNode(true) as Element;
+  const walk = (node: Element) => {
+    const attrs = [...node.attributes];
+    for (const attr of attrs) {
+      node.removeAttribute(attr.name);
+    }
+    for (const child of node.children) {
+      walk(child as Element);
+    }
+  };
+  walk(clone);
+  return clone.innerHTML;
+}
+
 /**
  * Извлекает опыт работы.
- * Стратегии: main page Experience section, .pvs-list__container
+ * Стратегии: profile-card-experience (innerHTML без атрибутов), main page Experience section, .pvs-list__container
  */
 export function parseExperiences(doc: Document = document): ExperienceEntry[] {
+  const profileCardExp = doc.querySelector(
+    'div[data-view-name="profile-card-experience"]',
+  );
+  if (profileCardExp) {
+    const strippedHtml = stripAttributesFromElement(profileCardExp).trim();
+    if (strippedHtml) {
+      return [
+        {
+          position: "",
+          company: null,
+          startDate: null,
+          endDate: null,
+          description: strippedHtml,
+        },
+      ];
+    }
+  }
+
   const entries: ExperienceEntry[] = [];
   const section =
     findSectionByHeading(doc, "Experience") ??
@@ -576,8 +606,27 @@ function parseMainPageEducation(item: Element): EducationEntry | null {
 
 /**
  * Извлекает образование.
+ * Стратегии: profile-card-education (innerHTML без атрибутов), main page Education section
  */
 export function parseEducations(doc: Document = document): EducationEntry[] {
+  const profileCardEdu = doc.querySelector(
+    'div[data-view-name="profile-card-education"]',
+  );
+  if (profileCardEdu) {
+    const strippedHtml = stripAttributesFromElement(profileCardEdu).trim();
+    if (strippedHtml) {
+      return [
+        {
+          institution: "",
+          degree: null,
+          fieldOfStudy: strippedHtml,
+          startDate: "",
+          endDate: "",
+        },
+      ];
+    }
+  }
+
   const entries: EducationEntry[] = [];
   const section =
     findSectionByHeading(doc, "Education") ??
@@ -827,15 +876,19 @@ function waitForDialog(doc: Document, timeoutMs = 5000): Promise<boolean> {
     }
     const observer = new MutationObserver(() => {
       if (check()) {
-        observer.disconnect();
-        resolve(true);
+        finalize(true);
       }
     });
     observer.observe(doc.body, { childList: true, subtree: true });
-    setTimeout(() => {
-      observer.disconnect();
-      resolve(!!check());
+    const timeoutId = setTimeout(() => {
+      finalize(!!check());
     }, timeoutMs);
+
+    function finalize(result: boolean) {
+      clearTimeout(timeoutId);
+      observer.disconnect();
+      resolve(result);
+    }
   });
 }
 

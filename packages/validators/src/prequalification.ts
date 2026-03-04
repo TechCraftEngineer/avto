@@ -509,8 +509,8 @@ export const personalInfoSchema = z.object({
   whatsapp: z.string().max(50).optional(),
   location: z.string().max(200).optional(),
   birthDate: z.string().optional(),
-  /** "male", "female", "other" */
-  gender: z.enum(["male", "female", "other"]).optional(),
+  /** "male", "female" */
+  gender: z.enum(["male", "female"]).optional(),
   /** Гражданство (важно для оформления) */
   citizenship: z.string().max(100).optional(),
 });

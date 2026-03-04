@@ -423,7 +423,14 @@ async function importToVacancy(
   let resumeTextHtml: string | undefined;
 
   if (rawSource === "LINKEDIN" && typeof document !== "undefined") {
-    const photoSrc = data.basicInfo?.photoUrl;
+    const photoImg = document.querySelector<HTMLImageElement>(
+      'figure[data-view-name="image"] img',
+    );
+    const photoSrc =
+      photoImg?.src ||
+      photoImg?.getAttribute("src") ||
+      photoImg?.getAttribute("data-delayed-url") ||
+      data.basicInfo?.photoUrl;
     if (
       photoSrc &&
       !photoSrc.includes("placeholder") &&
@@ -490,25 +497,74 @@ async function importToVacancy(
   }
 
   const telegram = extractTelegramFromSocialLinks(data.contacts?.socialLinks);
+  const { getExtensionApiUrl } = await import("../../config");
 
-  let aboutMe: string | undefined;
-  if (rawSource === "LINKEDIN" && typeof document !== "undefined") {
-    const { parseAbout } = await import("../../parsers/linkedin");
-    aboutMe = parseAbout(document) || undefined;
+  if (rawSource === "LINKEDIN") {
+    let aboutMe: string | undefined;
+    if (typeof document !== "undefined") {
+      const { parseAbout } = await import("../../parsers/linkedin");
+      aboutMe = parseAbout(document) || undefined;
+    }
+    const firstExp = data.experience?.[0];
+    const experienceHtml =
+      firstExp?.position === "" &&
+      firstExp?.description &&
+      firstExp.description.includes("<")
+        ? firstExp.description
+        : undefined;
+    const firstEdu = data.education?.[0];
+    const educationHtml =
+      firstEdu?.institution === "" &&
+      firstEdu?.fieldOfStudy &&
+      firstEdu.fieldOfStudy.includes("<")
+        ? firstEdu.fieldOfStudy
+        : undefined;
+
+    const linkedInBody = {
+      vacancyId,
+      ...(globalCandidateId ? { globalCandidateId } : {}),
+      freelancerName: data.basicInfo.fullName || undefined,
+      contactInfo: {
+        email: data.contacts?.email || undefined,
+        phone: data.contacts?.phone || undefined,
+        telegram: telegram || undefined,
+        platformProfileUrl: profileUrl,
+      },
+      responseText: responseText || "Импортировано из LinkedIn",
+      ...(photoUrl ? { photoUrl } : {}),
+      ...(experienceHtml ? { experienceHtml } : {}),
+      ...(educationHtml ? { educationHtml } : {}),
+      ...(aboutMe ? { aboutMe } : {}),
+      ...(data.skills?.length ? { skills: data.skills } : {}),
+      ...(profileUrl ? { profileUrl } : {}),
+    };
+
+    const resp = await chrome.runtime.sendMessage({
+      type: "API_REQUEST",
+      payload: {
+        url: getExtensionApiUrl("import-resume-linkedin"),
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: linkedInBody,
+      },
+    });
+
+    if (!resp?.success) {
+      throw new Error(resp?.error ?? "Ошибка импорта");
+    }
+    return;
   }
 
-  const profileDataForImport = buildProfileDataForImport(
-    data,
-    profileUrl,
-    aboutMe,
-  );
+  const profileDataForImport = buildProfileDataForImport(data, profileUrl);
   const hasStructuredData =
     profileDataForImport.experience?.length ||
     profileDataForImport.education?.length ||
     profileDataForImport.skills?.length ||
     profileDataForImport.aboutMe;
 
-  const { getExtensionApiUrl } = await import("../../config");
   const body: Record<string, unknown> = {
     vacancyId,
     ...(globalCandidateId ? { globalCandidateId } : {}),

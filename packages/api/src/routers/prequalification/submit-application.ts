@@ -168,7 +168,6 @@ export const submitApplication = publicProcedure
                 gender: pi.gender?.toLowerCase() as
                   | "male"
                   | "female"
-                  | "other"
                   | undefined,
                 citizenship: pi.citizenship,
               }),

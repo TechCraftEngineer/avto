@@ -8,6 +8,7 @@ import { handleCheckDuplicateCandidate } from "./routes/check-duplicate-candidat
 import { hhImportRouter } from "./routes/hh-import";
 import { handleImportCandidateGlobal } from "./routes/import-candidate-global";
 import { handleImportResume } from "./routes/import-resume";
+import { handleImportResumeLinkedIn } from "./routes/import-resume-linkedin";
 import { organizationsRouter } from "./routes/organizations";
 import { vacanciesRouter } from "./routes/vacancies";
 import { workspacesRouter } from "./routes/workspaces";
@@ -40,6 +41,7 @@ protectedRoutes.post(
 );
 protectedRoutes.post("/import-candidate-global", handleImportCandidateGlobal);
 protectedRoutes.post("/import-resume", handleImportResume);
+protectedRoutes.post("/import-resume-linkedin", handleImportResumeLinkedIn);
 protectedRoutes.route("/organizations", organizationsRouter);
 protectedRoutes.route("/vacancies", vacanciesRouter);
 protectedRoutes.route("/workspaces", workspacesRouter);

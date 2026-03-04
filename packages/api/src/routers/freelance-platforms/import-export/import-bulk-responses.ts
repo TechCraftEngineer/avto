@@ -9,6 +9,7 @@ import { protectedProcedure } from "../../../orpc";
 import { ContactCandidateSyncService } from "../../../services/contact-candidate-sync.service";
 import { ResponseParser } from "../../../services/response-parser";
 import { createErrorHandler } from "../../../utils/error-handler";
+import { truncateCoverLetter } from "../../../utils/truncate-cover-letter";
 
 const importBulkResponsesInputSchema = z.object({
   vacancyId: z.uuid(),
@@ -194,9 +195,7 @@ export const importBulkResponses = protectedProcedure
               entityType: "vacancy",
               candidateId: parsed.contactInfo.platformProfile,
               candidateName: parsed.freelancerName,
-              coverLetter: parsed.responseText
-                ? parsed.responseText.slice(0, 2000)
-                : null,
+              coverLetter: truncateCoverLetter(parsed.responseText),
               importSource: input.platformSource,
               profileUrl: parsed.contactInfo.platformProfile,
               phone: parsed.contactInfo.phone,

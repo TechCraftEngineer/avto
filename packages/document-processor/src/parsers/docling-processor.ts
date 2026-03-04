@@ -1,4 +1,5 @@
 import { env } from "@qbs-autonaim/config";
+import { z } from "zod";
 import {
   type DoclingConfig,
   type DoclingResult,
@@ -30,6 +31,20 @@ interface DoclingServiceResponse {
   status?: "success" | "partial_success" | "skipped" | "failure";
   errors?: string[];
 }
+
+const DoclingServiceResponseSchema = z.object({
+  document: z
+    .object({
+      text_content: z.string().optional(),
+      md_content: z.string().optional(),
+      html_content: z.string().optional(),
+    })
+    .optional(),
+  status: z
+    .enum(["success", "partial_success", "skipped", "failure"])
+    .optional(),
+  errors: z.array(z.string()).optional(),
+});
 
 /**
  * Document processor using Docling library
@@ -129,7 +144,25 @@ export class DoclingProcessor implements FormatParser {
           await this.handleErrorResponse(response);
         }
 
-        const data = (await response.json()) as DoclingServiceResponse;
+        const raw = await response.json();
+        const parseResult = DoclingServiceResponseSchema.safeParse(raw);
+        if (!parseResult.success) {
+          throw new DocumentProcessingError(
+            DocumentProcessingErrorCode.CORRUPTED_FILE,
+            "Некорректный ответ от Docling API. Не удалось распарсить результат.",
+            { filename, parseError: parseResult.error.message },
+          );
+        }
+        const data = parseResult.data;
+
+        // Сначала проверяем явный failure — иначе пустой текст может маскировать его
+        if (data.status === "failure" && (data.errors?.length ?? 0) > 0) {
+          throw new DocumentProcessingError(
+            DocumentProcessingErrorCode.CORRUPTED_FILE,
+            (data.errors ?? []).join("; "),
+            { filename },
+          );
+        }
 
         const text =
           data.document?.text_content ??
@@ -141,14 +174,6 @@ export class DoclingProcessor implements FormatParser {
           throw new DocumentProcessingError(
             DocumentProcessingErrorCode.EMPTY_CONTENT,
             "Документ не содержит текста. Возможно, это отсканированный документ без текстового слоя.",
-            { filename },
-          );
-        }
-
-        if (data.status === "failure" && (data.errors?.length ?? 0) > 0) {
-          throw new DocumentProcessingError(
-            DocumentProcessingErrorCode.CORRUPTED_FILE,
-            (data.errors ?? []).join("; "),
             { filename },
           );
         }

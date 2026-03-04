@@ -2,14 +2,11 @@
  * Агент для структурирования резюме
  *
  * Извлекает структурированные данные из сырого текста резюме.
+ *
+ * Схема сделана толерантной к вариативным ответам LLM (null, пустые строки,
+ * неверные enum), чтобы избежать AI_NoObjectGeneratedError при parseResume.
  */
 
-import {
-  educationSchema,
-  languageSchema,
-  personalInfoSchema,
-  workExperienceSchema,
-} from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { type AgentConfig, BaseAgent } from "../core/base-agent";
 import { AgentType } from "../core/types";
@@ -18,13 +15,48 @@ export interface ResumeStructurerInput {
   rawText: string;
 }
 
+/** Толерантная схема: z.email() и transform часто ломают structured output */
+const aiPersonalInfoSchema = z.object({
+  name: z.string().max(200).nullish(),
+  email: z.string().max(500).nullish(),
+  phone: z.string().max(50).nullish(),
+  telegram: z.string().max(100).nullish(),
+  whatsapp: z.string().max(50).nullish(),
+  location: z.string().max(200).nullish(),
+  birthDate: z.string().nullish(),
+  gender: z.enum(["male", "female"]).optional().catch(undefined),
+  citizenship: z.string().max(100).nullish(),
+});
+
+const aiWorkExperienceSchema = z.object({
+  company: z.string().max(200).default(""),
+  position: z.string().max(200).default(""),
+  startDate: z.string().max(50).nullish(),
+  endDate: z.string().max(50).nullish(),
+  description: z.string().max(5000).nullish(),
+  isCurrent: z.boolean().default(false).catch(false),
+});
+
+const aiEducationSchema = z.object({
+  institution: z.string().max(200).default(""),
+  degree: z.string().max(200).nullish(),
+  field: z.string().max(200).nullish(),
+  startDate: z.string().nullish(),
+  endDate: z.string().nullish(),
+});
+
+const aiLanguageSchema = z.object({
+  name: z.string().max(50).default(""),
+  level: z.string().max(50).nullish(),
+});
+
 const resumeStructurerOutputSchema = z.object({
-  personalInfo: personalInfoSchema,
-  experience: z.array(workExperienceSchema),
-  education: z.array(educationSchema),
-  skills: z.array(z.string().max(100)),
-  languages: z.array(languageSchema),
-  summary: z.string().max(5000).optional(),
+  personalInfo: aiPersonalInfoSchema.default({}),
+  experience: z.array(aiWorkExperienceSchema).default([]).catch([]),
+  education: z.array(aiEducationSchema).default([]).catch([]),
+  skills: z.array(z.string().max(100)).default([]).catch([]),
+  languages: z.array(aiLanguageSchema).default([]).catch([]),
+  summary: z.string().max(5000).nullish(),
 });
 
 export type ResumeStructurerOutput = z.infer<
@@ -49,7 +81,7 @@ export class ResumeStructurerAgent extends BaseAgent<
    - whatsapp: номер WhatsApp (обычно совпадает с телефоном, но может быть указан отдельно)
    - location: город проживания (например "Москва, м. Курская")
    - birthDate: дата рождения в формате ISO 8601 (YYYY-MM-DD)
-   - gender: пол — "male" (мужской), "female" (женский), "other" (другой). Ищи "Пол", "Мужчина", "Женщина"
+   - gender: пол — "male" (мужской), "female" (женский). Ищи "Пол", "Мужчина", "Женщина"
    - citizenship: гражданство (например "Российская Федерация", "Россия", "Украина"). Ищи "Гражданство"
 
    ВАЖНО для контактов:
