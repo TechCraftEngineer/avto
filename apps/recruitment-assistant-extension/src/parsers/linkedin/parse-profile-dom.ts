@@ -815,6 +815,63 @@ function parseContactsFromVisibleSection(doc: Document): {
 }
 
 /**
+ * Ожидает появления dialog/overlay в DOM.
+ */
+function waitForDialog(doc: Document, timeoutMs = 5000): Promise<boolean> {
+  return new Promise((resolve) => {
+    const check = () =>
+      doc.querySelector("dialog") ?? doc.querySelector("[role='dialog']");
+    if (check()) {
+      resolve(true);
+      return;
+    }
+    const observer = new MutationObserver(() => {
+      if (check()) {
+        observer.disconnect();
+        resolve(true);
+      }
+    });
+    observer.observe(doc.body, { childList: true, subtree: true });
+    setTimeout(() => {
+      observer.disconnect();
+      resolve(!!check());
+    }, timeoutMs);
+  });
+}
+
+/**
+ * Открывает модальное окно контактов LinkedIn (overlay/contact-info).
+ * Кликает по ссылке "Contact info" или переходит на overlay URL.
+ * Логика из joeyism/linkedin_scraper _get_contacts (person.py ~line 1024).
+ *
+ * @see https://www.linkedin.com/in/{username}/overlay/contact-info/
+ * @returns true если overlay открыт, false если не удалось
+ */
+export async function openContactInfoOverlay(
+  doc: Document = document,
+): Promise<boolean> {
+  if (doc.querySelector("dialog") ?? doc.querySelector("[role='dialog']")) {
+    return true;
+  }
+
+  const contactLink =
+    doc.querySelector<HTMLAnchorElement>('a[href*="overlay/contact-info"]') ??
+    doc.querySelector<HTMLAnchorElement>('a[href*="/overlay/contact-info/"]') ??
+    Array.from(doc.querySelectorAll<HTMLAnchorElement>("a")).find(
+      (a) =>
+        a.href?.includes("overlay/contact-info") &&
+        /contact|контакт|связь/i.test(a.textContent?.trim() ?? ""),
+    );
+
+  if (contactLink) {
+    contactLink.click();
+    return waitForDialog(doc);
+  }
+
+  return false;
+}
+
+/**
  * Извлекает контакты по логике joeyism/linkedin_scraper.
  * Сначала пробует overlay-диалог (dialog / [role="dialog"]) с секциями h3,
  * затем fallback на видимую секцию section.pv-contact-info.

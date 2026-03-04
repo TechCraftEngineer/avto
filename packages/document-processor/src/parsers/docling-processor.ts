@@ -92,11 +92,15 @@ export class DoclingProcessor implements FormatParser {
       });
       formData.append("files", blob, filename || "document");
 
-      // Docling-serve form parameters
-      formData.append("to_formats", "text");
+      // Docling-serve form parameters (см. POST /v1/convert/file в OpenAPI)
+      formData.append("to_formats", "text"); // API принимает строку или массив, парсит в ["text"]
       formData.append("do_ocr", this.config.enableOcr ? "true" : "false");
       formData.append("ocr_engine", "easyocr");
-      formData.append("ocr_lang", this.config.ocrLanguage);
+      // ocr_lang: API ожидает массив языков ["en","ru"] или пустой. "auto" поддерживается только в Tesseract.
+      // Для easyocr при "auto" не передаём — используется default (пустой массив).
+      if (this.config.ocrLanguage && this.config.ocrLanguage !== "auto") {
+        formData.append("ocr_lang", this.config.ocrLanguage);
+      }
 
       const controller = new AbortController();
       const timeoutId = setTimeout(
@@ -109,7 +113,6 @@ export class DoclingProcessor implements FormatParser {
         if (this.config.apiKey) {
           headers["X-Api-Key"] = this.config.apiKey;
         }
-
         const response = await fetch(
           `${this.config.apiUrl.replace(/\/$/, "")}/v1/convert/file`,
           {
@@ -246,6 +249,15 @@ export class DoclingProcessor implements FormatParser {
       throw new DocumentProcessingError(
         DocumentProcessingErrorCode.RATE_LIMITED,
         "Превышен лимит запросов к сервису обработки документов. Попробуйте позже.",
+      );
+    }
+
+    // 404: обычно неверный DOCLING_API_URL или Docling не на том хосте
+    if (response.status === 404) {
+      throw new DocumentProcessingError(
+        DocumentProcessingErrorCode.PROVIDER_UNAVAILABLE,
+        "Docling API не найден (404). Проверьте DOCLING_API_URL: при запуске в Docker используйте http://docling:5001, локально — http://localhost:8001.",
+        { status: 404, errorText, apiUrl: this.config.apiUrl },
       );
     }
 

@@ -61,6 +61,9 @@ export class DataExtractor {
     }
 
     try {
+      if (adapter.prepareForExtraction) {
+        await adapter.prepareForExtraction();
+      }
       const data = adapter.extractAll();
       return data;
     } catch (error) {
