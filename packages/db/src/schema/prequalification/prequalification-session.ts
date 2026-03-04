@@ -27,7 +27,7 @@ export interface ParsedResumePersonalInfo {
   phone?: string;
   location?: string;
   /** "male" | "female" (извлекается AI-парсером резюме) */
-  gender?: string;
+  gender?: "male" | "female";
   /** Гражданство (извлекается AI-парсером резюме) */
   citizenship?: string;
 }

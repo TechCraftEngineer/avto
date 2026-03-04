@@ -7,6 +7,7 @@
  * Адаптировано для content script (синхронный DOM, без навигации).
  */
 
+import DOMPurify from "dompurify";
 import { z } from "zod";
 import { ContactInfoSchema } from "../../shared/schemas";
 import type {
@@ -426,7 +427,28 @@ function parseNestedExperience(
   return result;
 }
 
-/** Убирает все атрибуты с элемента и его потомков, возвращает innerHTML «голых» тегов */
+/** Санитизирует HTML: удаляет опасные теги (script, style, iframe и т.д.), атрибуты-обработчики (on*), javascript:/data: в href/src */
+function sanitizeHtmlForStorage(dirty: string): string {
+  return DOMPurify.sanitize(dirty, {
+    ALLOWED_TAGS: [
+      "p",
+      "br",
+      "span",
+      "div",
+      "ul",
+      "ol",
+      "li",
+      "b",
+      "i",
+      "em",
+      "strong",
+    ],
+    ALLOWED_ATTR: [],
+    ALLOW_DATA_ATTR: false,
+  });
+}
+
+/** Убирает атрибуты с элемента и санитизирует HTML перед сохранением */
 function stripAttributesFromElement(el: Element): string {
   const clone = el.cloneNode(true) as Element;
   const walk = (node: Element) => {
@@ -439,7 +461,7 @@ function stripAttributesFromElement(el: Element): string {
     }
   };
   walk(clone);
-  return clone.innerHTML;
+  return sanitizeHtmlForStorage(clone.innerHTML);
 }
 
 /**

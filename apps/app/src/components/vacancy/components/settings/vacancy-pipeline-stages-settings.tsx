@@ -122,7 +122,7 @@ export function VacancyPipelineStagesSettings({
               <div className="space-y-2">
                 {stages.map((stage, index) => (
                   <SortableStageRow
-                    key={stage.id ?? stage.clientId ?? sortableIds[index]}
+                    key={sortableIds[index]}
                     stage={stage}
                     index={index}
                     onUpdate={handleUpdate}

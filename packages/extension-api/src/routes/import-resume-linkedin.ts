@@ -37,8 +37,8 @@ const bodySchema = z.object({
     .optional(),
   responseText: z
     .string()
-    .max(5000)
-    .transform((s) => s.slice(0, 5000)),
+    .max(2000)
+    .transform((s) => s.slice(0, 2000)),
   photoUrl: z
     .string()
     .regex(/^data:image\/(png|jpeg|jpg|gif|webp);base64,/, {
@@ -171,7 +171,9 @@ export async function handleImportResumeLinkedIn(c: Context) {
     resumeUrl: normalizedProfileUrl ?? null,
   });
 
-  const candidateId = normalizeCandidateId(rawProfileUrl);
+  const candidateId = normalizeCandidateId(
+    normalizedProfileUrl ?? rawProfileUrl,
+  );
 
   let globalCandidateId: string | null = input.globalCandidateId ?? null;
   if (!globalCandidateId) {
@@ -280,12 +282,20 @@ export async function handleImportResumeLinkedIn(c: Context) {
   const candidateName = input.freelancerName ?? "Кандидат";
 
   if (input.photoUrl) {
-    await processPhotoUpload(
-      input.photoUrl,
-      targetResponse.id,
-      resumeId,
-      candidateName,
-    );
+    try {
+      await processPhotoUpload(
+        input.photoUrl,
+        targetResponse.id,
+        resumeId,
+        candidateName,
+      );
+    } catch (photoErr) {
+      console.warn(
+        "[extension-api] import-resume-linkedin photo upload failed:",
+        { targetResponseId: targetResponse.id, resumeId, candidateName },
+        photoErr,
+      );
+    }
   }
 
   await db.insert(freelanceImportHistory).values({

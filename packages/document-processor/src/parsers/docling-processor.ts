@@ -155,11 +155,15 @@ export class DoclingProcessor implements FormatParser {
         }
         const data = parseResult.data;
 
-        // Сначала проверяем явный failure — иначе пустой текст может маскировать его
-        if (data.status === "failure" && (data.errors?.length ?? 0) > 0) {
+        // Любой failure должен вызывать ошибку (пустой errors — не игнорируем)
+        if (data.status === "failure") {
+          const message =
+            (data.errors?.length ?? 0) > 0
+              ? (data.errors ?? []).join("; ")
+              : "unknown error";
           throw new DocumentProcessingError(
             DocumentProcessingErrorCode.CORRUPTED_FILE,
-            (data.errors ?? []).join("; "),
+            message,
             { filename },
           );
         }
