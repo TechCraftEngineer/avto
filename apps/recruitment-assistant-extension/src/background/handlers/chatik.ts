@@ -5,6 +5,9 @@
 import { logError } from "../lib";
 import type { ServiceWorkerResponse } from "../types";
 
+const FETCH_TIMEOUT_MS = 15000;
+const MAX_PAGES = 100;
+
 const CHATIK_HEADERS = {
   Accept: "application/json, text/plain, */*",
   "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
@@ -38,16 +41,29 @@ export async function handleFetchChatikChats(
     let hasNextPage = true;
 
     while (hasNextPage) {
+      if (page >= MAX_PAGES) {
+        logError("Chatik API: exceeded max pagination iterations", { page });
+        throw new Error("Chatik API: exceeded max pagination iterations");
+      }
+
       const url = new URL("https://chatik.hh.ru/chatik/api/chats");
       url.searchParams.set("vacancyIds", vacancyExternalId);
       url.searchParams.set("filterUnread", "false");
       url.searchParams.set("do_not_track_session_events", "true");
       url.searchParams.set("page", String(page));
 
-      const response = await fetch(url.toString(), {
-        credentials: "include",
-        headers: CHATIK_HEADERS,
-      });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+      let response: Response;
+      try {
+        response = await fetch(url.toString(), {
+          credentials: "include",
+          headers: CHATIK_HEADERS,
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
 
       if (!response.ok) {
         throw new Error(
@@ -98,10 +114,18 @@ export async function handleFetchChatikSearch(
       url.searchParams.set("vacancyIds", vacancyExternalId.trim());
     }
 
-    const response = await fetch(url.toString(), {
-      credentials: "include",
-      headers: CHATIK_HEADERS,
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+    let response: Response;
+    try {
+      response = await fetch(url.toString(), {
+        credentials: "include",
+        headers: CHATIK_HEADERS,
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
       throw new Error(

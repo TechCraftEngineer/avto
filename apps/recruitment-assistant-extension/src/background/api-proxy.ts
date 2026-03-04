@@ -41,25 +41,34 @@ export async function proxyApiRequest(
     }
 
     const headers: HeadersInit = { ...request.headers };
-    if (request.body && ["POST", "PUT", "PATCH"].includes(request.method)) {
-      (headers as Record<string, string>)["Content-Type"] = "application/json";
-    }
-
     const fetchOptions: RequestInit = {
       method: request.method,
       headers,
     };
 
-    if (request.body && ["POST", "PUT", "PATCH"].includes(request.method)) {
-      fetchOptions.body = JSON.stringify(request.body);
+    if (
+      request.body != null &&
+      ["POST", "PUT", "PATCH"].includes(request.method)
+    ) {
+      if (typeof request.body === "string") {
+        fetchOptions.body = request.body;
+      } else {
+        (headers as Record<string, string>)["Content-Type"] =
+          "application/json";
+        fetchOptions.body = JSON.stringify(request.body);
+      }
     }
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     fetchOptions.signal = controller.signal;
 
-    const response = await fetch(request.url, fetchOptions);
-    clearTimeout(timeoutId);
+    let response: Response;
+    try {
+      response = await fetch(request.url, fetchOptions);
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     let data: unknown;
     const contentType = response.headers.get("content-type");

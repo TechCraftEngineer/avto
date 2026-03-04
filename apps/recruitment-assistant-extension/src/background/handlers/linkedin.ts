@@ -14,9 +14,10 @@ function extractFromTab(url: string, selectors: string[]): Promise<string[]> {
       }
       const tabId = tab.id;
       const timeout = setTimeout(() => {
+        chrome.tabs.onUpdated.removeListener(onUpdated);
         chrome.tabs.remove(tabId).catch(() => {});
         resolve([]);
-      }, 15000);
+      }, 20000);
       const onUpdated = (id: number, info: { status?: string }) => {
         if (id !== tabId || info.status !== "complete") return;
         chrome.tabs.onUpdated.removeListener(onUpdated);
@@ -24,16 +25,39 @@ function extractFromTab(url: string, selectors: string[]): Promise<string[]> {
           chrome.scripting
             .executeScript({
               target: { tabId },
-              func: (sels: string[]) => {
+              func: async (sels: string[]) => {
+                const MIN_CONTENT_LENGTH = 50;
+                const POLL_INTERVAL_MS = 400;
+                const MAX_WAIT_MS = 8000;
+
+                function hasContent(el: Element): boolean {
+                  const text = (el.textContent ?? "").trim();
+                  return text.length >= MIN_CONTENT_LENGTH;
+                }
+
+                async function waitForElementWithContent(
+                  sel: string,
+                ): Promise<Element | null> {
+                  const start = Date.now();
+                  while (Date.now() - start < MAX_WAIT_MS) {
+                    const el = document.querySelector(sel);
+                    if (el && hasContent(el)) return el;
+                    await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+                  }
+                  return document.querySelector(sel);
+                }
+
                 const results: string[] = [];
                 for (const sel of sels) {
-                  const el = document.querySelector(sel);
+                  const el = await waitForElementWithContent(sel);
                   if (el) {
                     const match = sel.match(/\[data-testid="lazy-column"\]/);
                     if (match) {
                       const cols = document.querySelectorAll(sel);
                       const parts: string[] = [];
-                      cols.forEach((c) => parts.push(c.outerHTML));
+                      cols.forEach((c) => {
+                        parts.push(c.outerHTML);
+                      });
                       results.push(
                         parts.length ? `<div>${parts.join("")}</div>` : "",
                       );
@@ -58,7 +82,7 @@ function extractFromTab(url: string, selectors: string[]): Promise<string[]> {
               chrome.tabs.remove(tabId).catch(() => {});
               reject(err);
             });
-        }, 2500);
+        }, 3000);
       };
       chrome.tabs.onUpdated.addListener(onUpdated);
     });
@@ -81,6 +105,7 @@ export async function handleFetchLinkedInDetails(
       experience: `${baseUrl}/in/${username}/details/experience/`,
       education: `${baseUrl}/in/${username}/details/education/`,
       skills: `${baseUrl}/in/${username}/details/skills/`,
+      contactInfo: `${baseUrl}/in/${username}/overlay/contact-info/`,
     };
 
     const expHtml =
@@ -99,6 +124,12 @@ export async function handleFetchLinkedInDetails(
       (
         await extractFromTab(urls.skills, ['div[data-testid="lazy-column"]'])
       )[0] ?? "";
+    const contactInfoHtml =
+      (
+        await extractFromTab(urls.contactInfo, [
+          'div[data-view-name="profile-contact-info-details-view"]',
+        ])
+      )[0] ?? "";
 
     sendResponse({
       success: true,
@@ -106,6 +137,7 @@ export async function handleFetchLinkedInDetails(
         experienceHtml: expHtml || undefined,
         educationHtml: eduHtml || undefined,
         skillsHtml: skillsHtml || undefined,
+        contactInfoHtml: contactInfoHtml || undefined,
       },
     });
   } catch (err) {

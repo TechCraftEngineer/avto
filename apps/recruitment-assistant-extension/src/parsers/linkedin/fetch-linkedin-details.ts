@@ -5,8 +5,13 @@
  * Вызывать из content script на linkedin.com.
  */
 
-import type { EducationEntry, ExperienceEntry } from "../../shared/types";
+import type {
+  ContactInfo,
+  EducationEntry,
+  ExperienceEntry,
+} from "../../shared/types";
 import {
+  parseContactsFromContactInfoHtml,
   parseEducations,
   parseExperiences,
   parseSkills,
@@ -18,6 +23,7 @@ export interface LinkedInDetailsResult {
   education: EducationEntry[];
   skills: string[];
   skillsHtml: string | null;
+  contactInfo: ContactInfo | null;
 }
 
 /**
@@ -38,9 +44,14 @@ export async function fetchLinkedInDetails(
     ? window.location.pathname
     : "",
 ): Promise<LinkedInDetailsResult | null> {
-  const pathname = profilePathOrUrl.startsWith("/")
-    ? profilePathOrUrl
-    : new URL(profilePathOrUrl, "https://linkedin.com").pathname;
+  let pathname: string;
+  try {
+    pathname = profilePathOrUrl.startsWith("/")
+      ? profilePathOrUrl
+      : new URL(profilePathOrUrl, "https://linkedin.com").pathname;
+  } catch {
+    return null;
+  }
   const username = getUsernameFromPath(pathname);
   if (!username) return null;
 
@@ -52,17 +63,20 @@ export async function fetchLinkedInDetails(
 
     if (!resp?.success || !resp.data) return null;
 
-    const { experienceHtml, educationHtml, skillsHtml } = resp.data as {
-      experienceHtml?: string;
-      educationHtml?: string;
-      skillsHtml?: string;
-    };
+    const { experienceHtml, educationHtml, skillsHtml, contactInfoHtml } =
+      resp.data as {
+        experienceHtml?: string;
+        educationHtml?: string;
+        skillsHtml?: string;
+        contactInfoHtml?: string;
+      };
 
     const result: LinkedInDetailsResult = {
       experience: [],
       education: [],
       skills: [],
       skillsHtml: null,
+      contactInfo: null,
     };
 
     if (experienceHtml) {
@@ -91,6 +105,11 @@ export async function fetchLinkedInDetails(
       const skills = parseSkills(doc);
       if (skills.length > 0) result.skills = skills;
       result.skillsHtml = parseSkillsHtml(doc) ?? skillsHtml;
+    }
+
+    if (contactInfoHtml) {
+      const contact = parseContactsFromContactInfoHtml(contactInfoHtml);
+      if (contact) result.contactInfo = contact;
     }
 
     return result;

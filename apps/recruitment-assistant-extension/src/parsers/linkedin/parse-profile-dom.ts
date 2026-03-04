@@ -848,24 +848,19 @@ function mapContactHeadingToType(
 }
 
 /**
- * Парсинг контактов из overlay-диалога (dialog / [role="dialog"]).
- * Логика из joeyism/linkedin_scraper _get_contacts (person.py ~line 1024).
- * Диалог появляется при клике на "Contact info" или навигации на overlay/contact-info/.
+ * Парсинг контактов из контейнера с секциями h3 (Email, Phone, Websites).
+ * Используется для dialog и div[data-view-name="profile-contact-info-details-view"].
  */
-function parseContactsFromDialog(doc: Document): {
+function parseContactSectionsFromContainer(container: Element): {
   email: string | null;
   phone: string | null;
   socialLinks: string[];
 } {
-  const dialog =
-    doc.querySelector("dialog") ?? doc.querySelector("[role='dialog']") ?? null;
-  if (!dialog) return { email: null, phone: null, socialLinks: [] };
-
   let emailRaw: string | null = null;
   let phoneRaw: string | null = null;
   const socialLinks: string[] = [];
 
-  const h3Elements = dialog.querySelectorAll("h3");
+  const h3Elements = container.querySelectorAll("h3");
   h3Elements.forEach((sectionHeading) => {
     const headingText = sectionHeading.textContent?.trim().toLowerCase() ?? "";
     const contactType = mapContactHeadingToType(headingText);
@@ -910,6 +905,22 @@ function parseContactsFromDialog(doc: Document): {
   });
 
   return { email: emailRaw, phone: phoneRaw, socialLinks };
+}
+
+/**
+ * Парсинг контактов из overlay-диалога (dialog / [role="dialog"]).
+ * Логика из joeyism/linkedin_scraper _get_contacts (person.py ~line 1024).
+ * Диалог появляется при клике на "Contact info" или навигации на overlay/contact-info/.
+ */
+function parseContactsFromDialog(doc: Document): {
+  email: string | null;
+  phone: string | null;
+  socialLinks: string[];
+} {
+  const dialog =
+    doc.querySelector("dialog") ?? doc.querySelector("[role='dialog']") ?? null;
+  if (!dialog) return { email: null, phone: null, socialLinks: [] };
+  return parseContactSectionsFromContainer(dialog);
 }
 
 /**
@@ -1021,6 +1032,35 @@ export async function openContactInfoOverlay(
   }
 
   return false;
+}
+
+/**
+ * Парсинг контактов из HTML overlay/contact-info страницы.
+ * Селектор div[data-view-name="profile-contact-info-details-view"].
+ */
+export function parseContactsFromContactInfoHtml(
+  html: string,
+): ContactInfo | null {
+  if (!html?.trim()) return null;
+  const doc = new DOMParser().parseFromString(
+    `<body>${html}</body>`,
+    "text/html",
+  );
+  const container =
+    doc.querySelector('[data-view-name="profile-contact-info-details-view"]') ??
+    doc.body;
+  const parsed = parseContactSectionsFromContainer(container);
+  const email = parsed.email ?? null;
+  const phoneVal = parsed.phone;
+  const phone = phoneVal && phoneVal.length > 0 ? phoneVal : null;
+  const socialLinks = parsed.socialLinks ?? [];
+  const result = ContactInfoSchema.safeParse({
+    email,
+    phone,
+    socialLinks,
+  });
+  if (!result.success) return null;
+  return result.data;
 }
 
 /**

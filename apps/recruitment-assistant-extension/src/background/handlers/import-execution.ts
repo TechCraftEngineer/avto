@@ -31,18 +31,19 @@ async function injectAndSend(
   message: { type: string; payload?: Record<string, unknown> },
 ): Promise<ServiceWorkerResponse> {
   const { scriptPath, cssPath } = getScriptPaths(kind);
-  if (scriptPath) {
-    if (cssPath && kind === "profile") {
-      await chrome.scripting.insertCSS({
-        target: { tabId },
-        files: [cssPath],
-      });
-    }
-    await chrome.scripting.executeScript({
+  if (!scriptPath) {
+    throw new Error(`Script path not found for kind: ${kind}`);
+  }
+  if (cssPath && kind === "profile") {
+    await chrome.scripting.insertCSS({
       target: { tabId },
-      files: [scriptPath],
+      files: [cssPath],
     });
   }
+  await chrome.scripting.executeScript({
+    target: { tabId },
+    files: [scriptPath],
+  });
   const resp = await chrome.tabs.sendMessage(tabId, message);
   return resp ?? { ok: false, error: "Нет ответа" };
 }

@@ -44,7 +44,14 @@ async function fetchLinkedInPhoto(
       photoSrc!,
     );
     return `data:${contentType};base64,${base64}`;
-  } catch {
+  } catch (err) {
+    console.error(
+      "[fetchLinkedInPhoto] fetchImageAsBase64ViaExtension failed",
+      {
+        photoSrc,
+        err,
+      },
+    );
     return undefined;
   }
 }
@@ -73,8 +80,11 @@ async function fetchHHAssets(
     try {
       const { base64, contentType } = await fetchPhotoAsBase64(photoSrc!);
       result.photoUrl = `data:${contentType};base64,${base64}`;
-    } catch {
-      // Продолжаем без фото
+    } catch (err) {
+      console.error("[fetchHHAssets] fetchPhotoAsBase64 failed", {
+        photoSrc,
+        err,
+      });
     }
   }
 
@@ -84,8 +94,12 @@ async function fetchHHAssets(
       candidateName,
       { baseOrigin: window.location.origin },
     );
-  } catch {
-    // Продолжаем без HTML
+  } catch (err) {
+    console.error("[fetchHHAssets] fetchResumeTextHtml failed", {
+      profileUrl,
+      candidateName,
+      err,
+    });
   }
 
   const pdfUrl = getResumePdfUrl(profileUrl, candidateName);
@@ -93,8 +107,11 @@ async function fetchHHAssets(
     try {
       const { base64 } = await fetchResumePdfAsBase64(pdfUrl);
       result.resumePdfBase64 = base64;
-    } catch {
-      // Продолжаем без PDF
+    } catch (err) {
+      console.error("[fetchHHAssets] fetchResumePdfAsBase64 failed", {
+        pdfUrl,
+        err,
+      });
     }
   }
 

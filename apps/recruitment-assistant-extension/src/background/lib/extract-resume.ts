@@ -6,7 +6,7 @@
  */
 export function extractDivResume(html: string): string | null {
   const openMatch = html.match(
-    /<div[^>]*\bclass=["']resume(\s+[^"']*)?["'][^>]*>/i,
+    /<div[^>]*\bclass\s*=\s*["'](?=[^"']*\bresume\b)[^"']*["'][^>]*>/i,
   );
   if (!openMatch) return null;
   const openTag = openMatch[0];
