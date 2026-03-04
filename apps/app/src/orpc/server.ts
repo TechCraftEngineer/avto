@@ -18,7 +18,7 @@ const createServerContext = cache(async () => {
 
   return createContext({
     headers: heads,
-    auth: auth as Auth,
+    auth,
   });
 });
 /**

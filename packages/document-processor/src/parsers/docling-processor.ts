@@ -2,7 +2,6 @@ import { env } from "@qbs-autonaim/config";
 import {
   type DoclingConfig,
   type DoclingResult,
-  type DocumentElement,
   DocumentProcessingError,
   DocumentProcessingErrorCode,
   type FormatParser,
@@ -19,22 +18,17 @@ interface DoclingServiceConfig extends DoclingConfig {
 }
 
 /**
- * Response from Docling service
+ * Response from Docling v1 API (/v1/convert/file)
+ * @see https://github.com/docling-project/docling-serve
  */
 interface DoclingServiceResponse {
-  text: string;
-  metadata?: {
-    page_count?: number;
-    title?: string;
-    author?: string;
-    created_at?: string;
+  document?: {
+    text_content?: string;
+    md_content?: string;
+    html_content?: string;
   };
-  elements?: Array<{
-    type: string;
-    content: string;
-    level?: number;
-    rows?: string[][];
-  }>;
+  status?: "success" | "partial_success" | "skipped" | "failure";
+  errors?: string[];
 }
 
 /**
@@ -48,7 +42,8 @@ export class DoclingProcessor implements FormatParser {
 
   constructor(config?: DoclingServiceConfig) {
     this.config = {
-      apiUrl: config?.apiUrl || env.DOCLING_API_URL || "http://localhost:8080",
+      // Docling-serve listens on 5001, Docker maps 8001:5001
+      apiUrl: config?.apiUrl || env.DOCLING_API_URL || "http://localhost:8001",
       apiKey: config?.apiKey || env.DOCLING_API_KEY || "",
       timeout: config?.timeout || 30000,
       enableOcr: config?.enableOcr ?? true,
@@ -89,22 +84,20 @@ export class DoclingProcessor implements FormatParser {
       // Validate file format
       this.validateFormat(filename);
 
-      // Prepare form data
+      // Prepare form data for docling-serve /v1/convert/file API
       const formData = new FormData();
-      // Convert Buffer to Uint8Array for Blob
       const uint8Array = new Uint8Array(content);
       const blob = new Blob([uint8Array], {
         type: this.getMimeType(filename),
       });
-      formData.append("file", blob, filename || "document");
+      formData.append("files", blob, filename || "document");
 
-      // Add configuration options
-      if (this.config.enableOcr) {
-        formData.append("enable_ocr", "true");
-        formData.append("ocr_language", this.config.ocrLanguage);
-      }
+      // Docling-serve form parameters
+      formData.append("to_formats", "text");
+      formData.append("do_ocr", this.config.enableOcr ? "true" : "false");
+      formData.append("ocr_engine", "easyocr");
+      formData.append("ocr_lang", this.config.ocrLanguage);
 
-      // Setup request with timeout
       const controller = new AbortController();
       const timeoutId = setTimeout(
         () => controller.abort(),
@@ -114,15 +107,18 @@ export class DoclingProcessor implements FormatParser {
       try {
         const headers: Record<string, string> = {};
         if (this.config.apiKey) {
-          headers.Authorization = `Bearer ${this.config.apiKey}`;
+          headers["X-Api-Key"] = this.config.apiKey;
         }
 
-        const response = await fetch(`${this.config.apiUrl}/parse`, {
-          method: "POST",
-          headers,
-          body: formData,
-          signal: controller.signal,
-        });
+        const response = await fetch(
+          `${this.config.apiUrl.replace(/\/$/, "")}/v1/convert/file`,
+          {
+            method: "POST",
+            headers,
+            body: formData,
+            signal: controller.signal,
+          },
+        );
 
         clearTimeout(timeoutId);
 
@@ -132,8 +128,13 @@ export class DoclingProcessor implements FormatParser {
 
         const data = (await response.json()) as DoclingServiceResponse;
 
-        // Validate response has content
-        if (!data.text || data.text.trim().length === 0) {
+        const text =
+          data.document?.text_content ??
+          data.document?.md_content ??
+          data.document?.html_content ??
+          "";
+
+        if (!text || text.trim().length === 0) {
           throw new DocumentProcessingError(
             DocumentProcessingErrorCode.EMPTY_CONTENT,
             "Документ не содержит текста. Возможно, это отсканированный документ без текстового слоя.",
@@ -141,8 +142,15 @@ export class DoclingProcessor implements FormatParser {
           );
         }
 
-        // Convert response to DoclingResult
-        return this.convertResponse(data);
+        if (data.status === "failure" && (data.errors?.length ?? 0) > 0) {
+          throw new DocumentProcessingError(
+            DocumentProcessingErrorCode.CORRUPTED_FILE,
+            data.errors!.join("; "),
+            { filename },
+          );
+        }
+
+        return this.convertResponse({ text, data });
       } catch (error) {
         clearTimeout(timeoutId);
 
@@ -250,64 +258,20 @@ export class DoclingProcessor implements FormatParser {
   }
 
   /**
-   * Converts Docling service response to DoclingResult
+   * Converts Docling v1 API response to DoclingResult.
+   * Docling /v1/convert/file returns flat text/md/html, not structured elements.
    */
-  private convertResponse(data: DoclingServiceResponse): DoclingResult {
-    const elements: DocumentElement[] = [];
-
-    if (data.elements) {
-      for (const el of data.elements) {
-        const element: DocumentElement = {
-          type: this.normalizeElementType(el.type),
-          content: el.content,
-        };
-
-        if (el.level !== undefined) {
-          element.level = el.level;
-        }
-
-        if (el.rows) {
-          element.rows = el.rows;
-        }
-
-        elements.push(element);
-      }
-    }
-
+  private convertResponse({
+    text,
+  }: {
+    text: string;
+    data: DoclingServiceResponse;
+  }): DoclingResult {
     return {
-      text: data.text,
-      metadata: {
-        pageCount: data.metadata?.page_count,
-        title: data.metadata?.title,
-        author: data.metadata?.author,
-        createdAt: data.metadata?.created_at
-          ? new Date(data.metadata.created_at)
-          : undefined,
-      },
-      elements,
+      text,
+      metadata: {},
+      elements: [],
     };
-  }
-
-  /**
-   * Normalizes element type from Docling response
-   */
-  private normalizeElementType(type: string): DocumentElement["type"] {
-    const normalized = type.toLowerCase();
-
-    if (normalized.includes("heading") || normalized.includes("title")) {
-      return "heading";
-    }
-    if (normalized.includes("list")) {
-      return "list";
-    }
-    if (normalized.includes("table")) {
-      return "table";
-    }
-    if (normalized.includes("image") || normalized.includes("figure")) {
-      return "image";
-    }
-
-    return "paragraph";
   }
 
   /**

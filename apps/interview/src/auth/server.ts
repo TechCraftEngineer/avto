@@ -1,4 +1,4 @@
-import { initAuth } from "@qbs-autonaim/auth";
+import { type Auth, initAuth } from "@qbs-autonaim/auth";
 import { env } from "@qbs-autonaim/config";
 import {
   OtpSignInEmail,
@@ -23,7 +23,7 @@ if (!authSecret) {
   );
 }
 
-export const auth = initAuth({
+export const auth: Auth = initAuth({
   baseUrl,
   productionUrl: env.APP_URL ?? "http://localhost:3000",
   // Передаем secret только если BETTER_AUTH_SECRET не установлен

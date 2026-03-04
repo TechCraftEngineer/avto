@@ -631,60 +631,13 @@ chrome.runtime.onMessage.addListener(
             const response = await fetch(url, {
               credentials: "include",
               headers: { Accept: "image/*" },
+              redirect: "error",
             });
 
             if (!response.ok) {
               throw new Error(
                 `HTTP ${response.status}: ${response.statusText}`,
               );
-            }
-
-            const finalUrl = response.url;
-            if (finalUrl) {
-              let finalParsed: URL;
-              try {
-                finalParsed = new URL(finalUrl);
-              } catch {
-                log("FETCH_IMAGE blocked: invalid final URL after redirect", {
-                  url,
-                  finalUrl,
-                });
-                sendResponse({
-                  success: false,
-                  error: "Неверный или запрещённый URL",
-                });
-                return;
-              }
-              if (
-                finalParsed.protocol !== "http:" &&
-                finalParsed.protocol !== "https:"
-              ) {
-                log("FETCH_IMAGE blocked: invalid protocol after redirect", {
-                  url,
-                  finalUrl,
-                });
-                sendResponse({
-                  success: false,
-                  error: "Неверный или запрещённый URL",
-                });
-                return;
-              }
-              const finalHost = finalParsed.hostname.toLowerCase();
-              if (!isImageHostAllowed(finalHost)) {
-                log(
-                  "FETCH_IMAGE blocked: host not in allowlist after redirect",
-                  {
-                    url,
-                    finalUrl,
-                    host: finalHost,
-                  },
-                );
-                sendResponse({
-                  success: false,
-                  error: "Неверный или запрещённый URL",
-                });
-                return;
-              }
             }
 
             const buffer = await response.arrayBuffer();

@@ -194,7 +194,9 @@ export const importBulkResponses = protectedProcedure
               entityType: "vacancy",
               candidateId: parsed.contactInfo.platformProfile,
               candidateName: parsed.freelancerName,
-              coverLetter: parsed.responseText,
+              coverLetter: parsed.responseText
+                ? parsed.responseText.slice(0, 2000)
+                : null,
               importSource: input.platformSource,
               profileUrl: parsed.contactInfo.platformProfile,
               phone: parsed.contactInfo.phone,
