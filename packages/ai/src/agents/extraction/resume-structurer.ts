@@ -59,8 +59,11 @@ const resumeStructurerOutputSchema = z.object({
   summary: z.string().max(5000).nullish(),
 });
 
+/** Полный текст резюме от Docling. HH-профили с оценками/скринингом могут быть 100k+ символов. */
+const AI_INPUT_MAX_CHARS = 150_000;
+
 const inputSchema = z.object({
-  rawText: z.string().min(1).max(2000),
+  rawText: z.string().min(1).max(AI_INPUT_MAX_CHARS),
 });
 
 export type ResumeStructurerOutput = z.infer<
@@ -164,7 +167,7 @@ export class ResumeStructurerAgent extends BaseAgent<
     const parsed = inputSchema.safeParse(input);
     const rawText = parsed.success
       ? parsed.data.rawText
-      : String(input.rawText ?? "").slice(0, 2000);
+      : String(input.rawText ?? "").slice(0, AI_INPUT_MAX_CHARS);
     const cleaned = rawText
       .split("")
       .map((c) => {

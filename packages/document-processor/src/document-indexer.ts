@@ -25,7 +25,7 @@ export class DocumentIndexer {
   constructor(config: IndexerConfig) {
     // Initialize Docling parser
     this.parser = new DoclingProcessor({
-      timeout: 30000,
+      timeout: 180000,
       enableOcr: true,
     });
 

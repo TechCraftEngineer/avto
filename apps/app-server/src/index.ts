@@ -185,4 +185,8 @@ console.log(
 export default {
   port,
   fetch: app.fetch,
+  // Длинные запросы (parseResume: Docling + LLM) могут занимать 60–90 сек.
+  // По умолчанию Bun закрывает соединение через 10 сек «неактивности»,
+  // включая время, пока handler ещё не отправил ни байта. max 255.
+  idleTimeout: 120,
 };

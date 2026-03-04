@@ -4,10 +4,10 @@
 
 import { ORPCError } from "@orpc/server";
 import {
-  CreateGlobalCandidateSchema,
   GlobalCandidateRepository,
   workspace as workspaceSchema,
 } from "@qbs-autonaim/db";
+import { createGlobalCandidateFormSchema } from "@qbs-autonaim/validators";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import {
@@ -18,28 +18,7 @@ import {
 import { CandidateService } from "../../services/candidate.service";
 
 const createInputSchema = workspaceInputSchema.merge(
-  CreateGlobalCandidateSchema.pick({
-    fullName: true,
-    firstName: true,
-    lastName: true,
-    middleName: true,
-    email: true,
-    phone: true,
-    telegramUsername: true,
-    headline: true,
-    location: true,
-    birthDate: true,
-    gender: true,
-    citizenship: true,
-    skills: true,
-    experienceYears: true,
-    salaryExpectationsAmount: true,
-    workFormat: true,
-    englishLevel: true,
-    readyForRelocation: true,
-    notes: true,
-    tags: true,
-  }).extend({
+  createGlobalCandidateFormSchema.extend({
     fullName: z.string().min(1, "Укажите ФИО").max(500),
   }),
 );
@@ -63,6 +42,42 @@ export const create = protectedProcedure
     }
 
     const candidateService = new CandidateService();
+
+    // Собираем profileData из experience и education
+    let profileData = null;
+    const hasExperience =
+      candidateInput.experience &&
+      Array.isArray(candidateInput.experience) &&
+      candidateInput.experience.some(
+        (e) =>
+          e?.company?.trim() || e?.position?.trim() || e?.description?.trim(),
+      );
+    const hasEducation =
+      candidateInput.education &&
+      Array.isArray(candidateInput.education) &&
+      candidateInput.education.some(
+        (e) => e?.institution?.trim() || e?.degree?.trim() || e?.field?.trim(),
+      );
+    if (hasExperience || hasEducation) {
+      profileData = {
+        experience: (candidateInput.experience ?? []).map((e) => ({
+          company: e?.company?.trim(),
+          position: e?.position?.trim(),
+          period: e?.period?.trim(),
+          description: e?.description?.trim(),
+        })),
+        education: (candidateInput.education ?? []).map((e) => ({
+          institution: e?.institution?.trim(),
+          degree: e?.degree?.trim(),
+          field: e?.field?.trim(),
+          period: e?.period?.trim(),
+          startDate: e?.startDate?.trim(),
+          endDate: e?.endDate?.trim(),
+        })),
+        parsedAt: new Date().toISOString(),
+      };
+    }
+
     const candidateData = {
       organizationId: workspace.organizationId,
       fullName: candidateInput.fullName.trim(),
@@ -85,6 +100,7 @@ export const create = protectedProcedure
       readyForRelocation: candidateInput.readyForRelocation ?? null,
       notes: candidateInput.notes ?? null,
       tags: candidateInput.tags ?? null,
+      profileData,
       source: "MANUAL" as const,
       originalSource: "MANUAL" as const,
     };

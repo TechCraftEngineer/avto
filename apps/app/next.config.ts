@@ -94,10 +94,12 @@ export default async function createNextConfig(): Promise<NextConfig> {
           source: "/api/auth/:path*",
           destination: `${appServerUrl}/api/auth/:path*`,
         },
-        {
-          source: "/api/orpc/:path*",
-          destination: `${appServerUrl}/api/orpc/:path*`,
-        },
+        // /api/orpc — через Route Handler (app/api/orpc/[...path]/route.ts)
+        // с таймаутом 120 сек для локальной разработки (parseResume)
+        // {
+        //   source: "/api/orpc/:path*",
+        //   destination: `${appServerUrl}/api/orpc/:path*`,
+        // },
         {
           source: "/api/chat/stream",
           destination: `${appServerUrl}/api/chat/stream`,

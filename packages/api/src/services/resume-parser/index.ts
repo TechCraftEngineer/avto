@@ -695,17 +695,12 @@ export class ResumeParserService {
   private static readonly AI_STRUCTURING_MAX_RETRIES = 2;
 
   /**
-   * Структурирует текст резюме с помощью AI
+   * Структурирует текст резюме с помощью AI.
+   * Весь текст от Docling передаётся в LLM без обрезки.
    */
-  private static readonly AI_INPUT_MAX_LENGTH = 2000;
-
   private async structureWithAI(
     rawText: string,
   ): Promise<{ structured: StructuredResume; confidence: number }> {
-    const trimmedRawText = rawText.slice(
-      0,
-      ResumeParserService.AI_INPUT_MAX_LENGTH,
-    );
     const factory = new AgentFactory({
       model: this.model,
     });
@@ -719,7 +714,7 @@ export class ResumeParserService {
       attempt++
     ) {
       try {
-        const result = await agent.execute({ rawText: trimmedRawText }, {});
+        const result = await agent.execute({ rawText }, {});
 
         if (result.success && result.data) {
           const structured = this.mapAgentOutputToStructuredResume(result.data);

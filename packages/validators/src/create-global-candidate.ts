@@ -9,6 +9,24 @@ const englishLevelEnum = z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]);
 const workFormatEnum = z.enum(["remote", "office", "hybrid"]);
 const genderEnum = z.enum(["male", "female"]);
 
+/** Один пункт опыта работы */
+export const experienceEntrySchema = z.object({
+  company: z.string().max(200).optional(),
+  position: z.string().max(200).optional(),
+  period: z.string().max(100).optional(),
+  description: z.string().max(2000).optional(),
+});
+
+/** Один пункт образования */
+export const educationEntrySchema = z.object({
+  institution: z.string().max(200).optional(),
+  degree: z.string().max(100).optional(),
+  field: z.string().max(200).optional(),
+  period: z.string().max(100).optional(),
+  startDate: z.string().max(20).optional(),
+  endDate: z.string().max(20).optional(),
+});
+
 export const createGlobalCandidateFormSchema = z.object({
   fullName: z
     .string()
@@ -47,6 +65,8 @@ export const createGlobalCandidateFormSchema = z.object({
   readyForRelocation: z.boolean().optional(),
   notes: z.string().max(5000).optional(),
   tags: z.array(z.string()).optional(),
+  experience: z.array(experienceEntrySchema).optional(),
+  education: z.array(educationEntrySchema).optional(),
 });
 
 export type CreateGlobalCandidateFormValues = z.infer<
