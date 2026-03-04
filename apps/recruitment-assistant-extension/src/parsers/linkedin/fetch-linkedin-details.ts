@@ -38,9 +38,14 @@ export async function fetchLinkedInDetails(
     ? window.location.pathname
     : "",
 ): Promise<LinkedInDetailsResult | null> {
-  const pathname = profilePathOrUrl.startsWith("/")
-    ? profilePathOrUrl
-    : new URL(profilePathOrUrl, "https://linkedin.com").pathname;
+  let pathname: string;
+  try {
+    pathname = profilePathOrUrl.startsWith("/")
+      ? profilePathOrUrl
+      : new URL(profilePathOrUrl, "https://linkedin.com").pathname;
+  } catch {
+    return null;
+  }
   const username = getUsernameFromPath(pathname);
   if (!username) return null;
 

@@ -30,25 +30,38 @@ export async function sendExtensionApiRequest<T = unknown>(
     token: string;
   },
 ): Promise<ExtensionApiResponse<T>> {
-  const { getExtensionApiUrl } = await import("../../../config");
-  const { method = "POST", body, token } = options;
-
-  const resp = await chrome.runtime.sendMessage({
-    type: "API_REQUEST",
-    payload: {
-      url: getExtensionApiUrl(endpoint),
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body,
-    },
-  });
-
-  if (!resp?.success) {
-    throw new Error(resp?.error ?? "Ошибка запроса");
+  const rawToken = options.token?.toString?.();
+  if (!rawToken || rawToken.trim() === "") {
+    throw new Error("Missing or empty token");
   }
 
-  return resp as ExtensionApiResponse<T>;
+  const { getExtensionApiUrl } = await import("../../../config");
+  const { method = "POST", body } = options;
+
+  let resp: unknown;
+  try {
+    resp = await chrome.runtime.sendMessage({
+      type: "API_REQUEST",
+      payload: {
+        url: getExtensionApiUrl(endpoint),
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${rawToken}`,
+        },
+        body,
+      },
+    });
+  } catch (err) {
+    throw new Error(
+      `Ошибка запроса: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+
+  const r = resp as { success?: boolean; error?: string; data?: T };
+  if (!r?.success) {
+    throw new Error(r?.error ?? "Ошибка запроса");
+  }
+
+  return r as ExtensionApiResponse<T>;
 }

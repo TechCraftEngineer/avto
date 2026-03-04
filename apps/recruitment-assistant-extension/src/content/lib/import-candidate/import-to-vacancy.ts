@@ -136,11 +136,18 @@ async function importLinkedInToVacancy(
     ...(profileUrl ? { profileUrl } : {}),
   };
 
-  await sendExtensionApiRequest("import-resume-linkedin", {
-    method: "POST",
-    body,
-    token,
-  });
+  try {
+    await sendExtensionApiRequest("import-resume-linkedin", {
+      method: "POST",
+      body,
+      token,
+    });
+  } catch (err) {
+    console.error("[importLinkedInToVacancy] import-resume-linkedin failed", {
+      err,
+    });
+    throw err;
+  }
 }
 
 interface GenericImportParams {

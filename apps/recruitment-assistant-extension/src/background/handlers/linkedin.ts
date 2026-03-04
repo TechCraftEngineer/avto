@@ -14,6 +14,7 @@ function extractFromTab(url: string, selectors: string[]): Promise<string[]> {
       }
       const tabId = tab.id;
       const timeout = setTimeout(() => {
+        chrome.tabs.onUpdated.removeListener(onUpdated);
         chrome.tabs.remove(tabId).catch(() => {});
         resolve([]);
       }, 15000);
@@ -33,7 +34,9 @@ function extractFromTab(url: string, selectors: string[]): Promise<string[]> {
                     if (match) {
                       const cols = document.querySelectorAll(sel);
                       const parts: string[] = [];
-                      cols.forEach((c) => parts.push(c.outerHTML));
+                      cols.forEach((c) => {
+                        parts.push(c.outerHTML);
+                      });
                       results.push(
                         parts.length ? `<div>${parts.join("")}</div>` : "",
                       );

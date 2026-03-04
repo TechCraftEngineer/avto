@@ -2,6 +2,8 @@
  * Обработчик FETCH_IMAGE
  */
 
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
+
 import { log, logError } from "../lib";
 import { isImageHostAllowed } from "../lib/allowed-hosts";
 import type { ServiceWorkerResponse } from "../types";
@@ -56,18 +58,66 @@ export async function handleFetchImage(
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const buffer = await response.arrayBuffer();
-    const bytes = new Uint8Array(buffer);
+    const contentType = response.headers.get("content-type");
+    if (!contentType?.toLowerCase().startsWith("image/")) {
+      throw new Error(
+        `Invalid content-type: expected image/*, got ${contentType ?? "unknown"}`,
+      );
+    }
+
+    const contentLength = response.headers.get("content-length");
+    if (contentLength != null) {
+      const size = parseInt(contentLength, 10);
+      if (!Number.isNaN(size) && size > MAX_IMAGE_BYTES) {
+        throw new Error(
+          `Image too large: ${size} bytes (max ${MAX_IMAGE_BYTES})`,
+        );
+      }
+    }
+
+    let bytes: Uint8Array;
+    if (contentLength != null) {
+      const buffer = await response.arrayBuffer();
+      bytes = new Uint8Array(buffer);
+    } else {
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No response body");
+      const chunks: Uint8Array[] = [];
+      let totalBytes = 0;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        totalBytes += value.length;
+        if (totalBytes > MAX_IMAGE_BYTES) {
+          reader.cancel();
+          throw new Error(
+            `Image too large: exceeded ${MAX_IMAGE_BYTES} bytes while streaming`,
+          );
+        }
+        chunks.push(value);
+      }
+      const total = chunks.reduce((sum, c) => sum + c.length, 0);
+      bytes = new Uint8Array(total);
+      let offset = 0;
+      for (const c of chunks) {
+        bytes.set(c, offset);
+        offset += c.length;
+      }
+    }
+    if (bytes.byteLength > MAX_IMAGE_BYTES) {
+      throw new Error(
+        `Image too large: ${bytes.byteLength} bytes (max ${MAX_IMAGE_BYTES})`,
+      );
+    }
+
     let binary = "";
     for (let i = 0; i < bytes.byteLength; i++) {
       binary += String.fromCharCode(bytes[i] ?? 0);
     }
     const base64 = btoa(binary);
-    const contentType =
-      response.headers.get("content-type")?.split(";")[0]?.trim() ||
-      "image/jpeg";
+    const contentTypeValue = contentType.split(";")[0]?.trim() || "image/jpeg";
 
-    sendResponse({ success: true, base64, contentType });
+    sendResponse({ success: true, base64, contentType: contentTypeValue });
   } catch (err) {
     logError("FETCH_IMAGE", err);
     sendResponse({

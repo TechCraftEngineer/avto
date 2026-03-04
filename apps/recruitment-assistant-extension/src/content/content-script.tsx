@@ -17,6 +17,7 @@ import {
   resolvePlatform,
   showNotification,
 } from "./lib";
+import { sanitizeAndLimitHtml } from "./lib/sanitize-html";
 
 export class ContentScript {
   private isInitialized = false;
@@ -117,10 +118,11 @@ export class ContentScript {
       };
     }
     const sanitizedData = this.normalizeFullName(result.data);
-    const linkedInSkillsHtml =
+    const rawSkillsHtml =
       (
         this.currentAdapter as { getSkillsHtml?: () => string | null }
       )?.getSkillsHtml?.() ?? undefined;
+    const linkedInSkillsHtml = sanitizeAndLimitHtml(rawSkillsHtml);
     try {
       await importCandidateData(sanitizedData, {
         vacancyId: payload.vacancyId,
@@ -154,10 +156,11 @@ export class ContentScript {
     if (!data) {
       throw new Error("Не удалось извлечь данные профиля");
     }
-    const linkedInSkillsHtml =
+    const rawSkillsHtml =
       (
         this.currentAdapter as { getSkillsHtml?: () => string | null }
       )?.getSkillsHtml?.() ?? undefined;
+    const linkedInSkillsHtml = sanitizeAndLimitHtml(rawSkillsHtml);
     await importToVacancyWithExisting(data, {
       ...payload,
       linkedInSkillsHtml: linkedInSkillsHtml ?? undefined,
@@ -380,10 +383,11 @@ export class ContentScript {
       return;
     }
     data = this.normalizeFullName(data);
-    const linkedInSkillsHtml =
+    const rawSkillsHtml =
       (
         this.currentAdapter as { getSkillsHtml?: () => string | null }
       )?.getSkillsHtml?.() ?? undefined;
+    const linkedInSkillsHtml = sanitizeAndLimitHtml(rawSkillsHtml);
     try {
       await importCandidateData(data, {
         vacancyId: payload?.vacancyId,

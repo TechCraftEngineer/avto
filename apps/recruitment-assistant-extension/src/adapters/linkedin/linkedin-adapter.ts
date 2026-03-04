@@ -119,7 +119,11 @@ export class LinkedInAdapter extends PlatformAdapter {
     if (/^\/in\/[^/]+\/?$/.test(path) && !path.includes("/details/")) {
       try {
         this.fetchedDetails = await fetchLinkedInDetails(path);
-      } catch {
+      } catch (err) {
+        console.error("[LinkedInAdapter] fetchLinkedInDetails failed", {
+          path,
+          err,
+        });
         this.fetchedDetails = null;
       }
     }

@@ -18,7 +18,12 @@ export function extractTelegramFromSocialLinks(
   const usernamePattern = /^\/?(?:dg\/)?([a-zA-Z0-9_]{4,32})(?:[/?#]|$)/;
   for (const link of socialLinks) {
     try {
-      const u = new URL(link);
+      const trimmed = link.trim();
+      const normalizedLink =
+        !trimmed.includes("://") && /^(t\.me|telegram\.me)(\/|$)/i.test(trimmed)
+          ? `https://${trimmed}`
+          : link;
+      const u = new URL(normalizedLink);
       const host = u.hostname.toLowerCase().replace(/^www\./, "");
       if (!telegramHosts.includes(host)) continue;
       const match = u.pathname.match(usernamePattern);
