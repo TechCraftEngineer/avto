@@ -21,12 +21,13 @@ interface DoclingServiceConfig extends DoclingConfig {
 /**
  * Response from Docling v1 API (/v1/convert/file)
  * @see https://github.com/docling-project/docling-serve
+ * Docling возвращает null для пустых полей контента.
  */
 interface DoclingServiceResponse {
   document?: {
-    text_content?: string;
-    md_content?: string;
-    html_content?: string;
+    text_content?: string | null;
+    md_content?: string | null;
+    html_content?: string | null;
   };
   status?: "success" | "partial_success" | "skipped" | "failure";
   errors?: string[];
@@ -35,10 +36,12 @@ interface DoclingServiceResponse {
 const DoclingServiceResponseSchema = z.object({
   document: z
     .object({
-      text_content: z.string().optional(),
-      md_content: z.string().optional(),
-      html_content: z.string().optional(),
+      // Docling возвращает null для пустых полей, а не отсутствие ключа
+      text_content: z.string().nullish(),
+      md_content: z.string().nullish(),
+      html_content: z.string().nullish(),
     })
+    .loose() // filename, json_content, doctags_content и др. — прокидываются в output
     .optional(),
   status: z
     .enum(["success", "partial_success", "skipped", "failure"])
