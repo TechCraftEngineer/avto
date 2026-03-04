@@ -5,6 +5,7 @@ export {
   parseAbout,
   parseBasicInfo,
   parseContacts,
+  parseContactsFromContactInfoHtml,
   parseEducations,
   parseExperiences,
   parseSkills,

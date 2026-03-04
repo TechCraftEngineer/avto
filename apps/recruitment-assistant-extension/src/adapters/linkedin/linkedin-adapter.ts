@@ -102,9 +102,12 @@ export class LinkedInAdapter extends PlatformAdapter {
 
   /**
    * Извлекает контактную информацию из профиля LinkedIn.
-   * Через overlay/contact-info (dialog) или section.pv-contact-info.
+   * Использует данные с overlay/contact-info при наличии, иначе — dialog или section.pv-contact-info.
    */
   extractContacts(): ContactInfo {
+    if (this.fetchedDetails?.contactInfo) {
+      return this.fetchedDetails.contactInfo;
+    }
     return parseContacts(document);
   }
 
