@@ -228,6 +228,7 @@ export function AddCandidateDialog({
         toast.error("Файл слишком большой", {
           description: "Максимальный размер: 10 МБ",
         });
+        e.target.value = "";
         return;
       }
 

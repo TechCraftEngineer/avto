@@ -29,30 +29,30 @@ import { processResumeText } from "./hh-import/utils/resume-text";
 const platformSourceSchema = z.enum(platformSourceValues);
 
 const experienceItemSchema = z.object({
-  company: z.string().optional(),
-  position: z.string().optional(),
-  period: z.string().optional(),
-  description: z.string().optional(),
+  company: z.string().max(1000).optional(),
+  position: z.string().max(1000).optional(),
+  period: z.string().max(100).optional(),
+  description: z.string().max(2000).optional(),
 });
 
 const educationItemSchema = z.object({
-  institution: z.string().optional(),
-  degree: z.string().optional(),
-  period: z.string().optional(),
-  specialization: z.string().optional(),
-  field: z.string().optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
+  institution: z.string().max(1000).optional(),
+  degree: z.string().max(500).optional(),
+  period: z.string().max(100).optional(),
+  specialization: z.string().max(500).optional(),
+  field: z.string().max(500).optional(),
+  startDate: z.string().max(50).optional(),
+  endDate: z.string().max(50).optional(),
 });
 
 const profileDataSchema = z.object({
-  platform: z.string().optional(),
-  profileUrl: z.string().optional(),
-  aboutMe: z.string().optional(),
-  skills: z.array(z.string()).optional(),
-  experience: z.array(experienceItemSchema).optional(),
-  education: z.array(educationItemSchema).optional(),
-  parsedAt: z.string().optional(),
+  platform: z.string().max(100).optional(),
+  profileUrl: z.string().max(1000).optional(),
+  aboutMe: z.string().max(2000).optional(),
+  skills: z.array(z.string().max(200)).max(50).optional(),
+  experience: z.array(experienceItemSchema).max(50).optional(),
+  education: z.array(educationItemSchema).max(50).optional(),
+  parsedAt: z.string().max(50).optional(),
 });
 
 const bodySchema = z.object({

@@ -37,7 +37,11 @@ export const createGlobalCandidateFormSchema = z.object({
   citizenship: z.string().max(100).optional(),
   skills: z.array(z.string().max(100)).optional(),
   experienceYears: z.number().int().min(0).optional(),
-  salaryExpectationsAmount: z.number().int().min(0).optional(),
+  salaryExpectationsAmount: z
+    .number()
+    .int()
+    .min(0, { message: "Сумма не может быть отрицательной" })
+    .optional(),
   workFormat: workFormatEnum.optional(),
   englishLevel: englishLevelEnum.optional(),
   readyForRelocation: z.boolean().optional(),

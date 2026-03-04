@@ -108,11 +108,18 @@ function extractTelegramFromSocialLinks(
   socialLinks?: string[] | null,
 ): string | undefined {
   if (!socialLinks?.length) return undefined;
+  const telegramHosts = ["t.me", "telegram.me"];
+  const usernamePattern = /^\/?(?:dg\/)?([a-zA-Z0-9_]{4,32})(?:[/?#]|$)/;
   for (const link of socialLinks) {
-    const match = link.match(
-      /(?:t\.me|telegram\.me)\/(?:dg\/)?([a-zA-Z0-9_]{4,32})/i,
-    );
-    if (match?.[1]) return match[1];
+    try {
+      const u = new URL(link);
+      const host = u.hostname.toLowerCase().replace(/^www\./, "");
+      if (!telegramHosts.includes(host)) continue;
+      const match = u.pathname.match(usernamePattern);
+      if (match?.[1]) return match[1];
+    } catch {
+      // Not a valid URL, skip
+    }
   }
   return undefined;
 }

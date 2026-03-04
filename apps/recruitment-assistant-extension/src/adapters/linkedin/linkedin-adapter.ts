@@ -88,8 +88,13 @@ export class LinkedInAdapter extends PlatformAdapter {
    * linkedin_scraper: scroll + expand see more перед парсингом.
    */
   override extractAll() {
+    const savedScrollY = window.scrollY ?? document.documentElement.scrollTop;
     scrollToLoadContent();
     expandSeeMoreButtons(5);
-    return super.extractAll();
+    try {
+      return super.extractAll();
+    } finally {
+      window.scrollTo(0, savedScrollY);
+    }
   }
 }
