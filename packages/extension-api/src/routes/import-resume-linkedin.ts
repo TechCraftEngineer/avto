@@ -18,6 +18,7 @@ import {
   response as responseTable,
   vacancy as vacancySchema,
 } from "@qbs-autonaim/db/schema";
+import { inngest } from "@qbs-autonaim/jobs/client";
 import { normalizePlatformProfileUrl, parseFullName } from "@qbs-autonaim/lib";
 import type { Context } from "hono";
 import { z } from "zod";
@@ -50,6 +51,8 @@ const bodySchema = z.object({
   experienceHtml: z.string().max(50_000).optional(),
   /** LinkedIn: HTML образования (profile-card-education, без атрибутов) */
   educationHtml: z.string().max(50_000).optional(),
+  /** LinkedIn: HTML навыков (profile-card-skills, без атрибутов) */
+  skillsHtml: z.string().max(50_000).optional(),
   aboutMe: z.string().max(5000).optional(),
   skills: z.array(z.string().max(200)).max(100).optional(),
   profileUrl: z.string().max(1000).optional(),
@@ -222,6 +225,7 @@ export async function handleImportResumeLinkedIn(c: Context) {
     skills: input.skills,
     linkedInExperienceHtml: input.experienceHtml,
     linkedInEducationHtml: input.educationHtml,
+    linkedInSkillsHtml: input.skillsHtml,
     parsedAt: new Date().toISOString(),
   };
 
@@ -308,6 +312,25 @@ export async function handleImportResumeLinkedIn(c: Context) {
     successCount: 1,
     failureCount: 0,
   });
+
+  // Запуск парсинга LinkedIn HTML через LLM (если есть experienceHtml, educationHtml или skillsHtml)
+  const hasLinkedInHtml =
+    (input.experienceHtml?.trim().length ?? 0) > 0 ||
+    (input.educationHtml?.trim().length ?? 0) > 0 ||
+    (input.skillsHtml?.trim().length ?? 0) > 0;
+  if (hasLinkedInHtml && targetResponse) {
+    try {
+      await inngest.send({
+        name: "response/linkedin-html.parse",
+        data: { responseId: targetResponse.id },
+      });
+    } catch (err) {
+      console.warn(
+        `[extension-api] Inngest недоступен, парсинг LinkedIn HTML ${targetResponse.id} отложен:`,
+        err instanceof Error ? err.message : String(err),
+      );
+    }
+  }
 
   return c.json({ response: targetResponse, success: true });
 }

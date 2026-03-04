@@ -37,6 +37,10 @@ export const parseSingleResumeDataSchema = z.object({
   resumeText: z.string().optional(),
 });
 
+export const parseLinkedInHtmlDataSchema = z.object({
+  responseId: z.string().min(1, "Response ID is required"),
+});
+
 export const refreshSingleResumeDataSchema = z.object({
   responseId: z.string().min(1, "Response ID is required"),
 });
@@ -80,6 +84,9 @@ export type ScreenResponsesBatchPayload = z.infer<
 export type ParseNewResumesPayload = z.infer<typeof parseNewResumesDataSchema>;
 export type ParseSingleResumePayload = z.infer<
   typeof parseSingleResumeDataSchema
+>;
+export type ParseLinkedInHtmlPayload = z.infer<
+  typeof parseLinkedInHtmlDataSchema
 >;
 export type RefreshSingleResumePayload = z.infer<
   typeof refreshSingleResumeDataSchema

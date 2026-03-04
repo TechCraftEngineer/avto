@@ -24,6 +24,7 @@ import { useCallback, useRef, useState } from "react";
 import type { Resolver } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { ConfirmationDialog } from "~/components/ui/components/confirmation-dialog";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useORPC } from "~/orpc/react";
 import { CandidateForm } from "./candidate-form";
@@ -71,6 +72,7 @@ export function AddCandidateDialog({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<"manual" | "pdf">("manual");
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   const form = useForm<CreateGlobalCandidateFormValues>({
     resolver: zodResolver(
@@ -206,71 +208,92 @@ export function AddCandidateDialog({
     [workspaceId, createMutation],
   );
 
+  const performClose = useCallback(() => {
+    onOpenChange(false);
+    form.reset(FORM_DEFAULTS);
+    parseResumeMutation.reset();
+    setShowDiscardConfirm(false);
+  }, [onOpenChange, form, parseResumeMutation]);
+
   const handleOpenChange = useCallback(
     (newOpen: boolean) => {
-      onOpenChange(newOpen);
-      if (!newOpen) {
-        form.reset(FORM_DEFAULTS);
-        parseResumeMutation.reset();
+      if (newOpen) {
+        onOpenChange(true);
+      } else if (form.formState.isDirty) {
+        setShowDiscardConfirm(true);
+      } else {
+        performClose();
       }
     },
-    [onOpenChange, form, parseResumeMutation],
+    [onOpenChange, form.formState.isDirty, performClose],
   );
 
   const isPending = createMutation.isPending || parseResumeMutation.isPending;
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-2xl lg:max-w-4xl w-[calc(100vw-1.5rem)] sm:w-[42rem] lg:w-[56rem] max-h-[90dvh] overflow-y-auto p-4 sm:p-6">
-        <DialogHeader>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-              <UserPlus className="size-5 text-primary" />
+    <>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-2xl lg:max-w-4xl w-[calc(100vw-1.5rem)] sm:w-[42rem] lg:w-[56rem] max-h-[90dvh] overflow-y-auto p-4 sm:p-6">
+          <DialogHeader>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                <UserPlus className="size-5 text-primary" />
+              </div>
+              <div className="min-w-0">
+                <DialogTitle className="text-lg sm:text-xl">
+                  Добавить кандидата
+                </DialogTitle>
+                <DialogDescription className="text-sm">
+                  Заполните данные вручную или загрузите резюме PDF для
+                  автозаполнения
+                </DialogDescription>
+              </div>
             </div>
-            <div className="min-w-0">
-              <DialogTitle className="text-lg sm:text-xl">
-                Добавить кандидата
-              </DialogTitle>
-              <DialogDescription className="text-sm">
-                Заполните данные вручную или загрузите резюме PDF для
-                автозаполнения
-              </DialogDescription>
-            </div>
-          </div>
-        </DialogHeader>
+          </DialogHeader>
 
-        <Tabs
-          value={activeTab}
-          onValueChange={(v) => setActiveTab(v as "manual" | "pdf")}
-        >
-          <TabsList className="grid w-full grid-cols-2 h-9 sm:h-10">
-            <TabsTrigger value="manual" className="text-sm sm:text-base">
-              Вручную
-            </TabsTrigger>
-            <TabsTrigger value="pdf" className="text-sm sm:text-base">
-              Из PDF
-            </TabsTrigger>
-          </TabsList>
+          <Tabs
+            value={activeTab}
+            onValueChange={(v) => setActiveTab(v as "manual" | "pdf")}
+          >
+            <TabsList className="grid w-full grid-cols-2 h-9 sm:h-10">
+              <TabsTrigger value="manual" className="text-sm sm:text-base">
+                Вручную
+              </TabsTrigger>
+              <TabsTrigger value="pdf" className="text-sm sm:text-base">
+                Из PDF
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="pdf" className="mt-4">
-            <PdfUploadTab
-              fileInputRef={fileInputRef}
-              onFileSelect={handleFileSelect}
-              isPending={parseResumeMutation.isPending}
-            />
-          </TabsContent>
+            <TabsContent value="pdf" className="mt-4">
+              <PdfUploadTab
+                fileInputRef={fileInputRef}
+                onFileSelect={handleFileSelect}
+                isPending={parseResumeMutation.isPending}
+              />
+            </TabsContent>
 
-          <TabsContent value="manual" className="mt-4">
-            <CandidateForm
-              form={form}
-              onSubmit={handleSubmit}
-              onCancel={() => handleOpenChange(false)}
-              isPending={isPending}
-              isSubmitting={createMutation.isPending}
-            />
-          </TabsContent>
-        </Tabs>
-      </DialogContent>
-    </Dialog>
+            <TabsContent value="manual" className="mt-4">
+              <CandidateForm
+                form={form}
+                onSubmit={handleSubmit}
+                onCancel={() => handleOpenChange(false)}
+                isPending={isPending}
+                isSubmitting={createMutation.isPending}
+              />
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
+
+      <ConfirmationDialog
+        open={showDiscardConfirm}
+        onOpenChange={setShowDiscardConfirm}
+        title="Несохранённые изменения"
+        description="Вы закрываете форму с несохранёнными данными. Всё введённое будет потеряно. Продолжить?"
+        confirmText="Закрыть без сохранения"
+        cancelText="Продолжить редактирование"
+        onConfirm={performClose}
+      />
+    </>
   );
 }

@@ -56,6 +56,17 @@ export function CandidateForm({
                   className="resize-none"
                   rows={2}
                   {...field}
+                  onKeyDown={(event) => {
+                    if (
+                      event.key === "Enter" &&
+                      (event.ctrlKey || event.metaKey)
+                    ) {
+                      event.preventDefault();
+                      form.handleSubmit(onSubmit)();
+                    } else {
+                      field.onKeyDown?.(event);
+                    }
+                  }}
                 />
               </FormControl>
               <FormMessage />
@@ -75,16 +86,11 @@ export function CandidateForm({
           <Button
             type="submit"
             className="flex-1 h-10 sm:h-11"
-            disabled={isPending}
+            disabled={isPending || isSubmitting}
+            aria-busy={isSubmitting}
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Добавление…
-              </>
-            ) : (
-              "Добавить кандидата"
-            )}
+            {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            Добавить кандидата
           </Button>
         </div>
       </form>

@@ -7,5 +7,6 @@ export {
   parseEducations,
   parseExperiences,
   parseSkills,
+  parseSkillsHtml,
   scrollToLoadContent,
 } from "./parse-profile-dom";

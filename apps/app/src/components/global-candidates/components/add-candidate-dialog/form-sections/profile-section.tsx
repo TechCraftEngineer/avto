@@ -38,7 +38,12 @@ export function ProfileSection({ form }: ProfileSectionProps) {
           <FormItem>
             <FormLabel>Город</FormLabel>
             <FormControl>
-              <Input placeholder="Москва" {...field} />
+              <Input
+                placeholder="Москва"
+                autoComplete="address-level2"
+                inputMode="text"
+                {...field}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -51,7 +56,12 @@ export function ProfileSection({ form }: ProfileSectionProps) {
           <FormItem>
             <FormLabel>Гражданство</FormLabel>
             <FormControl>
-              <Input placeholder="Российская Федерация" {...field} />
+              <Input
+                placeholder="Российская Федерация"
+                autoComplete="country-name"
+                inputMode="text"
+                {...field}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -70,6 +80,8 @@ export function ProfileSection({ form }: ProfileSectionProps) {
                   type="number"
                   min={0}
                   placeholder="5"
+                  autoComplete="off"
+                  inputMode="numeric"
                   {...field}
                   value={field.value ?? ""}
                   onChange={(e) => {
@@ -96,6 +108,8 @@ export function ProfileSection({ form }: ProfileSectionProps) {
                   type="number"
                   min={0}
                   placeholder="150000"
+                  autoComplete="off"
+                  inputMode="numeric"
                   {...field}
                   value={field.value ?? ""}
                   onChange={(e) => {
