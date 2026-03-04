@@ -92,4 +92,6 @@ export interface StoredProfileData {
   linkedInExperienceHtml?: string;
   /** LinkedIn: raw HTML from profile-card-education (attributes stripped) */
   linkedInEducationHtml?: string;
+  /** LinkedIn: raw HTML from profile-card-skills (attributes stripped) */
+  linkedInSkillsHtml?: string;
 }

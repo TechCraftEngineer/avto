@@ -501,9 +501,13 @@ async function importToVacancy(
 
   if (rawSource === "LINKEDIN") {
     let aboutMe: string | undefined;
+    let skillsHtml: string | undefined;
     if (typeof document !== "undefined") {
-      const { parseAbout } = await import("../../parsers/linkedin");
+      const { parseAbout, parseSkillsHtml } = await import(
+        "../../parsers/linkedin"
+      );
       aboutMe = parseAbout(document) || undefined;
+      skillsHtml = parseSkillsHtml(document) || undefined;
     }
     const firstExp = data.experience?.[0];
     const experienceHtml =
@@ -534,6 +538,7 @@ async function importToVacancy(
       ...(photoUrl ? { photoUrl } : {}),
       ...(experienceHtml ? { experienceHtml } : {}),
       ...(educationHtml ? { educationHtml } : {}),
+      ...(skillsHtml ? { skillsHtml } : {}),
       ...(aboutMe ? { aboutMe } : {}),
       ...(data.skills?.length ? { skills: data.skills } : {}),
       ...(profileUrl ? { profileUrl } : {}),

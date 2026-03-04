@@ -9,6 +9,7 @@ import { BotUsageDetectorAgent } from "../detection/bot-usage-detector";
 import { ContextAnalyzerAgent } from "../detection/context-analyzer";
 import { EscalationDetectorAgent } from "../detection/escalation-detector";
 import { GreetingDetectorAgent } from "../detection/greeting-detector";
+import { LinkedInHtmlStructurerAgent } from "../extraction/linkedin-html-structurer";
 import { ResumeStructurerAgent } from "../extraction/resume-structurer";
 import { SalaryExtractionAgent } from "../extraction/salary-extraction";
 import { EscalationHandlerAgent } from "../handlers/escalation-handler";
@@ -157,6 +158,10 @@ export class AgentFactory {
 
   createPinHandler(overrides?: Partial<AgentConfig>) {
     return new PinHandlerAgent(this.getAgentConfig(overrides));
+  }
+
+  createLinkedInHtmlStructurer(overrides?: Partial<AgentConfig>) {
+    return new LinkedInHtmlStructurerAgent(this.getAgentConfig(overrides));
   }
 
   createResumeStructurer(overrides?: Partial<AgentConfig>) {

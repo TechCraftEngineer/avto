@@ -466,9 +466,33 @@ function stripAttributesFromElement(el: Element): string {
 
 /**
  * Извлекает опыт работы.
- * Стратегии: profile-card-experience (innerHTML без атрибутов), main page Experience section, .pvs-list__container
+ * Стратегии:
+ * 1. div[data-testid^="profile_ExperienceDetailsSection_"] — страница /in/.../details/experience/
+ * 2. profile-card-experience (innerHTML без атрибутов)
+ * 3. main page Experience section, .pvs-list__container
  */
 export function parseExperiences(doc: Document = document): ExperienceEntry[] {
+  // Страница details/experience — приоритетный источник (полные данные)
+  const experienceDetailsSection = doc.querySelector(
+    'div[data-testid^="profile_ExperienceDetailsSection_"]',
+  );
+  if (experienceDetailsSection) {
+    const strippedHtml = stripAttributesFromElement(
+      experienceDetailsSection,
+    ).trim();
+    if (strippedHtml) {
+      return [
+        {
+          position: "",
+          company: null,
+          startDate: null,
+          endDate: null,
+          description: strippedHtml,
+        },
+      ];
+    }
+  }
+
   const profileCardExp = doc.querySelector(
     'div[data-view-name="profile-card-experience"]',
   );
@@ -628,9 +652,33 @@ function parseMainPageEducation(item: Element): EducationEntry | null {
 
 /**
  * Извлекает образование.
- * Стратегии: profile-card-education (innerHTML без атрибутов), main page Education section
+ * Стратегии:
+ * 1. div[data-testid^="profile_EducationDetailsSection_"] — страница /in/.../details/education/
+ * 2. profile-card-education (innerHTML без атрибутов)
+ * 3. main page Education section
  */
 export function parseEducations(doc: Document = document): EducationEntry[] {
+  // Страница details/education — приоритетный источник (полные данные)
+  const educationDetailsSection = doc.querySelector(
+    'div[data-testid^="profile_EducationDetailsSection_"]',
+  );
+  if (educationDetailsSection) {
+    const strippedHtml = stripAttributesFromElement(
+      educationDetailsSection,
+    ).trim();
+    if (strippedHtml) {
+      return [
+        {
+          institution: "",
+          degree: null,
+          fieldOfStudy: strippedHtml,
+          startDate: "",
+          endDate: "",
+        },
+      ];
+    }
+  }
+
   const profileCardEdu = doc.querySelector(
     'div[data-view-name="profile-card-education"]',
   );
@@ -675,8 +723,39 @@ export function parseEducations(doc: Document = document): EducationEntry[] {
 }
 
 /**
+ * Извлекает HTML навыков (для LLM).
+ * Стратегии:
+ * 1. div[data-testid="lazy-column"] — страница /in/.../details/skills/
+ * 2. profile-card-skills
+ */
+export function parseSkillsHtml(doc: Document = document): string | null {
+  // Страница details/skills — приоритетный источник (могут быть несколько колонок)
+  const isSkillsDetailsPage =
+    typeof window !== "undefined" &&
+    /\/in\/[^/]+\/details\/skills/.test(window.location.pathname);
+  if (isSkillsDetailsPage) {
+    const lazyColumns = doc.querySelectorAll('div[data-testid="lazy-column"]');
+    const parts: string[] = [];
+    lazyColumns.forEach((col) => {
+      const stripped = stripAttributesFromElement(col).trim();
+      if (stripped) parts.push(stripped);
+    });
+    const combined = parts.join("\n");
+    if (combined) return combined;
+  }
+
+  const profileCardSkills = doc.querySelector(
+    'div[data-view-name="profile-card-skills"]',
+  );
+  if (!profileCardSkills) return null;
+  const strippedHtml = stripAttributesFromElement(profileCardSkills).trim();
+  return strippedHtml || null;
+}
+
+/**
  * Извлекает навыки.
  * LinkedIn: #skills, span[aria-hidden="true"], .pvs-list__paged-list-item
+ * Если есть profile-card-skills, его HTML можно передать в skillsHtml для LLM.
  */
 export function parseSkills(doc: Document = document): string[] {
   const skills: string[] = [];

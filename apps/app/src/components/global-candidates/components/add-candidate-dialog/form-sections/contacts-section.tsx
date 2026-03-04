@@ -30,9 +30,11 @@ export function ContactsSection({ form }: ContactsSectionProps) {
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input
-                  type="email"
                   placeholder="email@example.com"
                   {...field}
+                  type="email"
+                  autoComplete="email"
+                  spellCheck={false}
                 />
               </FormControl>
               <FormMessage />
@@ -46,7 +48,14 @@ export function ContactsSection({ form }: ContactsSectionProps) {
             <FormItem>
               <FormLabel>Телефон</FormLabel>
               <FormControl>
-                <Input placeholder="+7 (999) 123-45-67" {...field} />
+                <Input
+                  placeholder="+7 (999) 123-45-67"
+                  {...field}
+                  type="tel"
+                  autoComplete="tel"
+                  inputMode="tel"
+                  spellCheck={false}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -60,7 +69,13 @@ export function ContactsSection({ form }: ContactsSectionProps) {
           <FormItem className="sm:col-span-2">
             <FormLabel>Telegram</FormLabel>
             <FormControl>
-              <Input placeholder="@username" {...field} />
+              <Input
+                placeholder="@username"
+                {...field}
+                type="text"
+                autoComplete="username"
+                spellCheck={false}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

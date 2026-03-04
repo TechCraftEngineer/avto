@@ -42,7 +42,7 @@ export function SkillsInput({ form }: SkillsInputProps) {
                         const next = skillsList.filter((_, idx) => idx !== i);
                         field.onChange(next.length > 0 ? next : undefined);
                       }}
-                      className="ml-0.5 rounded-full p-0.5 hover:bg-muted-foreground/20"
+                      className="ml-0.5 flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full hover:bg-muted-foreground/20 sm:min-h-6 sm:min-w-6"
                       aria-label={`Удалить ${skill}`}
                     >
                       <X className="h-3 w-3" />
@@ -50,10 +50,10 @@ export function SkillsInput({ form }: SkillsInputProps) {
                   </Badge>
                 ))}
                 <Input
-                  placeholder="Введите навык и нажмите Enter"
+                  placeholder="Введите навык, например React, …"
                   className="flex-1 min-w-40 border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === ",") {
+                    if (e.key === "," || e.key === ";") {
                       e.preventDefault();
                       const val = (e.target as HTMLInputElement).value
                         .trim()
@@ -83,7 +83,7 @@ export function SkillsInput({ form }: SkillsInputProps) {
               </div>
             </FormControl>
             <p className="text-xs text-muted-foreground">
-              Нажмите Enter или введите запятую для добавления
+              Введите запятую или точку с запятой для добавления
             </p>
             <FormMessage />
           </FormItem>
