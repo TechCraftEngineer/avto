@@ -45,7 +45,7 @@ export class DoclingProcessor implements FormatParser {
       // Docling-serve listens on 5001, Docker maps 8001:5001
       apiUrl: config?.apiUrl || env.DOCLING_API_URL || "http://localhost:8001",
       apiKey: config?.apiKey || env.DOCLING_API_KEY || "",
-      timeout: config?.timeout || 30000,
+      timeout: config?.timeout || 90000,
       enableOcr: config?.enableOcr ?? true,
       ocrLanguage: config?.ocrLanguage || "auto",
     };
