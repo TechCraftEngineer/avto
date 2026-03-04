@@ -22,7 +22,7 @@ export function extractTelegramFromSocialLinks(
       const normalizedLink =
         !trimmed.includes("://") && /^(t\.me|telegram\.me)(\/|$)/i.test(trimmed)
           ? `https://${trimmed}`
-          : link;
+          : trimmed;
       const u = new URL(normalizedLink);
       const host = u.hostname.toLowerCase().replace(/^www\./, "");
       if (!telegramHosts.includes(host)) continue;

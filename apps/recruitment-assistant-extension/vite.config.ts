@@ -23,13 +23,15 @@ export default defineConfig({
     __EXTENSION_API_BASE__: JSON.stringify(
       process.env.EXTENSION_API_BASE ?? "http://localhost:3002",
     ),
-    __ALLOW_LOOPBACK__:
-      (process.env.EXTENSION_API_BASE ?? "http://localhost:3002").includes(
-        "localhost",
-      ) ||
-      (process.env.EXTENSION_API_BASE ?? "http://localhost:3002").includes(
-        "127.0.0.1",
-      ),
+    __ALLOW_LOOPBACK__: (() => {
+      const base = process.env.EXTENSION_API_BASE ?? "http://localhost:3002";
+      try {
+        const hostname = new URL(base).hostname;
+        return hostname === "localhost" || hostname === "127.0.0.1";
+      } catch {
+        return false;
+      }
+    })(),
   },
   plugins: [
     react(),

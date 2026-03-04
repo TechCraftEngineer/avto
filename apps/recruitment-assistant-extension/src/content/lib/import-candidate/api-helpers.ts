@@ -2,6 +2,17 @@
  * Вспомогательные функции для API запросов расширения
  */
 
+import { z } from "zod";
+
+/** Схема ответа chrome.runtime.sendMessage для API_REQUEST */
+export const apiRequestResponseSchema = z.object({
+  success: z.boolean(),
+  data: z.unknown().optional(),
+  error: z.string().optional(),
+});
+
+export type ApiRequestResponse = z.infer<typeof apiRequestResponseSchema>;
+
 export interface AuthStorage {
   authToken?: string;
   userData?: { organizationId?: string };
@@ -32,7 +43,7 @@ export async function sendExtensionApiRequest<T = unknown>(
 ): Promise<ExtensionApiResponse<T>> {
   const rawToken = options.token?.toString?.();
   if (!rawToken || rawToken.trim() === "") {
-    throw new Error("Missing or empty token");
+    throw new Error("Отсутствует или пустой токен");
   }
 
   const { getExtensionApiUrl } = await import("../../../config");
@@ -58,10 +69,18 @@ export async function sendExtensionApiRequest<T = unknown>(
     );
   }
 
-  const r = resp as { success?: boolean; error?: string; data?: T };
-  if (!r?.success) {
-    throw new Error(r?.error ?? "Ошибка запроса");
+  const parsed = apiRequestResponseSchema.safeParse(resp);
+  if (!parsed.success) {
+    throw new Error(`Неверный ответ API: ${parsed.error.message}`);
+  }
+  const r = parsed.data;
+  if (!r.success) {
+    throw new Error(r.error ?? "Ошибка запроса");
   }
 
-  return r as ExtensionApiResponse<T>;
+  return {
+    success: true,
+    data: r.data as T,
+    error: r.error,
+  } as ExtensionApiResponse<T>;
 }
