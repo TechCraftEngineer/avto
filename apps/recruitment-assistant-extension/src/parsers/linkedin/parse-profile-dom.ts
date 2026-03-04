@@ -75,8 +75,7 @@ function findSectionByHeading(doc: Document, text: string): Element | null {
   const target = text.toLowerCase();
   for (const h of headings) {
     if (!h.textContent?.trim().toLowerCase().includes(target)) continue;
-    const section =
-      h.closest("section") ?? h.parentElement?.closest("section") ?? h;
+    const section = h.closest("section") ?? h.parentElement?.closest("section");
     if (section) return section;
     // Fallback: ищем ближайшего предка с ul или ol (linkedin_scraper xpath=ancestor::*[.//ul or .//ol][1])
     let el: Element | null = h.parentElement;
@@ -668,18 +667,101 @@ function createSafeContactInfo(
 }
 
 /**
- * Извлекает контакты из видимой секции и контактной информации.
- * Для полных контактов (email, phone) нужен overlay — пользователь может открыть вручную.
- * Валидация выполняется через ContactInfoSchema.
+ * Маппинг заголовка секции контактов в тип (joeyism/linkedin_scraper _map_contact_heading_to_type)
  */
-export function parseContacts(doc: Document = document): ContactInfo {
+function mapContactHeadingToType(
+  heading: string,
+): "email" | "phone" | "website" | null {
+  const lower = heading.toLowerCase();
+  if (lower.includes("email")) return "email";
+  if (lower.includes("phone")) return "phone";
+  if (lower.includes("website")) return "website";
+  if (lower.includes("twitter") || lower.includes("x.com")) return "website";
+  return null;
+}
+
+/**
+ * Парсинг контактов из overlay-диалога (dialog / [role="dialog"]).
+ * Логика из joeyism/linkedin_scraper _get_contacts (person.py ~line 1024).
+ * Диалог появляется при клике на "Contact info" или навигации на overlay/contact-info/.
+ */
+function parseContactsFromDialog(doc: Document): {
+  email: string | null;
+  phone: string | null;
+  socialLinks: string[];
+} {
+  const dialog =
+    doc.querySelector("dialog") ?? doc.querySelector("[role='dialog']") ?? null;
+  if (!dialog) return { email: null, phone: null, socialLinks: [] };
+
+  let emailRaw: string | null = null;
+  let phoneRaw: string | null = null;
+  const socialLinks: string[] = [];
+
+  const h3Elements = dialog.querySelectorAll("h3");
+  h3Elements.forEach((sectionHeading) => {
+    const headingText = sectionHeading.textContent?.trim().toLowerCase() ?? "";
+    const contactType = mapContactHeadingToType(headingText);
+    if (!contactType) return;
+
+    const sectionContainer = sectionHeading.parentElement;
+    if (!sectionContainer) return;
+
+    const links = sectionContainer.querySelectorAll("a");
+    if (links.length > 0) {
+      links.forEach((link) => {
+        const href = link.getAttribute("href");
+        const text = link.textContent?.trim();
+        if (!href || !text) return;
+
+        if (contactType === "email" && href.startsWith("mailto:")) {
+          const address = href
+            .replace(/^mailto:/i, "")
+            .split(/[?;]/)[0]
+            ?.trim();
+          if (address?.includes("@")) emailRaw = address;
+        } else if (contactType === "phone") {
+          const norm = normalizePhone(text);
+          if (norm && norm.length >= 5) phoneRaw = norm;
+        } else if (contactType === "website" && href.startsWith("http")) {
+          if (!href.includes("linkedin.com") && !socialLinks.includes(href)) {
+            socialLinks.push(href);
+          }
+        }
+      });
+    } else if (contactType === "phone") {
+      const fullText = sectionContainer.textContent ?? "";
+      const phoneValue = fullText
+        .replace(headingText, "")
+        .replace(/phone/gi, "")
+        .trim();
+      if (phoneValue) {
+        const norm = normalizePhone(phoneValue);
+        if (norm && norm.length >= 5) phoneRaw = norm;
+      }
+    }
+  });
+
+  return { email: emailRaw, phone: phoneRaw, socialLinks };
+}
+
+/**
+ * Fallback: парсинг контактов из видимой секции профиля (section.pv-contact-info).
+ * Используется, когда overlay-диалог не открыт.
+ */
+function parseContactsFromVisibleSection(doc: Document): {
+  email: string | null;
+  phone: string | null;
+  socialLinks: string[];
+} {
   const contactSection =
     doc.querySelector("section.pv-contact-info") ??
     doc.querySelector("section[data-view-name*='contact']") ??
     null;
+  if (!contactSection) return { email: null, phone: null, socialLinks: [] };
 
   let emailRaw: string | null = null;
-  const emailEl = contactSection?.querySelector('a[href^="mailto:"]');
+  const emailEl = contactSection.querySelector('a[href^="mailto:"]');
   if (emailEl) {
     const raw = emailEl
       .getAttribute("href")
@@ -687,34 +769,51 @@ export function parseContacts(doc: Document = document): ContactInfo {
       .trim();
     if (raw) {
       const address = raw.split(/[?;]/)[0]?.trim();
-      emailRaw = address || null;
+      if (address?.includes("@")) emailRaw = address;
     }
   }
 
   let phoneRaw: string | null = null;
-  if (contactSection) {
-    const candidates = contactSection.querySelectorAll(
-      "span.t-14.t-black.t-normal, span.t-14, a.t-14",
-    );
-    for (const el of candidates) {
-      const raw = el.textContent?.trim();
-      if (raw) {
-        phoneRaw = normalizePhone(raw);
-        if (phoneRaw) break;
-      }
+  const candidates = contactSection.querySelectorAll(
+    "span.t-14.t-black.t-normal, span.t-14, a.t-14",
+  );
+  for (const el of candidates) {
+    const raw = el.textContent?.trim();
+    if (raw) {
+      phoneRaw = normalizePhone(raw);
+      if (phoneRaw && phoneRaw.length >= 5) break;
     }
   }
 
   const socialLinks: string[] = [];
-  contactSection?.querySelectorAll('a[href^="http"]').forEach((link) => {
+  contactSection.querySelectorAll('a[href^="http"]').forEach((link) => {
     const href = link.getAttribute("href");
     if (href && !href.includes("linkedin.com") && !socialLinks.includes(href))
       socialLinks.push(href);
   });
 
+  return { email: emailRaw, phone: phoneRaw, socialLinks };
+}
+
+/**
+ * Извлекает контакты по логике joeyism/linkedin_scraper.
+ * Сначала пробует overlay-диалог (dialog / [role="dialog"]) с секциями h3,
+ * затем fallback на видимую секцию section.pv-contact-info.
+ */
+export function parseContacts(doc: Document = document): ContactInfo {
+  const fromDialog = parseContactsFromDialog(doc);
+  const fromSection = parseContactsFromVisibleSection(doc);
+
+  const email = fromDialog.email ?? fromSection.email ?? null;
+  const phoneVal = fromDialog.phone ?? fromSection.phone;
+  const phone = phoneVal && phoneVal.length > 0 ? phoneVal : null;
+  const socialLinks = [
+    ...new Set([...fromDialog.socialLinks, ...fromSection.socialLinks]),
+  ];
+
   const result = ContactInfoSchema.safeParse({
-    email: emailRaw ?? null,
-    phone: phoneRaw && phoneRaw.length > 0 ? phoneRaw : null,
+    email,
+    phone,
     socialLinks,
   });
   if (!result.success) {
@@ -724,15 +823,15 @@ export function parseContacts(doc: Document = document): ContactInfo {
       (href) => urlSchema.safeParse(href).success,
     );
     const phoneSafe =
-      phoneRaw &&
-      phoneRaw.length >= 5 &&
-      phoneRaw.length <= 25 &&
-      /\d{5,}/.test(phoneRaw)
-        ? phoneRaw
+      phone && phone.length >= 5 && phone.length <= 25 && /\d{5,}/.test(phone)
+        ? phone
         : null;
+    const emailSafe =
+      email && z.string().email().safeParse(email).success ? email : null;
     return createSafeContactInfo({
       socialLinks: validSocialLinks,
       phone: phoneSafe,
+      email: emailSafe,
     });
   }
   return result.data;

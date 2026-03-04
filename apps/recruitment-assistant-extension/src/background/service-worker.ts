@@ -584,6 +584,39 @@ chrome.runtime.onMessage.addListener(
           return false;
         }
 
+        let parsedUrl: URL;
+        try {
+          parsedUrl = new URL(url);
+        } catch {
+          sendResponse({ success: false, error: "Invalid or disallowed URL" });
+          return false;
+        }
+        if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+          log("FETCH_IMAGE blocked: invalid protocol", { url });
+          sendResponse({ success: false, error: "Invalid or disallowed URL" });
+          return false;
+        }
+        const imageHost = parsedUrl.hostname.toLowerCase();
+        const imageAllowedHosts = [
+          "media.licdn.com",
+          "hh.ru",
+          "www.hh.ru",
+          ...(typeof process !== "undefined" && process.env?.NODE_ENV === "test"
+            ? ["cdn.example.com"]
+            : []),
+        ];
+        const isImageHostAllowed = imageAllowedHosts.some(
+          (h) => imageHost === h || imageHost.endsWith(`.${h}`),
+        );
+        if (!isImageHostAllowed) {
+          log("FETCH_IMAGE blocked: host not in allowlist", {
+            url,
+            host: imageHost,
+          });
+          sendResponse({ success: false, error: "Invalid or disallowed URL" });
+          return false;
+        }
+
         (async () => {
           try {
             log("Загрузка изображения", { url });
