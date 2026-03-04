@@ -36,7 +36,7 @@ const getBaseUrl = () => {
   return `http://localhost:${process.env.PORT || 3000}`;
 };
 
-// Создаем RPCLink
+// Создаем RPCLink (локально идёт через api/orpc Route Handler с таймаутом 120 сек)
 const link = new RPCLink({
   url: `${getBaseUrl()}/api/orpc`,
 });
