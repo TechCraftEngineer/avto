@@ -60,9 +60,22 @@ export class DataExtractor {
       );
     }
 
+    const adapterKey =
+      [...this.adapters.entries()].find(([, a]) => a === adapter)?.[0] ??
+      (adapter as { constructor?: { name?: string } }).constructor?.name ??
+      "unknown";
+
     try {
       if (adapter.prepareForExtraction) {
-        await adapter.prepareForExtraction();
+        try {
+          await adapter.prepareForExtraction();
+        } catch (prepError) {
+          console.error(
+            `[DataExtractor] prepareForExtraction failed for adapter "${adapterKey}":`,
+            prepError,
+          );
+          // Продолжаем выполнение — base data всё ещё можно извлечь
+        }
       }
       const data = adapter.extractAll();
       return data;

@@ -490,12 +490,12 @@ async function importToVacancy(
   }
 
   const telegram = extractTelegramFromSocialLinks(data.contacts?.socialLinks);
-
   let aboutMe: string | undefined;
   if (rawSource === "LINKEDIN" && typeof document !== "undefined") {
     const { parseAbout } = await import("../../parsers/linkedin");
     aboutMe = parseAbout(document) || undefined;
   }
+  console.log("aboutme", aboutMe);
 
   const profileDataForImport = buildProfileDataForImport(
     data,

@@ -8,6 +8,7 @@ import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 import { ResponseParser } from "../../../services/response-parser";
 import { createErrorHandler } from "../../../utils/error-handler";
+import { truncateCoverLetter } from "../../../utils/truncate-cover-letter";
 import type { ImportResult } from "./import-bulk-responses";
 
 const retryBulkImportInputSchema = z.object({
@@ -121,9 +122,7 @@ export const retryBulkImport = protectedProcedure
               candidateId:
                 parsed.contactInfo.platformProfile || crypto.randomUUID(),
               candidateName: parsed.freelancerName,
-              coverLetter: parsed.responseText
-                ? parsed.responseText.slice(0, 2000)
-                : null,
+              coverLetter: truncateCoverLetter(parsed.responseText),
               importSource: input.platformSource,
               profileUrl: parsed.contactInfo.platformProfile,
               phone: parsed.contactInfo.phone,

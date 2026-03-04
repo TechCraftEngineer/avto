@@ -56,17 +56,13 @@ const PEER_UNAVAILABLE_ERRORS = [
 ];
 
 function isPeerUnavailableError(error: unknown): boolean {
+  const text =
+    error && typeof error === "object"
+      ? (error as { text?: unknown }).text
+      : undefined;
   const fromText =
-    error &&
-    typeof error === "object" &&
-    "text" in error &&
-    (() => {
-      const text = (error as { text?: unknown }).text;
-      return (
-        typeof text === "string" &&
-        PEER_UNAVAILABLE_ERRORS.some((code) => text.includes(code))
-      );
-    })();
+    typeof text === "string" &&
+    PEER_UNAVAILABLE_ERRORS.some((code) => text.includes(code));
 
   const fromMessage =
     error instanceof Error &&

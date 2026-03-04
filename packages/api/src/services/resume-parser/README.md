@@ -44,8 +44,8 @@ DOCLING_API_KEY=''
 ### 3. Проверка работоспособности
 
 ```bash
-# Проверить доступность API
-curl http://localhost:8000/health
+# Проверить доступность API (порт соответствует DOCLING_API_URL)
+curl http://localhost:8001/health
 ```
 
 ## Использование
