@@ -588,15 +588,20 @@ chrome.runtime.onMessage.addListener(
         try {
           parsedUrl = new URL(url);
         } catch {
-          sendResponse({ success: false, error: "Invalid or disallowed URL" });
+          sendResponse({
+            success: false,
+            error: "Неверный или запрещённый URL",
+          });
           return false;
         }
         if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
           log("FETCH_IMAGE blocked: invalid protocol", { url });
-          sendResponse({ success: false, error: "Invalid or disallowed URL" });
+          sendResponse({
+            success: false,
+            error: "Неверный или запрещённый URL",
+          });
           return false;
         }
-        const imageHost = parsedUrl.hostname.toLowerCase();
         const imageAllowedHosts = [
           "media.licdn.com",
           "hh.ru",
@@ -605,15 +610,18 @@ chrome.runtime.onMessage.addListener(
             ? ["cdn.example.com"]
             : []),
         ];
-        const isImageHostAllowed = imageAllowedHosts.some(
-          (h) => imageHost === h || imageHost.endsWith(`.${h}`),
-        );
-        if (!isImageHostAllowed) {
+        const isImageHostAllowed = (host: string) =>
+          imageAllowedHosts.some((h) => host === h || host.endsWith(`.${h}`));
+        const imageHost = parsedUrl.hostname.toLowerCase();
+        if (!isImageHostAllowed(imageHost)) {
           log("FETCH_IMAGE blocked: host not in allowlist", {
             url,
             host: imageHost,
           });
-          sendResponse({ success: false, error: "Invalid or disallowed URL" });
+          sendResponse({
+            success: false,
+            error: "Неверный или запрещённый URL",
+          });
           return false;
         }
 
@@ -629,6 +637,54 @@ chrome.runtime.onMessage.addListener(
               throw new Error(
                 `HTTP ${response.status}: ${response.statusText}`,
               );
+            }
+
+            const finalUrl = response.url;
+            if (finalUrl) {
+              let finalParsed: URL;
+              try {
+                finalParsed = new URL(finalUrl);
+              } catch {
+                log("FETCH_IMAGE blocked: invalid final URL after redirect", {
+                  url,
+                  finalUrl,
+                });
+                sendResponse({
+                  success: false,
+                  error: "Неверный или запрещённый URL",
+                });
+                return;
+              }
+              if (
+                finalParsed.protocol !== "http:" &&
+                finalParsed.protocol !== "https:"
+              ) {
+                log("FETCH_IMAGE blocked: invalid protocol after redirect", {
+                  url,
+                  finalUrl,
+                });
+                sendResponse({
+                  success: false,
+                  error: "Неверный или запрещённый URL",
+                });
+                return;
+              }
+              const finalHost = finalParsed.hostname.toLowerCase();
+              if (!isImageHostAllowed(finalHost)) {
+                log(
+                  "FETCH_IMAGE blocked: host not in allowlist after redirect",
+                  {
+                    url,
+                    finalUrl,
+                    host: finalHost,
+                  },
+                );
+                sendResponse({
+                  success: false,
+                  error: "Неверный или запрещённый URL",
+                });
+                return;
+              }
             }
 
             const buffer = await response.arrayBuffer();

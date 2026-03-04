@@ -69,7 +69,7 @@ const bodySchema = z.object({
       platformProfileUrl: z.string().max(1000).optional(),
     })
     .optional(),
-  responseText: z.string(),
+  responseText: z.string().max(10000),
   /** Фото кандидата в формате data:image/...;base64,... */
   photoUrl: z
     .string()
@@ -85,7 +85,7 @@ const bodySchema = z.object({
   /** Структурированные данные профиля (опыт, образование, о себе) */
   profileData: profileDataSchema.optional(),
   /** Навыки кандидата */
-  skills: z.array(z.string()).optional(),
+  skills: z.array(z.string().max(200)).max(50).optional(),
 });
 
 function mapPlatformToSource(

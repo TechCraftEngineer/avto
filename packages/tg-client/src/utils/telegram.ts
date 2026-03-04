@@ -47,6 +47,28 @@ export async function getChatHistory(
   }
 }
 
+/** Ошибки Telegram, при которых чат недоступен — не логируем как критичную ошибку */
+const PEER_UNAVAILABLE_ERRORS = [
+  "PEER_ID_INVALID",
+  "CHANNEL_INVALID",
+  "CHAT_INVALID",
+  "USER_INVALID",
+];
+
+function isPeerUnavailableError(error: unknown): boolean {
+  if (error && typeof error === "object" && "text" in error) {
+    const text = (error as { text?: string }).text;
+    return (
+      typeof text === "string" &&
+      PEER_UNAVAILABLE_ERRORS.some((code) => text === code)
+    );
+  }
+  if (error instanceof Error) {
+    return PEER_UNAVAILABLE_ERRORS.some((code) => error.message.includes(code));
+  }
+  return false;
+}
+
 /**
  * Отметить сообщения как прочитанные
  */
@@ -64,6 +86,10 @@ export async function markRead(
       });
     });
   } catch (error) {
+    if (isPeerUnavailableError(error)) {
+      // Чат недоступен (удалён, заблокирован, мигрирован) — пропускаем тихо
+      return;
+    }
     console.error("Ошибка при отметке сообщений как прочитанных:", error);
   }
 }

@@ -667,15 +667,34 @@ function createSafeContactInfo(
 }
 
 /**
- * Маппинг заголовка секции контактов в тип (joeyism/linkedin_scraper _map_contact_heading_to_type)
+ * Маппинг заголовка секции контактов в тип (joeyism/linkedin_scraper _map_contact_heading_to_type).
+ * Поддерживает английские и локализованные (русские и др.) заголовки.
  */
 function mapContactHeadingToType(
   heading: string,
 ): "email" | "phone" | "website" | null {
-  const lower = heading.toLowerCase();
-  if (lower.includes("email")) return "email";
-  if (lower.includes("phone")) return "phone";
-  if (lower.includes("website")) return "website";
+  const lower = heading.trim().toLowerCase();
+  if (
+    lower.includes("email") ||
+    lower.includes("электронная почта") ||
+    lower.includes("почта") ||
+    lower.includes("e-mail")
+  )
+    return "email";
+  if (
+    lower.includes("phone") ||
+    lower.includes("телефон") ||
+    lower.includes("мобильный") ||
+    lower.includes("mobile")
+  )
+    return "phone";
+  if (
+    lower.includes("website") ||
+    lower.includes("веб-сайт") ||
+    lower.includes("сайт") ||
+    lower.includes("web")
+  )
+    return "website";
   if (lower.includes("twitter") || lower.includes("x.com")) return "website";
   return null;
 }
