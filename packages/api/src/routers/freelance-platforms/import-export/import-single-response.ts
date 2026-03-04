@@ -24,7 +24,9 @@ const importSingleResponseInputSchema = z.object({
       platformProfileUrl: z.string().optional(),
     })
     .optional(),
-  responseText: z.string(),
+  responseText: z
+    .string()
+    .transform((s) => (s.length > 2000 ? s.slice(0, 2000) : s)),
 });
 
 export const importSingleResponse = protectedProcedure

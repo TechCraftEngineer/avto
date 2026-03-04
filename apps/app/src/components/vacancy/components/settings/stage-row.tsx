@@ -42,7 +42,7 @@ export function SortableStageRow({
   onRemove,
   canRemove,
 }: SortableStageRowProps) {
-  const id = stage.id ?? stage.clientId!;
+  const id = stage.id ?? stage.clientId ?? `stage-${index}`;
   const {
     attributes,
     listeners,

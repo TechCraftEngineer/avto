@@ -105,9 +105,8 @@ export const env = createEnv({
       .default("true")
       .transform((val) => val === "true"),
 
-    // Docling
-    // Note: DOCLING_API_URL uses port 8080 to avoid conflict with PORT (default 8000)
-    DOCLING_API_URL: z.url().optional().default("http://localhost:8080"),
+    // Docling-serve: listens on 5001, Docker maps 8001:5001
+    DOCLING_API_URL: z.url().optional().default("http://localhost:8001"),
     DOCLING_API_KEY: z.string().optional().default(""),
 
     // Embedding Service Configuration

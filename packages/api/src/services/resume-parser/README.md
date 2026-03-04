@@ -34,8 +34,8 @@ docker ps | grep docling
 Добавьте в `.env`:
 
 ```env
-# URL Docling API сервиса
-DOCLING_API_URL='http://localhost:8000'
+# URL Docling API (docling-serve: порт 5001, Docker маппит 8001:5001)
+DOCLING_API_URL='http://localhost:8001'
 
 # API ключ (опционально для локального Docker)
 DOCLING_API_KEY=''

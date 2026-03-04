@@ -2,7 +2,6 @@ import "server-only";
 import { createRouterClient } from "@orpc/server";
 import { appRouter } from "@qbs-autonaim/api";
 import { createContext } from "@qbs-autonaim/api/orpc";
-import type { Auth } from "@qbs-autonaim/auth";
 import { headers } from "next/headers";
 import { cache } from "react";
 import { auth } from "~/auth/server";
@@ -13,7 +12,7 @@ const createServerContext = cache(async () => {
 
   return createContext({
     headers: heads,
-    auth: auth as Auth,
+    auth,
   });
 });
 

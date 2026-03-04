@@ -121,7 +121,9 @@ export const retryBulkImport = protectedProcedure
               candidateId:
                 parsed.contactInfo.platformProfile || crypto.randomUUID(),
               candidateName: parsed.freelancerName,
-              coverLetter: parsed.responseText,
+              coverLetter: parsed.responseText
+                ? parsed.responseText.slice(0, 2000)
+                : null,
               importSource: input.platformSource,
               profileUrl: parsed.contactInfo.platformProfile,
               phone: parsed.contactInfo.phone,

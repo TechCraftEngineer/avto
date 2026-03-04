@@ -1,5 +1,6 @@
 export {
   expandSeeMoreButtons,
+  openContactInfoOverlay,
   parseAbout,
   parseBasicInfo,
   parseContacts,

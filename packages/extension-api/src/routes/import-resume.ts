@@ -69,7 +69,9 @@ const bodySchema = z.object({
       platformProfileUrl: z.string().max(1000).optional(),
     })
     .optional(),
-  responseText: z.string().max(10000),
+  responseText: z
+    .string()
+    .transform((s) => (s.length > 2000 ? s.slice(0, 2000) : s)),
   /** Фото кандидата в формате data:image/...;base64,... */
   photoUrl: z
     .string()

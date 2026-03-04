@@ -84,6 +84,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=8000
+      - DOCLING_API_URL=${DOCLING_API_URL:-http://docling:5001}
   app:
     restart: always
     build:
@@ -99,6 +100,7 @@ services:
       - PORT=3000
       - HOSTNAME=0.0.0.0
       - MCP_ROOT_PATH=/srv/mcp
+      - DOCLING_API_URL=${DOCLING_API_URL:-http://docling:5001}
   app-server:
     restart: always
     build:
@@ -113,6 +115,7 @@ services:
       - NODE_ENV=production
       - PORT=4000
       - GOTENBERG_URL=http://gotenberg:3000
+      - DOCLING_API_URL=${DOCLING_API_URL:-http://docling:5001}
   web:
     restart: always
     build:
@@ -180,7 +183,7 @@ services:
     image: quay.io/docling-project/docling-serve-cpu:latest
     container_name: docling
     ports:
-      - 8001:5001
+      - 5001:5001
     environment:
       - DOCLING_SERVE_ENABLE_UI=1
     healthcheck:

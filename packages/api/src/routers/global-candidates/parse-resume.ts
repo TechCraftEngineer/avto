@@ -35,6 +35,7 @@ export const parseResume = protectedProcedure
     const resumeParser = new ResumeParserService({
       model: getAIModel(),
       langfuse,
+      config: { aiTimeoutMs: 90_000 }, // 90 сек — для сложных PDF с OCR
     });
 
     const validation = resumeParser.validateFormat(input.filename);

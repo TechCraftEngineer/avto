@@ -8,6 +8,7 @@
 
 import {
   expandSeeMoreButtons,
+  openContactInfoOverlay,
   parseBasicInfo,
   parseContacts,
   parseEducations,
@@ -77,10 +78,17 @@ export class LinkedInAdapter extends PlatformAdapter {
 
   /**
    * Извлекает контактную информацию из профиля LinkedIn.
-   * section.pv-contact-info, mailto:, http-ссылки.
+   * Через overlay/contact-info (dialog) или section.pv-contact-info.
    */
   extractContacts(): ContactInfo {
     return parseContacts(document);
+  }
+
+  /**
+   * Открывает модальное окно контактов (overlay/contact-info) перед парсингом.
+   */
+  override async prepareForExtraction(): Promise<void> {
+    await openContactInfoOverlay(document);
   }
 
   /**

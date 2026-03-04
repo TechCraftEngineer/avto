@@ -60,6 +60,12 @@ export abstract class PlatformAdapter {
   abstract extractContacts(): ContactInfo;
 
   /**
+   * Опциональная подготовка перед извлечением (например, открытие overlay).
+   * Вызывается перед extractAll() только для адаптеров с асинхронной подготовкой.
+   */
+  prepareForExtraction?(): Promise<void>;
+
+  /**
    * Извлекает все данные профиля кандидата
    *
    * Этот метод координирует вызовы всех методов извлечения данных
