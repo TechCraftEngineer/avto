@@ -12,8 +12,13 @@ const genderEnum = z.enum(["male", "female"]);
 export const createGlobalCandidateFormSchema = z.object({
   fullName: z
     .string()
-    .min(1, "Укажите ФИО")
-    .max(500, "ФИО не может быть длиннее 500 символов"),
+    .transform((s) => s.trim())
+    .pipe(
+      z
+        .string()
+        .min(1, "Укажите ФИО")
+        .max(500, "ФИО не может быть длиннее 500 символов"),
+    ),
   firstName: z.string().max(100).optional(),
   lastName: z.string().max(100).optional(),
   middleName: z.string().max(100).optional(),
@@ -32,7 +37,7 @@ export const createGlobalCandidateFormSchema = z.object({
   citizenship: z.string().max(100).optional(),
   skills: z.array(z.string().max(100)).optional(),
   experienceYears: z.number().int().min(0).optional(),
-  salaryExpectationsAmount: z.number().int().optional(),
+  salaryExpectationsAmount: z.number().int().min(0).optional(),
   workFormat: workFormatEnum.optional(),
   englishLevel: englishLevelEnum.optional(),
   readyForRelocation: z.boolean().optional(),

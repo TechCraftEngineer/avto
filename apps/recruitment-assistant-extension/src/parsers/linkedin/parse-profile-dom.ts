@@ -1,10 +1,13 @@
 /**
  * Парсер профиля LinkedIn
  *
- * Логика на основе joeyism/linkedin_scraper (https://github.com/joeyism/linkedin_scraper)
- * Адаптирована для работы в контексте браузерного расширения (синхронный DOM).
+ * Структура и селекторы из joeyism/linkedin_scraper (https://github.com/joeyism/linkedin_scraper)
+ * PersonScraper: _get_name_and_location, _get_about, _get_experiences, _get_educations,
+ * _get_contacts, _extract_unique_texts_from_element, _parse_work_times.
+ * Адаптировано для content script (синхронный DOM, без навигации).
  */
 
+import { z } from "zod";
 import { ContactInfoSchema } from "../../shared/schemas";
 import type {
   BasicInfo,
@@ -63,29 +66,65 @@ function extractUniqueTextsFromElement(el: Element): string[] {
   return result;
 }
 
-/** Находит секцию по заголовку h2 в переданном документе */
+/**
+ * Находит секцию по заголовку h2.
+ * Логика из linkedin_scraper: предпочитаем section, fallback — предок с ul/ol.
+ */
 function findSectionByHeading(doc: Document, text: string): Element | null {
   const headings = doc.querySelectorAll("h2");
   const target = text.toLowerCase();
   for (const h of headings) {
-    if (h.textContent?.trim().toLowerCase().includes(target))
-      return h.closest("section") ?? h.parentElement?.closest("section") ?? h;
+    if (!h.textContent?.trim().toLowerCase().includes(target)) continue;
+    const section =
+      h.closest("section") ?? h.parentElement?.closest("section") ?? h;
+    if (section) return section;
+    // Fallback: ищем ближайшего предка с ul или ol (linkedin_scraper xpath=ancestor::*[.//ul or .//ol][1])
+    let el: Element | null = h.parentElement;
+    for (let i = 0; i < 6 && el; i++) {
+      if (el.querySelector("ul, ol, .pvs-list__container")) return el;
+      el = el.parentElement;
+    }
+    return h.parentElement;
   }
   return null;
 }
 
-/** Находит список элементов в секции (ul > li, ol > li, .pvs-list__paged-list-item) */
+/**
+ * Находит список элементов в секции.
+ * Селекторы из linkedin_scraper: ul > li, ol > li, list > listitem, .pvs-list__paged-list-item.
+ */
 function getSectionListItems(container: Element): Element[] {
   const ul = container.querySelector("ul, ol");
   if (ul) {
     return Array.from(ul.querySelectorAll(":scope > li"));
+  }
+  const list = container.querySelector("list");
+  if (list) {
+    const items = list.querySelectorAll(":scope > listitem");
+    if (items.length > 0) return Array.from(items);
   }
   const pvsList = container.querySelector(".pvs-list__container");
   if (pvsList) {
     const items = pvsList.querySelectorAll(".pvs-list__paged-list-item");
     if (items.length > 0) return Array.from(items);
   }
-  return Array.from(container.querySelectorAll("ul > li, ol > li"));
+  return Array.from(
+    container.querySelectorAll("list > listitem, ul > li, ol > li"),
+  );
+}
+
+/**
+ * Прокручивает страницу для загрузки ленивого контента.
+ * linkedin_scraper: scroll_page_to_half, scroll_page_to_bottom перед парсингом.
+ */
+export function scrollToLoadContent(): void {
+  if (typeof window === "undefined") return;
+  const scrollStep = 400;
+  const maxScrolls = 5;
+  for (let i = 0; i < maxScrolls; i++) {
+    window.scrollBy(0, scrollStep);
+  }
+  window.scrollTo(0, 0);
 }
 
 /**
@@ -172,13 +211,34 @@ export function parseBasicInfo(doc: Document = document): BasicInfo {
     doc.querySelector("span.text-body-small.inline");
   const location = locationEl?.textContent?.trim() ?? "";
 
-  const photoEl =
-    doc.querySelector(".pv-top-card-profile-picture img") ??
-    doc.querySelector("img.pv-top-card-profile-picture__image") ??
-    doc.querySelector('img[data-delayed-url*="media"]');
+  const photoSelectors = [
+    ".pv-top-card-profile-picture img",
+    "img.pv-top-card-profile-picture__image",
+    'img[data-delayed-url*="media"]',
+    ".pv-top-card-photo img",
+    'section[data-section="profile-photo"] img',
+    '[data-view-name="profile-photo"] img',
+    ".pv-top-card img[src*='media']",
+    ".pv-top-card img[data-delayed-url]",
+    "img[src*='profile-displayphoto']",
+    ".scaffold-layout__main img[src*='licdn']",
+  ];
+  let photoEl: HTMLImageElement | null = null;
+  for (const sel of photoSelectors) {
+    const el = doc.querySelector<HTMLImageElement>(sel);
+    if (
+      el?.src ||
+      el?.getAttribute("src") ||
+      el?.getAttribute("data-delayed-url")
+    ) {
+      photoEl = el;
+      break;
+    }
+  }
   const photoUrl =
     photoEl?.getAttribute("src") ??
     photoEl?.getAttribute("data-delayed-url") ??
+    photoEl?.currentSrc ??
     null;
 
   return {
@@ -601,11 +661,11 @@ function normalizePhone(s: string): string {
   return (hasPlus ? "+" : "") + digits;
 }
 
-const SAFE_DEFAULT: ContactInfo = {
-  email: null,
-  phone: null,
-  socialLinks: [],
-};
+function createSafeContactInfo(
+  overrides: Partial<ContactInfo> = {},
+): ContactInfo {
+  return { email: null, phone: null, socialLinks: [], ...overrides };
+}
 
 /**
  * Извлекает контакты из видимой секции и контактной информации.
@@ -658,8 +718,22 @@ export function parseContacts(doc: Document = document): ContactInfo {
     socialLinks,
   });
   if (!result.success) {
-    console.warn("[parseContacts] validation failed:", result.error);
-    return SAFE_DEFAULT;
+    console.warn("[parseContacts] validation failed for contact info");
+    const urlSchema = z.string().url();
+    const validSocialLinks = socialLinks.filter(
+      (href) => urlSchema.safeParse(href).success,
+    );
+    const phoneSafe =
+      phoneRaw &&
+      phoneRaw.length >= 5 &&
+      phoneRaw.length <= 25 &&
+      /\d{5,}/.test(phoneRaw)
+        ? phoneRaw
+        : null;
+    return createSafeContactInfo({
+      socialLinks: validSocialLinks,
+      phone: phoneSafe,
+    });
   }
   return result.data;
 }

@@ -28,6 +28,33 @@ import { processResumeText } from "./hh-import/utils/resume-text";
 
 const platformSourceSchema = z.enum(platformSourceValues);
 
+const experienceItemSchema = z.object({
+  company: z.string().optional(),
+  position: z.string().optional(),
+  period: z.string().optional(),
+  description: z.string().optional(),
+});
+
+const educationItemSchema = z.object({
+  institution: z.string().optional(),
+  degree: z.string().optional(),
+  period: z.string().optional(),
+  specialization: z.string().optional(),
+  field: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+});
+
+const profileDataSchema = z.object({
+  platform: z.string().optional(),
+  profileUrl: z.string().optional(),
+  aboutMe: z.string().optional(),
+  skills: z.array(z.string()).optional(),
+  experience: z.array(experienceItemSchema).optional(),
+  education: z.array(educationItemSchema).optional(),
+  parsedAt: z.string().optional(),
+});
+
 const bodySchema = z.object({
   vacancyId: z.uuid(),
   /** Если передан — используем существующего кандидата вместо findOrCreate */
@@ -55,6 +82,10 @@ const bodySchema = z.object({
   resumePdfBase64: z.string().optional(),
   /** HTML текст резюме для парсинга */
   resumeTextHtml: z.string().optional(),
+  /** Структурированные данные профиля (опыт, образование, о себе) */
+  profileData: profileDataSchema.optional(),
+  /** Навыки кандидата */
+  skills: z.array(z.string()).optional(),
 });
 
 function mapPlatformToSource(
@@ -230,6 +261,22 @@ export async function handleImportResume(c: Context) {
     );
   }
 
+  const mergedProfileData =
+    input.profileData || input.skills?.length
+      ? {
+          ...(input.profileData ?? {}),
+          skills: input.skills?.length
+            ? input.skills
+            : input.profileData?.skills,
+          profileUrl: input.profileData?.profileUrl ?? normalizedProfileUrl,
+          parsedAt: input.profileData?.parsedAt ?? new Date().toISOString(),
+        }
+      : undefined;
+
+  const responseSkills = input.skills?.length
+    ? input.skills
+    : mergedProfileData?.skills;
+
   const insertValues = {
     entityId: input.vacancyId,
     entityType: "vacancy" as const,
@@ -251,6 +298,8 @@ export async function handleImportResume(c: Context) {
       : undefined,
     status: "NEW" as const,
     respondedAt: new Date(),
+    ...(mergedProfileData ? { profileData: mergedProfileData } : {}),
+    ...(responseSkills?.length ? { skills: responseSkills } : {}),
   };
 
   // Upsert: при повторном импорте того же резюме просто перезаписываем данные
@@ -271,6 +320,8 @@ export async function handleImportResume(c: Context) {
         telegramUsername: input.contactInfo?.telegram,
         globalCandidateId: globalCandidateId ?? undefined,
         contacts: insertValues.contacts,
+        ...(mergedProfileData ? { profileData: mergedProfileData } : {}),
+        ...(responseSkills?.length ? { skills: responseSkills } : {}),
         updatedAt: new Date(),
       },
     })

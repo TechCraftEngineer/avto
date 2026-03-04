@@ -8,6 +8,7 @@
 import type { PlatformAdapter } from "../adapters/base/platform-adapter";
 import type { CandidateData } from "../shared/types";
 import {
+  buildResponseText,
   checkDuplicateCandidate,
   extractCandidateData,
   importCandidateData,
@@ -245,17 +246,11 @@ export class ContentScript {
     const profileUrl =
       data.profileUrl ||
       (typeof window !== "undefined" ? window.location.href : undefined);
-    const responseText = [
-      data.basicInfo.currentPosition || "",
-      data.basicInfo.location ? `Локация: ${data.basicInfo.location}` : "",
-      data.skills?.length ? `Навыки: ${data.skills.join(", ")}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n\n");
+    const responseText = buildResponseText(data, platformSource);
     return {
       platformSource,
       profileUrl,
-      responseText: responseText || "Импортировано из расширения",
+      responseText,
     };
   }
 

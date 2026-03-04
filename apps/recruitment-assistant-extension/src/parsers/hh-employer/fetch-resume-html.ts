@@ -96,6 +96,39 @@ export function fetchResumePdfAsBase64(
 }
 
 /**
+ * Загрузка изображения через Service Worker (обходит CORS для разрешённых хостов).
+ * Используется для LinkedIn (media.licdn.com) и других CDN.
+ */
+export function fetchImageAsBase64ViaExtension(
+  photoUrl: string,
+): Promise<{ base64: string; contentType: string }> {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(
+      { type: "FETCH_IMAGE", payload: { url: photoUrl } },
+      (response: {
+        success?: boolean;
+        base64?: string;
+        contentType?: string;
+        error?: string;
+      }) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+        if (response?.success && response.base64) {
+          resolve({
+            base64: response.base64,
+            contentType: response.contentType || "image/jpeg",
+          });
+        } else {
+          reject(new Error(response?.error ?? "Ошибка загрузки фото"));
+        }
+      },
+    );
+  });
+}
+
+/**
  * Загрузка изображения (фото кандидата) через инжект в page context.
  */
 export function fetchPhotoAsBase64(

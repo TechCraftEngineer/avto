@@ -19,6 +19,7 @@ type MessageType =
   | "EXECUTE_CHECK_AND_SAVE_TO_GLOBAL"
   | "FETCH_RESUME_TEXT"
   | "FETCH_RESUME_PDF"
+  | "FETCH_IMAGE"
   | "FETCH_CHATIK_CHATS"
   | "FETCH_CHATIK_SEARCH";
 
@@ -570,6 +571,51 @@ chrome.runtime.onMessage.addListener(
             sendResponse({
               success: false,
               error: err instanceof Error ? err.message : "Ошибка загрузки",
+            });
+          }
+        })();
+        return true;
+      }
+
+      case "FETCH_IMAGE": {
+        const url = (message.payload as { url?: string })?.url;
+        if (typeof url !== "string") {
+          sendResponse({ success: false, error: "Неверный URL" });
+          return false;
+        }
+
+        (async () => {
+          try {
+            log("Загрузка изображения", { url });
+            const response = await fetch(url, {
+              credentials: "include",
+              headers: { Accept: "image/*" },
+            });
+
+            if (!response.ok) {
+              throw new Error(
+                `HTTP ${response.status}: ${response.statusText}`,
+              );
+            }
+
+            const buffer = await response.arrayBuffer();
+            const bytes = new Uint8Array(buffer);
+            let binary = "";
+            for (let i = 0; i < bytes.byteLength; i++) {
+              binary += String.fromCharCode(bytes[i] ?? 0);
+            }
+            const base64 = btoa(binary);
+            const contentType =
+              response.headers.get("content-type")?.split(";")[0]?.trim() ||
+              "image/jpeg";
+
+            sendResponse({ success: true, base64, contentType });
+          } catch (err) {
+            logError("FETCH_IMAGE", err);
+            sendResponse({
+              success: false,
+              error:
+                err instanceof Error ? err.message : "Ошибка загрузки фото",
             });
           }
         })();
