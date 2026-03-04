@@ -95,7 +95,7 @@ function ExperienceEntryCard({
   };
 
   return (
-    <div className="rounded-lg border bg-muted/30 p-3 space-y-3">
+    <div className="rounded-lg border border-border bg-card p-3 space-y-3">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium">
           {entry.company || "Место работы"}

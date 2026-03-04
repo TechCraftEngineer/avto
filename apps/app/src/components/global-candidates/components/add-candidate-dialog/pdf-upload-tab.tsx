@@ -14,7 +14,7 @@ export function PdfUploadTab({
   isPending,
 }: PdfUploadTabProps) {
   return (
-    <label className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/30 py-8 sm:py-12 px-4 sm:px-6 transition-colors hover:border-muted-foreground/40 hover:bg-muted/50 cursor-pointer min-h-[140px] sm:min-h-[180px]">
+    <label className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-card/50 py-8 sm:py-12 px-4 sm:px-6 transition-colors hover:border-muted-foreground/40 hover:bg-card cursor-pointer min-h-[140px] sm:min-h-[180px]">
       <input
         ref={fileInputRef}
         type="file"
@@ -28,7 +28,7 @@ export function PdfUploadTab({
           <Loader2 className="size-10 animate-spin text-muted-foreground mb-3" />
           <p className="text-sm font-medium">Парсинг резюме…</p>
           <p className="text-xs text-muted-foreground mt-1">
-            Docling извлекает текст, LLM структурирует данные
+            Извлекаем текст и заполняем анкету
           </p>
         </>
       ) : (

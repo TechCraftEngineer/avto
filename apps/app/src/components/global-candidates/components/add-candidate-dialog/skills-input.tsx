@@ -28,7 +28,7 @@ export function SkillsInput({ form }: SkillsInputProps) {
           <FormItem className="lg:col-span-2">
             <FormLabel>Навыки</FormLabel>
             <FormControl>
-              <div className="flex flex-wrap gap-2 rounded-md border bg-background px-3 py-2 min-h-10 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+              <div className="flex flex-wrap gap-2 rounded-md border border-input bg-transparent px-3 py-2 min-h-10 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
                 {skillsList.map((skill, i) => (
                   <Badge
                     key={`${skill}-${i}`}
