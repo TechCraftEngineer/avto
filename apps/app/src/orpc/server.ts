@@ -4,6 +4,7 @@ import { createRouterClient } from "@orpc/server";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { appRouter } from "@qbs-autonaim/api";
 import { createContext } from "@qbs-autonaim/api/orpc";
+import type { Auth } from "@qbs-autonaim/auth";
 import { dehydrate } from "@tanstack/react-query";
 import { headers } from "next/headers";
 import { cache } from "react";
@@ -17,7 +18,7 @@ const createServerContext = cache(async () => {
 
   return createContext({
     headers: heads,
-    auth,
+    auth: auth as Auth,
   });
 });
 /**

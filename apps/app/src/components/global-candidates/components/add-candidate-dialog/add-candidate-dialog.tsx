@@ -237,6 +237,7 @@ export function AddCandidateDialog({
         toast.error("Неподдерживаемый формат", {
           description: "Поддерживаются только PDF и DOCX",
         });
+        e.target.value = "";
         return;
       }
 
