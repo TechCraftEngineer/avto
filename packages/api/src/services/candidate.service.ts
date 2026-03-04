@@ -144,10 +144,10 @@ export class CandidateService {
         enriched.birthDate = parseBirthDate(personalInfo.birthDate);
       }
       if (personalInfo.gender && !enriched.gender) {
-        enriched.gender = personalInfo.gender.toLowerCase() as
-          | "male"
-          | "female"
-          | "other";
+        const g = personalInfo.gender.toLowerCase();
+        if (g === "male" || g === "female") {
+          enriched.gender = g;
+        }
       }
       if (personalInfo.citizenship && !enriched.citizenship) {
         enriched.citizenship = personalInfo.citizenship;
@@ -273,14 +273,14 @@ export class CandidateService {
     headline: string | null;
     location: string | null;
     englishLevel: "A1" | "A2" | "B1" | "B2" | "C1" | "C2" | null;
-    gender: "male" | "female" | "other" | null;
+    gender: "male" | "female" | null;
     citizenship: string | null;
   } {
     const result = {
       headline: null as string | null,
       location: null as string | null,
       englishLevel: null as "A1" | "A2" | "B1" | "B2" | "C1" | "C2" | null,
-      gender: null as "male" | "female" | "other" | null,
+      gender: null as "male" | "female" | null,
       citizenship: null as string | null,
     };
 
@@ -299,7 +299,7 @@ export class CandidateService {
     }
     if (personalInfo?.gender) {
       const g = String(personalInfo.gender).toLowerCase();
-      if (g === "male" || g === "female" || g === "other") {
+      if (g === "male" || g === "female") {
         result.gender = g;
       }
     }

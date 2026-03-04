@@ -36,7 +36,7 @@ export interface ContactData {
   additionalData?: {
     location?: string;
     headline?: string;
-    gender?: "male" | "female" | "other";
+    gender?: "male" | "female";
     citizenship?: string;
     experience?: string;
     skills?: string[];

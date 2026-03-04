@@ -136,9 +136,7 @@ export async function enrichResumeData(
     const location = personalInfo?.location?.trim() || undefined;
     const gender = personalInfo?.gender?.toLowerCase();
     const genderNorm =
-      gender === "male" || gender === "female" || gender === "other"
-        ? gender
-        : undefined;
+      gender === "male" || gender === "female" ? gender : undefined;
     const citizenship = personalInfo?.citizenship?.trim() || undefined;
     let englishLevel: "A1" | "A2" | "B1" | "B2" | "C1" | "C2" | undefined;
     const englishLang = resumeData.structuredData?.languages?.find(

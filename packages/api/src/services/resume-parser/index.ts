@@ -691,6 +691,9 @@ export class ResumeParserService {
     return this.parser.extractText(input.content, input.filename);
   }
 
+  /** Макс. попыток AI-структурирования при "response did not match schema" */
+  private static readonly AI_STRUCTURING_MAX_RETRIES = 2;
+
   /**
    * Структурирует текст резюме с помощью AI
    */
@@ -702,22 +705,40 @@ export class ResumeParserService {
     });
 
     const agent = factory.createResumeStructurer();
-    const result = await agent.execute({ rawText }, {});
+    let lastError: string | undefined;
 
-    if (!result.success || !result.data) {
-      throw new ResumeParserError(
-        "AI_STRUCTURING_FAILED",
-        result.error || "AI не смог структурировать резюме",
-      );
+    for (
+      let attempt = 1;
+      attempt <= ResumeParserService.AI_STRUCTURING_MAX_RETRIES;
+      attempt++
+    ) {
+      const result = await agent.execute({ rawText }, {});
+
+      if (result.success && result.data) {
+        const structured = this.mapAgentOutputToStructuredResume(result.data);
+        const confidence = this.calculateConfidence(structured);
+        return { structured, confidence };
+      }
+
+      lastError = result.error;
+      const isSchemaError =
+        lastError?.includes("did not match schema") ||
+        lastError?.includes("No object generated");
+
+      if (
+        attempt < ResumeParserService.AI_STRUCTURING_MAX_RETRIES &&
+        isSchemaError
+      ) {
+        continue; // retry
+      }
+
+      break;
     }
 
-    // Преобразуем выход агента в StructuredResume
-    const structured = this.mapAgentOutputToStructuredResume(result.data);
-
-    // Рассчитываем confidence на основе заполненности полей
-    const confidence = this.calculateConfidence(structured);
-
-    return { structured, confidence };
+    throw new ResumeParserError(
+      "AI_STRUCTURING_FAILED",
+      lastError || "AI не смог структурировать резюме",
+    );
   }
 
   /**
@@ -726,34 +747,35 @@ export class ResumeParserService {
   private mapAgentOutputToStructuredResume(
     output: ResumeStructurerOutput,
   ): StructuredResume {
+    const p = output.personalInfo ?? {};
     return {
       personalInfo: {
-        name: output.personalInfo.name,
-        email: output.personalInfo.email,
-        phone: output.personalInfo.phone,
-        location: output.personalInfo.location,
+        name: p.name ?? undefined,
+        email: p.email ?? undefined,
+        phone: p.phone ?? undefined,
+        location: p.location ?? undefined,
       },
       experience: output.experience.map((exp) => ({
-        company: exp.company,
-        position: exp.position,
-        startDate: exp.startDate,
-        endDate: exp.endDate,
-        description: exp.description,
-        isCurrent: exp.isCurrent,
+        company: exp.company ?? "",
+        position: exp.position ?? "",
+        startDate: exp.startDate ?? undefined,
+        endDate: exp.endDate ?? undefined,
+        description: exp.description ?? undefined,
+        isCurrent: exp.isCurrent ?? false,
       })),
       education: output.education.map((edu) => ({
-        institution: edu.institution,
-        degree: edu.degree,
-        field: edu.field,
-        startDate: edu.startDate,
-        endDate: edu.endDate,
+        institution: edu.institution ?? "",
+        degree: edu.degree ?? undefined,
+        field: edu.field ?? undefined,
+        startDate: edu.startDate ?? undefined,
+        endDate: edu.endDate ?? undefined,
       })),
-      skills: output.skills,
+      skills: output.skills ?? [],
       languages: output.languages.map((lang) => ({
-        name: lang.name,
+        name: lang.name ?? "",
         level: lang.level ?? "",
       })),
-      summary: output.summary,
+      summary: output.summary ?? undefined,
     };
   }
 
