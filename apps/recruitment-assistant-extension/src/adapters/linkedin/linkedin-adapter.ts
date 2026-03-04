@@ -4,10 +4,14 @@
  * Реализация адаптера для извлечения данных из профилей LinkedIn.
  * Использует логику парсинга из joeyism/linkedin_scraper, адаптированную
  * для браузерного расширения (https://github.com/joeyism/linkedin_scraper).
+ *
+ * Для полных данных автоматически загружает страницы details/experience,
+ * details/education, details/skills через фоновую вкладку.
  */
 
 import {
   expandSeeMoreButtons,
+  fetchLinkedInDetails,
   openContactInfoOverlay,
   parseBasicInfo,
   parseContacts,
@@ -29,6 +33,9 @@ import { PlatformAdapter } from "../base/platform-adapter";
  */
 export class LinkedInAdapter extends PlatformAdapter {
   platformName = "LinkedIn";
+
+  private fetchedDetails: Awaited<ReturnType<typeof fetchLinkedInDetails>> =
+    null;
 
   /**
    * Проверяет, является ли текущая страница профилем LinkedIn
@@ -54,26 +61,43 @@ export class LinkedInAdapter extends PlatformAdapter {
 
   /**
    * Извлекает опыт работы из профиля LinkedIn.
-   * Поддерживает: main page, .pvs-list__container, вложенные позиции.
+   * Использует данные с details/experience при наличии, иначе — main page.
    */
   extractExperience(): ExperienceEntry[] {
+    if (this.fetchedDetails?.experience?.length) {
+      return this.fetchedDetails.experience;
+    }
     return parseExperiences(document);
   }
 
   /**
    * Извлекает образование из профиля LinkedIn.
-   * Поддерживает: main page, profile-component-entity.
+   * Использует данные с details/education при наличии, иначе — main page.
    */
   extractEducation(): EducationEntry[] {
+    if (this.fetchedDetails?.education?.length) {
+      return this.fetchedDetails.education;
+    }
     return parseEducations(document);
   }
 
   /**
    * Извлекает навыки из профиля LinkedIn.
-   * Селекторы: #skills, span[aria-hidden="true"], .pv-skill-category-entity
+   * Использует данные с details/skills при наличии, иначе — main page.
    */
   extractSkills(): string[] {
+    if (this.fetchedDetails?.skills?.length) {
+      return this.fetchedDetails.skills;
+    }
     return parseSkills(document);
+  }
+
+  /**
+   * HTML навыков с details/skills для импорта (LLM).
+   * null если не загружено или пусто.
+   */
+  getSkillsHtml(): string | null {
+    return this.fetchedDetails?.skillsHtml ?? null;
   }
 
   /**
@@ -85,10 +109,20 @@ export class LinkedInAdapter extends PlatformAdapter {
   }
 
   /**
-   * Открывает модальное окно контактов (overlay/contact-info) перед парсингом.
+   * Открывает модальное окно контактов (overlay/contact-info).
+   * Загружает details-страницы (experience, education, skills) для полных данных.
    */
   override async prepareForExtraction(): Promise<void> {
     await openContactInfoOverlay(document);
+    // Загружаем details-страницы только с главной страницы профиля (не /details/...)
+    const path = typeof window !== "undefined" ? window.location.pathname : "";
+    if (/^\/in\/[^/]+\/?$/.test(path) && !path.includes("/details/")) {
+      try {
+        this.fetchedDetails = await fetchLinkedInDetails(path);
+      } catch {
+        this.fetchedDetails = null;
+      }
+    }
   }
 
   /**
