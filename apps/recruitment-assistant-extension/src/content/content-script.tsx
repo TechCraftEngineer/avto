@@ -117,9 +117,14 @@ export class ContentScript {
       };
     }
     const sanitizedData = this.normalizeFullName(result.data);
+    const linkedInSkillsHtml =
+      (
+        this.currentAdapter as { getSkillsHtml?: () => string | null }
+      )?.getSkillsHtml?.() ?? undefined;
     try {
       await importCandidateData(sanitizedData, {
         vacancyId: payload.vacancyId,
+        linkedInSkillsHtml: linkedInSkillsHtml ?? undefined,
       });
       return { ok: true, duplicate: false };
     } catch (error) {
@@ -149,7 +154,14 @@ export class ContentScript {
     if (!data) {
       throw new Error("Не удалось извлечь данные профиля");
     }
-    await importToVacancyWithExisting(data, payload);
+    const linkedInSkillsHtml =
+      (
+        this.currentAdapter as { getSkillsHtml?: () => string | null }
+      )?.getSkillsHtml?.() ?? undefined;
+    await importToVacancyWithExisting(data, {
+      ...payload,
+      linkedInSkillsHtml: linkedInSkillsHtml ?? undefined,
+    });
   }
 
   async triggerSaveToGlobalExisting(payload: {
@@ -368,10 +380,15 @@ export class ContentScript {
       return;
     }
     data = this.normalizeFullName(data);
+    const linkedInSkillsHtml =
+      (
+        this.currentAdapter as { getSkillsHtml?: () => string | null }
+      )?.getSkillsHtml?.() ?? undefined;
     try {
       await importCandidateData(data, {
         vacancyId: payload?.vacancyId,
         globalCandidateId: payload?.globalCandidateId,
+        linkedInSkillsHtml: linkedInSkillsHtml ?? undefined,
       });
     } catch (error) {
       const msg =

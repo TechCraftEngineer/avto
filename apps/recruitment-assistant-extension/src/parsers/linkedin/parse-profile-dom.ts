@@ -730,11 +730,9 @@ export function parseEducations(doc: Document = document): EducationEntry[] {
  */
 export function parseSkillsHtml(doc: Document = document): string | null {
   // Страница details/skills — приоритетный источник (могут быть несколько колонок)
-  const isSkillsDetailsPage =
-    typeof window !== "undefined" &&
-    /\/in\/[^/]+\/details\/skills/.test(window.location.pathname);
-  if (isSkillsDetailsPage) {
-    const lazyColumns = doc.querySelectorAll('div[data-testid="lazy-column"]');
+  // Проверяем наличие lazy-column в документе (работает и для fetch-страниц)
+  const lazyColumns = doc.querySelectorAll('div[data-testid="lazy-column"]');
+  if (lazyColumns.length > 0) {
     const parts: string[] = [];
     lazyColumns.forEach((col) => {
       const stripped = stripAttributesFromElement(col).trim();

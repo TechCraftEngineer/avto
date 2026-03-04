@@ -1,3 +1,4 @@
+export { fetchLinkedInDetails } from "./fetch-linkedin-details";
 export {
   expandSeeMoreButtons,
   openContactInfoOverlay,
