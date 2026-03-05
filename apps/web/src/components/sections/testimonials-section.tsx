@@ -118,7 +118,7 @@ export function TestimonialsSection() {
               {/* Stars */}
               <div className="flex gap-1 mb-6">
                 {[...Array(testimonials[activeIndex]!.rating)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 fill-foreground text-foreground" />
+                  <Star key={i} className="h-5 w-5 fill-amber-400 text-amber-400" />
                 ))}
               </div>
 
@@ -128,7 +128,7 @@ export function TestimonialsSection() {
               </blockquote>
 
               {/* Metric badge */}
-              <div className="inline-flex items-center gap-2 rounded-full bg-muted px-4 py-2 text-sm font-medium text-foreground mb-8">
+              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 mb-8">
                 {testimonials[activeIndex]!.metric}
               </div>
 

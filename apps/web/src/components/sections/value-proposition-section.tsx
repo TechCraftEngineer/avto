@@ -38,27 +38,36 @@ export function ValuePropositionSection() {
                 label: "сокращение цикла найма",
                 icon: Zap,
                 description: "От отклика до оффера — за дни, не недели",
+                color: "text-amber-600",
+                bgColor: "bg-amber-50",
+                iconColor: "text-amber-600",
               },
               {
                 value: "94%",
                 label: "точность первичного отбора",
                 icon: TrendingUp,
                 description: "В список отобранных попадают только подходящие",
+                color: "text-emerald-600",
+                bgColor: "bg-emerald-50",
+                iconColor: "text-emerald-600",
               },
               {
                 value: "24/7",
                 label: "интервью без дедлайнов",
                 icon: Users,
                 description: "Кандидаты проходят в удобное время",
+                color: "text-blue-600",
+                bgColor: "bg-blue-50",
+                iconColor: "text-blue-600",
               },
             ].map((stat, index) => (
               <div key={index} className="bg-card border border-border rounded-xl p-6 hover:border-foreground/20 transition-colors">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="p-3 rounded-xl bg-muted">
-                    <stat.icon className="h-6 w-6 text-foreground" />
+                  <div className={`p-3 rounded-xl ${stat.bgColor}`}>
+                    <stat.icon className={`h-6 w-6 ${stat.iconColor}`} />
                   </div>
                 </div>
-                <div className="text-4xl md:text-5xl font-bold mb-3 text-foreground">{stat.value}</div>
+                <div className={`text-4xl md:text-5xl font-bold mb-3 ${stat.color}`}>{stat.value}</div>
                 <div className="text-base font-semibold text-foreground mb-2 leading-snug">{stat.label}</div>
                 <div className="text-sm text-muted-foreground">{stat.description}</div>
               </div>

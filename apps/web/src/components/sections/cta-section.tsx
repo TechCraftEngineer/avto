@@ -28,7 +28,7 @@ export function CTASection() {
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row mb-8">
           <a
             href={`${env.NEXT_PUBLIC_APP_URL}`}
-            className="flex h-11 items-center justify-center rounded-lg border border-border bg-foreground px-6 text-center text-sm font-medium text-background transition-all hover:bg-foreground/90"
+            className="flex h-11 items-center justify-center rounded-lg bg-blue-600 px-6 text-center text-sm font-medium text-white transition-all hover:bg-blue-700"
           >
             Начать бесплатно
             <ArrowRight className="ml-2 h-4 w-4" />
@@ -55,17 +55,17 @@ export function CTASection() {
             </div>
             <div className="flex gap-0.5">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="h-5 w-5 fill-foreground text-foreground" />
+                <Star key={i} className="h-5 w-5 fill-amber-400 text-amber-400" />
               ))}
             </div>
             <span className="text-xs text-muted-foreground ml-1">4.9/5.0</span>
           </div>
           <div className="flex items-center gap-3">
-            <Shield className="h-6 w-6 text-foreground" />
+            <Shield className="h-6 w-6 text-emerald-600" />
             <span className="text-sm text-muted-foreground">Соответствует 152-ФЗ</span>
           </div>
           <div className="flex items-center gap-3">
-            <Award className="h-6 w-6 text-foreground" />
+            <Award className="h-6 w-6 text-amber-500" />
             <span className="text-sm text-muted-foreground">{"HR Tech 2025"}</span>
           </div>
         </div>

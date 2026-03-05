@@ -57,18 +57,18 @@ export function VoiceInterviewSection() {
           <div className="absolute -left-4 top-1/4 z-10 hidden lg:block">
             <div className="rounded-xl border border-border bg-card p-4 shadow-xl">
               <div className="flex items-center gap-3 mb-3">
-                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                  <Volume2 className="h-6 w-6 text-foreground" />
+                <div className="h-10 w-10 rounded-full bg-violet-50 flex items-center justify-center">
+                  <Volume2 className="h-6 w-6 text-violet-600" />
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground">Точность</div>
                   <div className="text-xs text-muted-foreground">транскрибации</div>
                 </div>
               </div>
-              <div className="text-3xl font-bold text-foreground">98.5%</div>
+              <div className="text-3xl font-bold text-violet-600">98.5%</div>
               <div className="flex items-center gap-1 mt-1">
                 <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
-                  <div className="h-full w-[98.5%] bg-foreground rounded-full" />
+                  <div className="h-full w-[98.5%] bg-violet-600 rounded-full" />
                 </div>
               </div>
             </div>
@@ -77,8 +77,8 @@ export function VoiceInterviewSection() {
           <div className="absolute -right-4 top-1/3 z-10 hidden lg:block">
             <div className="rounded-xl border border-border bg-card p-4 shadow-xl">
               <div className="flex items-center gap-3 mb-3">
-                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                  <Brain className="h-6 w-6 text-foreground" />
+                <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                  <Brain className="h-6 w-6 text-blue-600" />
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground">Анализ</div>
@@ -88,15 +88,15 @@ export function VoiceInterviewSection() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Уверенность</span>
-                  <span className="font-medium text-foreground">87%</span>
+                  <span className="font-medium text-blue-600">87%</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Структура</span>
-                  <span className="font-medium text-foreground">92%</span>
+                  <span className="font-medium text-blue-600">92%</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Релевантность</span>
-                  <span className="font-medium text-foreground">95%</span>
+                  <span className="font-medium text-blue-600">95%</span>
                 </div>
               </div>
             </div>
@@ -106,8 +106,8 @@ export function VoiceInterviewSection() {
             <div className="rounded-xl border border-border bg-card p-4 shadow-xl">
               <div className="text-sm text-muted-foreground mb-2">Обработано сегодня</div>
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-foreground">247</span>
-                <span className="text-sm text-foreground font-medium">+23%</span>
+                <span className="text-2xl font-bold text-emerald-600">247</span>
+                <span className="text-sm text-emerald-600 font-medium">+23%</span>
               </div>
               <div className="text-xs text-muted-foreground mt-1">голосовых сообщений</div>
             </div>
@@ -142,16 +142,19 @@ export function VoiceInterviewSection() {
               icon={<Bot className="h-6 w-6" />}
               title="Естественный диалог"
               description="Бот адаптируется под ответы и ведёт беседу как живой рекрутер"
+              color="blue"
             />
             <FeatureCard
               icon={<Mic className="h-6 w-6" />}
               title="Голосовые ответы"
               description="Кандидатам удобнее говорить — конверсия выше на 40%"
+              color="violet"
             />
             <FeatureCard
               icon={<CheckCircle2 className="h-6 w-6" />}
               title="AI-анализ ответов"
               description="Оценка уверенности, структуры речи и релевантности"
+              color="emerald"
             />
           </div>
         </div>
@@ -164,15 +167,23 @@ function FeatureCard({
   icon,
   title,
   description,
+  color = "blue",
 }: {
   icon: React.ReactNode
   title: string
   description: string
+  color?: "blue" | "violet" | "emerald"
 }) {
+  const colorClasses = {
+    blue: "bg-blue-50 text-blue-600",
+    violet: "bg-violet-50 text-violet-600",
+    emerald: "bg-emerald-50 text-emerald-600",
+  }
+
   return (
     <div className="group relative rounded-xl border border-border bg-card p-6 transition-all hover:border-foreground/20">
       <div className="flex items-start gap-4">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground">
+        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${colorClasses[color]}`}>
           {icon}
         </div>
         <div className="flex-1">

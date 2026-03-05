@@ -24,12 +24,12 @@ export function ProblemSection() {
           {/* Stats row */}
           <div className="grid md:grid-cols-3 gap-6 mb-16">
             {[
-              { value: "10x", label: "быстрее обработка откликов" },
-              { value: "85%", label: "экономия времени рекрутера" },
-              { value: "3 дня", label: "среднее время до найма" },
+              { value: "10x", label: "быстрее обработка откликов", color: "text-blue-600" },
+              { value: "85%", label: "экономия времени рекрутера", color: "text-emerald-600" },
+              { value: "3 дня", label: "среднее время до найма", color: "text-violet-600" },
             ].map((stat, index) => (
               <div key={index} className="bg-card border border-border rounded-xl p-6 text-center hover:border-foreground/20 transition-colors">
-                <div className="text-4xl md:text-5xl font-bold mb-2 text-foreground">{stat.value}</div>
+                <div className={`text-4xl md:text-5xl font-bold mb-2 ${stat.color}`}>{stat.value}</div>
                 <div className="text-sm text-muted-foreground">{stat.label}</div>
               </div>
             ))}
