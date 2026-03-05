@@ -30,7 +30,24 @@ function isValidPhotoUrl(src: string | undefined): boolean {
   );
 }
 
-/** Загружает фото для LinkedIn профиля */
+/** Проверяет, что URL — реальное фото LinkedIn (не placeholder) */
+function isRealMediaUrl(url: string): boolean {
+  return (
+    url.includes("media.licdn.com") ||
+    url.includes("licdn.com") ||
+    url.includes("profile-displayphoto")
+  );
+}
+
+/** Проверяет, что строка уже в формате data:image/...;base64,... */
+function isDataUrlBase64(s: string): boolean {
+  return /^data:image\/(png|jpeg|jpg|gif|webp);base64,/.test(s);
+}
+
+/** Загружает фото для LinkedIn профиля.
+ * Селектор: figure[data-view-name="image"] img (профильное фото).
+ * Возвращает base64 data URL для импорта.
+ */
 async function fetchLinkedInPhoto(
   document: Document,
   fallbackPhotoUrl?: string,
@@ -38,28 +55,54 @@ async function fetchLinkedInPhoto(
   const photoImg = document.querySelector<HTMLImageElement>(
     'figure[data-view-name="image"] img',
   );
-  const photoSrc =
-    photoImg?.src ||
-    photoImg?.getAttribute("src") ||
-    photoImg?.getAttribute("data-delayed-url") ||
-    fallbackPhotoUrl;
+  const srcAttr = photoImg?.getAttribute("src");
+  const delayedUrl = photoImg?.getAttribute("data-delayed-url");
+  const resolvedSrc = photoImg?.src;
+
+  // LinkedIn lazy-load: data-delayed-url содержит реальный CDN URL,
+  // а src может быть placeholder. Предпочитаем data-delayed-url на licdn.com
+  let photoSrc: string | undefined;
+  if (delayedUrl && isValidPhotoUrl(delayedUrl) && isRealMediaUrl(delayedUrl)) {
+    photoSrc = delayedUrl;
+  } else if (
+    resolvedSrc &&
+    isValidPhotoUrl(resolvedSrc) &&
+    isRealMediaUrl(resolvedSrc)
+  ) {
+    photoSrc = resolvedSrc;
+  } else {
+    photoSrc =
+      (resolvedSrc && isValidPhotoUrl(resolvedSrc) ? resolvedSrc : undefined) ||
+      (srcAttr && isValidPhotoUrl(srcAttr) ? srcAttr : undefined) ||
+      (delayedUrl && isValidPhotoUrl(delayedUrl) ? delayedUrl : undefined) ||
+      (fallbackPhotoUrl && isValidPhotoUrl(fallbackPhotoUrl)
+        ? fallbackPhotoUrl
+        : undefined);
+  }
 
   if (!isValidPhotoUrl(photoSrc ?? undefined)) return undefined;
+
+  // Уже base64 — возвращаем как есть (API ожидает data:image/...;base64,...)
+  if (photoSrc && isDataUrlBase64(photoSrc)) {
+    return photoSrc;
+  }
+
+  const urlToFetch = photoSrc;
+  if (!urlToFetch) return undefined;
 
   try {
     const { fetchImageAsBase64ViaExtension } = await import(
       "../../../parsers/hh-employer/fetch-resume-html"
     );
-    const { base64, contentType } = await fetchImageAsBase64ViaExtension(
-      photoSrc!,
-    );
+    const { base64, contentType } =
+      await fetchImageAsBase64ViaExtension(urlToFetch);
     return `data:${contentType};base64,${base64}`;
   } catch (err) {
     console.error(
       "[fetchLinkedInPhoto] fetchImageAsBase64ViaExtension failed",
       {
-        host: safeHost(photoSrc ?? undefined),
-        hasPhoto: !!photoSrc,
+        host: safeHost(urlToFetch),
+        hasPhoto: !!urlToFetch,
         message: err instanceof Error ? err.message : String(err),
       },
     );
@@ -87,9 +130,9 @@ async function fetchHHAssets(
     'div[data-qa="resume-photo"] img',
   );
   const photoSrc = photoImg?.src || fallbackPhotoUrl;
-  if (isValidPhotoUrl(photoSrc)) {
+  if (photoSrc && isValidPhotoUrl(photoSrc)) {
     try {
-      const { base64, contentType } = await fetchPhotoAsBase64(photoSrc!);
+      const { base64, contentType } = await fetchPhotoAsBase64(photoSrc);
       result.photoUrl = `data:${contentType};base64,${base64}`;
     } catch (err) {
       console.error("[fetchHHAssets] fetchPhotoAsBase64 failed", {

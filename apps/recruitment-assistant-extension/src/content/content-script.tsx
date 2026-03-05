@@ -18,11 +18,16 @@ import {
   showNotification,
 } from "./lib";
 import { sanitizeAndLimitHtml } from "./lib/sanitize-html";
+import {
+  observeSpaNavigation,
+  shouldInvalidateLinkedInCache,
+} from "./lib/spa-navigation-observer";
 
 export class ContentScript {
   private isInitialized = false;
   private currentData: CandidateData | null = null;
   private currentAdapter: PlatformAdapter | null = null;
+  private unsubscribeSpaNav: (() => void) | null = null;
 
   async init(): Promise<void> {
     if (this.isInitialized) return;
@@ -33,10 +38,35 @@ export class ContentScript {
         this.currentAdapter = adapter;
         await this.setupUI();
       }
+      // SPA observer — на LinkedIn всегда (лента → профиль → другой профиль)
+      if (
+        typeof window !== "undefined" &&
+        window.location.hostname.includes("linkedin.com")
+      ) {
+        this.setupSpaNavigationObserver();
+      }
     } catch (error) {
       console.error("[Recruitment Assistant] Ошибка инициализации:", error);
     }
     this.isInitialized = true;
+  }
+
+  /** Отслеживание SPA-навигации (LinkedIn React) — сброс кэша при смене профиля */
+  private setupSpaNavigationObserver(): void {
+    if (typeof window === "undefined") return;
+    this.unsubscribeSpaNav?.();
+    this.unsubscribeSpaNav = observeSpaNavigation((oldUrl, newUrl) => {
+      if (shouldInvalidateLinkedInCache(oldUrl, newUrl)) {
+        this.invalidateProfileCache();
+      }
+    });
+  }
+
+  private invalidateProfileCache(): void {
+    this.currentData = null;
+    this.currentAdapter = null;
+    const adapter = resolvePlatform();
+    if (adapter) this.currentAdapter = adapter;
   }
 
   private async setupUI(): Promise<void> {
@@ -50,6 +80,13 @@ export class ContentScript {
     return this.handleImport(payload);
   }
 
+  /** Проверяет, актуальны ли закэшированные данные (URL страницы не изменился) */
+  private isCacheStale(): boolean {
+    if (!this.currentData?.profileUrl) return false;
+    const current = typeof window !== "undefined" ? window.location.href : "";
+    return current !== this.currentData.profileUrl;
+  }
+
   private async ensureDataAndCheckDuplicate(): Promise<
     | { ok: true; data: CandidateData; duplicate: false }
     | {
@@ -60,6 +97,8 @@ export class ContentScript {
       }
     | { ok: false; error: string }
   > {
+    if (this.isCacheStale()) this.invalidateProfileCache();
+
     let data = this.currentData;
     if (!data) {
       if (!this.currentAdapter) {
@@ -141,6 +180,7 @@ export class ContentScript {
     vacancyId: string;
     globalCandidateId: string;
   }): Promise<void> {
+    if (this.isCacheStale()) this.invalidateProfileCache();
     let data = this.currentData;
     if (!data) {
       if (!this.currentAdapter) {
@@ -314,6 +354,7 @@ export class ContentScript {
   async triggerSaveToGlobalOnly(payload: {
     workspaceId: string;
   }): Promise<void> {
+    if (this.isCacheStale()) this.invalidateProfileCache();
     let data = this.currentData;
     if (!data) {
       if (!this.currentAdapter) {
@@ -351,6 +392,7 @@ export class ContentScript {
     vacancyId?: string;
     globalCandidateId?: string;
   }): Promise<void> {
+    if (this.isCacheStale()) this.invalidateProfileCache();
     let data = this.currentData;
     if (!data) {
       if (!this.currentAdapter) {
@@ -403,6 +445,8 @@ export class ContentScript {
   }
 
   cleanup(): void {
+    this.unsubscribeSpaNav?.();
+    this.unsubscribeSpaNav = null;
     this.currentData = null;
     this.currentAdapter = null;
     this.isInitialized = false;

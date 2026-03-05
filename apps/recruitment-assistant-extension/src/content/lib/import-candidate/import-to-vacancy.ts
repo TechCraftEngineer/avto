@@ -13,6 +13,18 @@ import {
   extractTelegramFromSocialLinks,
 } from "./transformers";
 
+/** Проверяет, что HTML содержит реальный контент, а не placeholder (Load more и т.п.) */
+function isMeaningfulLinkedInHtml(html: string | undefined): boolean {
+  if (!html || typeof html !== "string") return false;
+  const textOnly = html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+  if (!textOnly) return false;
+  return !/^(load\s*more|show\s*more|see\s*more)\.?\s*$/i.test(textOnly);
+}
+
 export async function importToVacancy(
   data: CandidateData,
   token: string,
@@ -101,7 +113,7 @@ async function importLinkedInToVacancy(
   }
 
   const firstExp = data.experience?.[0];
-  const experienceHtml =
+  const rawExperienceHtml =
     firstExp?.position === "" &&
     firstExp?.description &&
     firstExp.description.includes("<")
@@ -109,12 +121,23 @@ async function importLinkedInToVacancy(
       : undefined;
 
   const firstEdu = data.education?.[0];
-  const educationHtml =
+  const rawEducationHtml =
     firstEdu?.institution === "" &&
     firstEdu?.fieldOfStudy &&
     firstEdu.fieldOfStudy.includes("<")
       ? firstEdu.fieldOfStudy
       : undefined;
+
+  // Не отправлять placeholder (Load more, пустые div и т.п.)
+  const experienceHtml = isMeaningfulLinkedInHtml(rawExperienceHtml)
+    ? rawExperienceHtml
+    : undefined;
+  const educationHtml = isMeaningfulLinkedInHtml(rawEducationHtml)
+    ? rawEducationHtml
+    : undefined;
+  const filteredSkillsHtml = isMeaningfulLinkedInHtml(skillsHtml)
+    ? skillsHtml
+    : undefined;
 
   const body = {
     vacancyId,
@@ -130,7 +153,7 @@ async function importLinkedInToVacancy(
     ...(photoUrl ? { photoUrl } : {}),
     ...(experienceHtml ? { experienceHtml } : {}),
     ...(educationHtml ? { educationHtml } : {}),
-    ...(skillsHtml ? { skillsHtml } : {}),
+    ...(filteredSkillsHtml ? { skillsHtml: filteredSkillsHtml } : {}),
     ...(aboutMe ? { aboutMe } : {}),
     ...(data.skills?.length ? { skills: data.skills } : {}),
     ...(profileUrl ? { profileUrl } : {}),

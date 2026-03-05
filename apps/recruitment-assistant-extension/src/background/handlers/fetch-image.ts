@@ -61,7 +61,7 @@ export async function handleFetchImage(
     const contentType = response.headers.get("content-type");
     if (!contentType?.toLowerCase().startsWith("image/")) {
       throw new Error(
-        `Недопустимый content-type: ожидалось image/*, получено ${contentType ?? "unknown"}`,
+        `Недопустимый content-type: ожидалось image/*, получено ${contentType ?? "неизвестно"}`,
       );
     }
 

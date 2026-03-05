@@ -448,6 +448,16 @@ function sanitizeHtmlForStorage(dirty: string): string {
   });
 }
 
+/** Проверяет, что HTML — placeholder (Load more, пустые обёртки) */
+function isPlaceholderHtml(html: string): boolean {
+  const text = html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!text) return true;
+  return /^(load\s*more|show\s*more|see\s*more)\.?\s*$/i.test(text);
+}
+
 /** Убирает атрибуты с элемента и санитизирует HTML перед сохранением */
 function stripAttributesFromElement(el: Element): string {
   const clone = el.cloneNode(true) as Element;
@@ -480,7 +490,7 @@ export function parseExperiences(doc: Document = document): ExperienceEntry[] {
     const strippedHtml = stripAttributesFromElement(
       experienceDetailsSection,
     ).trim();
-    if (strippedHtml) {
+    if (strippedHtml && !isPlaceholderHtml(strippedHtml)) {
       return [
         {
           position: "",
@@ -498,7 +508,7 @@ export function parseExperiences(doc: Document = document): ExperienceEntry[] {
   );
   if (profileCardExp) {
     const strippedHtml = stripAttributesFromElement(profileCardExp).trim();
-    if (strippedHtml) {
+    if (strippedHtml && !isPlaceholderHtml(strippedHtml)) {
       return [
         {
           position: "",
@@ -666,7 +676,7 @@ export function parseEducations(doc: Document = document): EducationEntry[] {
     const strippedHtml = stripAttributesFromElement(
       educationDetailsSection,
     ).trim();
-    if (strippedHtml) {
+    if (strippedHtml && !isPlaceholderHtml(strippedHtml)) {
       return [
         {
           institution: "",
@@ -684,7 +694,7 @@ export function parseEducations(doc: Document = document): EducationEntry[] {
   );
   if (profileCardEdu) {
     const strippedHtml = stripAttributesFromElement(profileCardEdu).trim();
-    if (strippedHtml) {
+    if (strippedHtml && !isPlaceholderHtml(strippedHtml)) {
       return [
         {
           institution: "",
@@ -736,7 +746,7 @@ export function parseSkillsHtml(doc: Document = document): string | null {
     const parts: string[] = [];
     lazyColumns.forEach((col) => {
       const stripped = stripAttributesFromElement(col).trim();
-      if (stripped) parts.push(stripped);
+      if (stripped && !isPlaceholderHtml(stripped)) parts.push(stripped);
     });
     const combined = parts.join("\n");
     if (combined) return combined;
@@ -747,7 +757,8 @@ export function parseSkillsHtml(doc: Document = document): string | null {
   );
   if (!profileCardSkills) return null;
   const strippedHtml = stripAttributesFromElement(profileCardSkills).trim();
-  return strippedHtml || null;
+  if (!strippedHtml || isPlaceholderHtml(strippedHtml)) return null;
+  return strippedHtml;
 }
 
 /**

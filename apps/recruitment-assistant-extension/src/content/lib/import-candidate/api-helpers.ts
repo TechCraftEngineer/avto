@@ -71,7 +71,11 @@ export async function sendExtensionApiRequest<T = unknown>(
 
   const parsed = apiRequestResponseSchema.safeParse(resp);
   if (!parsed.success) {
-    throw new Error(`Неверный ответ API: ${parsed.error.message}`);
+    console.debug(
+      "[api-helpers] Валидация ответа API не прошла:",
+      parsed.error.message,
+    );
+    throw new Error("Неверный ответ от API при валидации данных");
   }
   const r = parsed.data;
   if (!r.success) {
