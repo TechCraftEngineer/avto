@@ -49,8 +49,8 @@ export function HowItWorks() {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Подбор персонала: 4 шага
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4">
+            Подбор персонала: <span className="whitespace-nowrap">4 шага</span>
           </h2>
           <p className="text-lg text-muted-foreground">
             От HeadHunter до оффера без ручного копирования откликов

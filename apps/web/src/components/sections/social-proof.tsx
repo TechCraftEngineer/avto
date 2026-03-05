@@ -46,7 +46,7 @@ export function SocialProof() {
           <div className="absolute right-0 top-0 bottom-0 w-24 bg-linear-to-l from-muted/30 to-transparent z-10" />
 
           <motion.div
-            className="flex items-center gap-16"
+            className="flex items-center gap-16 will-change-transform"
             animate={{ x: [0, -1200] }}
             transition={{
               duration: 30,

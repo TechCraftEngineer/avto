@@ -20,7 +20,7 @@ export function ValuePropositionSection() {
               <span className="text-muted-foreground">Ценностное предложение</span>
             </div>
 
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground mb-6 text-balance leading-tight">
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-6 text-balance leading-tight">
               Автоматизация подбора персонала —
               <br className="hidden md:block" />
               <span className="text-muted-foreground">без таблиц и ручного скрининга резюме</span>
@@ -110,13 +110,30 @@ export function ValuePropositionSection() {
                 </ul>
               </div>
 
-              {/* Live demo card - elevated shadow */}
-              <div className="bg-muted/50 border border-border rounded-xl overflow-hidden shadow-xl shadow-black/5 ring-1 ring-border/50">
-                <ScreenshotPreview
-                  src="/screenshots/app-dashboard-recent-activity-1920x1080.png"
-                  alt="Дашборд подбора персонала — кандидаты и вакансии в реальном времени"
-                  height="aspect-video"
-                />
+              {/* Live demo card - browser frame for realism */}
+              <div className="rounded-b-xl overflow-hidden shadow-xl shadow-black/5 border border-border bg-card">
+                {/* Browser chrome */}
+                <div className="flex items-center gap-2 px-4 py-3 bg-muted/50 border-b border-border">
+                  <div className="flex gap-1.5">
+                    <div className="size-2.5 rounded-full bg-muted-foreground/30" />
+                    <div className="size-2.5 rounded-full bg-muted-foreground/30" />
+                    <div className="size-2.5 rounded-full bg-muted-foreground/30" />
+                  </div>
+                  <div className="flex-1 flex justify-center">
+                    <div className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-background border border-border/60 text-xs text-muted-foreground max-w-[280px]">
+                      <span className="truncate">app.qbs.ru/dashboard</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="aspect-video overflow-hidden">
+                  <ScreenshotPreview
+                    src="/screenshots/app-dashboard-recent-activity-1920x1080.png"
+                    alt="Дашборд подбора персонала — кандидаты и вакансии в реальном времени"
+                    height="h-full"
+                    maskHorizontal={false}
+                    maskVertical={false}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -125,7 +142,7 @@ export function ValuePropositionSection() {
           <div className="text-center mt-10">
             <Link
               href="/features"
-              className="inline-flex items-center gap-2 text-foreground hover:text-foreground/70 font-medium transition-colors group"
+              className="inline-flex items-center gap-2 rounded-lg px-2 py-1 -m-1 text-foreground hover:text-foreground/70 font-medium transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/20 focus-visible:ring-offset-2"
             >
               Подробнее о возможностях
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />

@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import { cn } from "@qbs-autonaim/ui/utils"
 
 interface ScreenshotPreviewProps {
@@ -41,6 +44,8 @@ export function ScreenshotPreview({
   height = "h-72 sm:h-[290px]",
   objectPosition = "object-left-top",
 }: ScreenshotPreviewProps) {
+  const [loaded, setLoaded] = useState(false)
+
   return (
     <div className={cn("relative overflow-hidden", height, className)}>
       <div
@@ -60,8 +65,10 @@ export function ScreenshotPreview({
               alt={alt}
               loading="lazy"
               decoding="async"
+              onLoad={() => setLoaded(true)}
               className={cn(
-                "blur-0 rounded-xl border-l border-t border-border object-cover",
+                "rounded-xl border-l border-t border-border object-cover transition-[filter] duration-500",
+                loaded ? "blur-0" : "blur-sm",
                 objectPosition,
               )}
               src={src}

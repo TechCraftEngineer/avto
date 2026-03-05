@@ -104,14 +104,13 @@ export function DataFlowSection() {
 
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="mx-auto max-w-[830px] text-center">
-          <h3 className="text-xl md:text-2xl lg:text-3xl font-semibold tracking-tight text-foreground">
-            <span className="text-foreground">Подключайте за минуты. </span>
-            <span className="text-muted-foreground font-medium">
-              Без долгой настройки. QBS синхронизируется с HeadHunter и SuperJob — отклики попадают в систему сразу,
-              резюме проходят скрининг автоматически.
-            </span>
+        <div className="mx-auto max-w-2xl text-center">
+          <h3 className="text-xl md:text-2xl font-semibold tracking-tight text-foreground">
+            Подключайте за минуты
           </h3>
+          <p className="mt-2 text-muted-foreground text-base md:text-lg">
+            HeadHunter и SuperJob → отклики в системе → скрининг → карточка кандидата
+          </p>
           <div className="mt-7">
             <Button size="lg" asChild className="h-11 px-6 font-medium">
               <a href={env.NEXT_PUBLIC_APP_URL}>
