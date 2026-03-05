@@ -39,6 +39,10 @@ export const parseSingleResumeDataSchema = z.object({
 
 export const parseLinkedInHtmlDataSchema = z.object({
   responseId: z.string().min(1, "Response ID is required"),
+  /** LinkedIn HTML для парсинга (не сохраняется в БД) */
+  experienceHtml: z.string().max(50_000).optional(),
+  educationHtml: z.string().max(50_000).optional(),
+  skillsHtml: z.string().max(50_000).optional(),
 });
 
 export const refreshSingleResumeDataSchema = z.object({

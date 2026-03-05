@@ -221,9 +221,6 @@ export async function handleImportResumeLinkedIn(c: Context) {
     profileUrl: normalizedProfileUrl,
     aboutMe: input.aboutMe,
     skills: input.skills,
-    linkedInExperienceHtml: input.experienceHtml,
-    linkedInEducationHtml: input.educationHtml,
-    linkedInSkillsHtml: input.skillsHtml,
     parsedAt: new Date().toISOString(),
   };
 
@@ -329,7 +326,12 @@ export async function handleImportResumeLinkedIn(c: Context) {
     try {
       await inngest.send({
         name: "response/linkedin-html.parse",
-        data: { responseId: targetResponse.id },
+        data: {
+          responseId: targetResponse.id,
+          experienceHtml: input.experienceHtml,
+          educationHtml: input.educationHtml,
+          skillsHtml: input.skillsHtml,
+        },
       });
     } catch (err) {
       console.warn(

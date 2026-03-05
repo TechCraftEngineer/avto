@@ -88,10 +88,4 @@ export interface StoredProfileData {
   kworkLastProcessedMessageId?: number;
   kworkAvatarUrl?: string;
   kworkUserData?: Record<string, unknown>;
-  /** LinkedIn: raw HTML from profile-card-experience (attributes stripped) */
-  linkedInExperienceHtml?: string;
-  /** LinkedIn: raw HTML from profile-card-education (attributes stripped) */
-  linkedInEducationHtml?: string;
-  /** LinkedIn: raw HTML from profile-card-skills (attributes stripped) */
-  linkedInSkillsHtml?: string;
 }
