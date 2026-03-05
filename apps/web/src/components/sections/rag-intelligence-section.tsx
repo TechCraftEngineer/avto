@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Brain, Database, Search, FileText, Users, TrendingUp, CheckCircle2, ArrowRight } from "lucide-react"
 import { Button } from "@qbs-autonaim/ui/components/button"
+import { motion, AnimatePresence } from "framer-motion"
 
 const sampleQuestions = [
   "Сколько кандидатов на позицию Python Developer?",
@@ -118,9 +119,9 @@ export function RAGIntelligenceSection() {
                     </div>
                     <div>
                       <div className="font-semibold text-foreground">QBS Аналитик</div>
-                      <div className="text-xs text-muted-foreground flex items-center gap-1">
-                        <span className="h-1.5 w-1.5 rounded-full bg-foreground" />
-                        RAG активен
+                      <div className="text-xs flex items-center gap-1.5 font-medium">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-emerald-600">RAG активен</span>
                       </div>
                     </div>
                   </div>
@@ -139,19 +140,37 @@ export function RAGIntelligenceSection() {
                     </div>
                   </div>
 
-                  <div className="flex justify-end">
-                    <div className="max-w-[85%] rounded-lg bg-foreground text-background px-4 py-3">
-                      <p className="text-sm leading-relaxed">{sampleQuestions[activeQuestion]}</p>
-                      <div className="text-xs opacity-70 mt-1">12:31</div>
-                    </div>
-                  </div>
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={`user-${activeQuestion}`}
+                      initial={{ opacity: 0, x: 8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -8 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex justify-end"
+                    >
+                      <div className="max-w-[85%] rounded-lg bg-foreground text-background px-4 py-3">
+                        <p className="text-sm leading-relaxed">{sampleQuestions[activeQuestion]}</p>
+                        <div className="text-xs opacity-70 mt-1">12:31</div>
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
 
-                  <div className="flex justify-start">
-                    <div className="max-w-[85%] rounded-lg bg-card border border-border/60 px-4 py-3">
-                      <RAGResponse questionIndex={activeQuestion} />
-                      <div className="text-xs text-muted-foreground mt-1">12:32</div>
-                    </div>
-                  </div>
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={`response-${activeQuestion}`}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex justify-start"
+                    >
+                      <div className="max-w-[85%] rounded-lg bg-card border border-border/60 px-4 py-3">
+                        <RAGResponse questionIndex={activeQuestion} />
+                        <div className="text-xs text-muted-foreground mt-1">12:32</div>
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
 
                 {/* Input area */}
@@ -172,10 +191,10 @@ export function RAGIntelligenceSection() {
                         key={index}
                         onClick={() => setActiveQuestion(index)}
                         disabled={activeQuestion === index}
-                        className={`text-xs px-3 py-1.5 rounded-md border transition-all ${
+                        className={`text-xs px-3 py-2 rounded-md border transition-all ${
                           activeQuestion === index
                             ? "bg-muted border-border text-foreground cursor-not-allowed"
-                            : "bg-card border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
+                            : "bg-card border-border/60 text-muted-foreground hover:text-foreground hover:border-border hover:bg-muted/50"
                         }`}
                       >
                         {question}

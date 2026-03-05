@@ -1,7 +1,8 @@
 "use client"
 
-import { Zap, TrendingUp, Users, CheckCircle2, Clock, ArrowRight } from "lucide-react"
+import { Zap, TrendingUp, Users, CheckCircle2, ArrowRight } from "lucide-react"
 import Link from "next/link"
+import { motion } from "framer-motion"
 import { ScreenshotPreview } from "@/components/ui/screenshot-preview"
 
 export function ValuePropositionSection() {
@@ -30,7 +31,7 @@ export function ValuePropositionSection() {
             </p>
           </div>
 
-          {/* Key metrics - 3 cards */}
+          {/* Key metrics - 3 cards, middle one highlighted */}
           <div className="grid md:grid-cols-3 gap-6 mb-16">
             {[
               {
@@ -41,6 +42,7 @@ export function ValuePropositionSection() {
                 color: "text-amber-600",
                 bgColor: "bg-amber-50",
                 iconColor: "text-amber-600",
+                featured: false,
               },
               {
                 value: "94%",
@@ -50,6 +52,7 @@ export function ValuePropositionSection() {
                 color: "text-emerald-600",
                 bgColor: "bg-emerald-50",
                 iconColor: "text-emerald-600",
+                featured: true,
               },
               {
                 value: "24/7",
@@ -59,9 +62,21 @@ export function ValuePropositionSection() {
                 color: "text-blue-600",
                 bgColor: "bg-blue-50",
                 iconColor: "text-blue-600",
+                featured: false,
               },
             ].map((stat, index) => (
-              <div key={index} className="bg-card border border-border rounded-xl p-6 hover:border-foreground/20 transition-colors">
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className={`rounded-xl p-6 transition-colors ${
+                  stat.featured
+                    ? "bg-card border-2 border-emerald-500/30 shadow-lg shadow-emerald-500/5 hover:border-emerald-500/50"
+                    : "bg-card border border-border hover:border-foreground/20"
+                }`}
+              >
                 <div className="flex items-center gap-3 mb-4">
                   <div className={`p-3 rounded-xl ${stat.bgColor}`}>
                     <stat.icon className={`h-6 w-6 ${stat.iconColor}`} />
@@ -70,7 +85,7 @@ export function ValuePropositionSection() {
                 <div className={`text-4xl md:text-5xl font-bold mb-3 ${stat.color}`}>{stat.value}</div>
                 <div className="text-base font-semibold text-foreground mb-2 leading-snug">{stat.label}</div>
                 <div className="text-sm text-muted-foreground">{stat.description}</div>
-              </div>
+              </motion.div>
             ))}
           </div>
 
@@ -95,8 +110,8 @@ export function ValuePropositionSection() {
                 </ul>
               </div>
 
-              {/* Live demo card */}
-              <div className="bg-muted/50 border border-border rounded-xl overflow-hidden">
+              {/* Live demo card - elevated shadow */}
+              <div className="bg-muted/50 border border-border rounded-xl overflow-hidden shadow-xl shadow-black/5 ring-1 ring-border/50">
                 <ScreenshotPreview
                   src="/screenshots/app-dashboard-recent-activity-1920x1080.png"
                   alt="Дашборд подбора персонала — кандидаты и вакансии в реальном времени"

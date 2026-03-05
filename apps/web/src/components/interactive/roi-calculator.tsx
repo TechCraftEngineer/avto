@@ -4,6 +4,7 @@ import { useState, useMemo } from "react"
 import { Calculator, TrendingUp, Clock, Users, ArrowRight } from "lucide-react"
 import { Button } from "@qbs-autonaim/ui/components/button"
 import { Slider } from "@qbs-autonaim/ui/components/slider"
+import { motion } from "framer-motion"
 import { env } from "@/env"
 
 export function ROICalculator() {
@@ -133,14 +134,23 @@ export function ROICalculator() {
 
             {/* Results Panel */}
             <div className="space-y-4">
-              {/* Main result card */}
-              <div className="bg-card border border-border/60 rounded-xl p-8">
-                <div className="text-sm text-muted-foreground mb-2">Потенциальная экономия в месяц</div>
-                <div className="text-5xl font-bold text-foreground mb-2">
+              {/* Main result card - accent, animate on value change */}
+              <motion.div
+                key={calculations.moneySaved}
+                initial={{ scale: 1.02 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.25 }}
+                className="bg-card border-2 border-emerald-500/30 rounded-xl p-8 shadow-lg shadow-emerald-500/5"
+              >
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                  <TrendingUp className="h-4 w-4 text-emerald-600" />
+                  Потенциальная экономия в месяц
+                </div>
+                <div className="text-5xl font-bold text-emerald-600 mb-2">
                   {calculations.moneySaved.toLocaleString("ru-RU")} ₽
                 </div>
                 <div className="text-sm text-muted-foreground">или {calculations.totalSavedHours} часов работы HR</div>
-              </div>
+              </motion.div>
 
               {/* Stats grid */}
               <div className="grid grid-cols-2 gap-4">

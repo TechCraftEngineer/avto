@@ -2,6 +2,7 @@
 
 import { Link2, Brain, MessageCircle, CheckCircle, ArrowRight, Clock, Shield, Zap } from "lucide-react"
 import { env } from "@/env"
+import { motion } from "framer-motion"
 
 export function HowItWorks() {
   const steps = [
@@ -59,17 +60,21 @@ export function HowItWorks() {
         {/* Steps grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto mb-16">
           {steps.map((step, index) => (
-            <div
+            <motion.div
               key={index}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.12, duration: 0.4 }}
               className="group relative bg-card border border-border/60 rounded-xl p-6 hover:border-border hover:shadow-sm transition-all"
             >
-              {/* Connection line */}
+              {/* Connection line - more visible */}
               {index < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-8 left-full w-full h-px bg-border/40 z-0" />
+                <div className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-border via-border/80 to-transparent z-0" />
               )}
 
-              {/* Step number */}
-              <div className="absolute -top-3 -right-3 h-7 w-7 rounded-full bg-muted border border-border/60 flex items-center justify-center text-xs font-bold text-muted-foreground">
+              {/* Step number - larger, more prominent */}
+              <div className={`absolute -top-3 -right-3 h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold ${step.bgColor} ${step.color} border border-border/60`}>
                 {step.number}
               </div>
 
@@ -90,7 +95,7 @@ export function HowItWorks() {
                   </span>
                 ))}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
@@ -119,8 +124,12 @@ export function HowItWorks() {
               bgColor: "bg-emerald-50",
             },
           ].map((item, i) => (
-            <div
+            <motion.div
               key={i}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.5 + i * 0.1 }}
               className="p-6 rounded-xl border border-border/60 bg-card hover:border-border hover:shadow-sm transition-all text-center"
             >
               <div className={`h-10 w-10 rounded-lg ${item.bgColor} flex items-center justify-center mb-4 mx-auto`}>
@@ -128,7 +137,7 @@ export function HowItWorks() {
               </div>
               <h3 className="font-semibold text-foreground mb-2 text-sm">{item.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
-            </div>
+            </motion.div>
           ))}
         </div>
 

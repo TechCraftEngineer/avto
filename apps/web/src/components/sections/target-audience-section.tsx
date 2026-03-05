@@ -2,6 +2,7 @@
 
 import { Briefcase, Building2, Rocket, TrendingUp, ArrowRight } from "lucide-react"
 import Link from "next/link"
+import { motion } from "framer-motion"
 
 export function TargetAudienceSection() {
   const audiences = [
@@ -67,12 +68,19 @@ export function TargetAudienceSection() {
             const isFeatured = index === 0
 
             return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1, duration: 0.4 }}
+              >
               <Link
                 key={index}
                 href={audience.link}
                 className={`group block h-full rounded-xl p-6 transition-all ${
                   isFeatured
-                    ? "bg-card border-2 border-blue-500/30 shadow-md hover:shadow-lg hover:border-blue-500/50"
+                    ? "bg-card ring-2 ring-blue-500/20 ring-inset border border-border/60 hover:ring-blue-500/30 hover:shadow-md"
                     : "bg-card border border-border/60 hover:border-border hover:shadow-sm"
                 }`}
               >
@@ -99,6 +107,7 @@ export function TargetAudienceSection() {
                   <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </Link>
+              </motion.div>
             )
           })}
         </div>

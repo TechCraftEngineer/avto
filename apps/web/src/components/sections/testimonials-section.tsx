@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@qbs-autonaim/ui/components/button"
+import { motion, AnimatePresence } from "framer-motion"
 
 const testimonials = [
   {
@@ -122,10 +123,19 @@ export function TestimonialsSection() {
                 ))}
               </div>
 
-              {/* Text */}
-              <blockquote className="text-xl md:text-2xl font-medium leading-relaxed mb-8 text-foreground">
-                "{testimonials[activeIndex]!.text}"
-              </blockquote>
+              {/* Text - fade on change */}
+              <AnimatePresence mode="wait">
+                <motion.blockquote
+                  key={activeIndex}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="text-xl md:text-2xl font-medium leading-relaxed mb-8 text-foreground"
+                >
+                  "{testimonials[activeIndex]!.text}"
+                </motion.blockquote>
+              </AnimatePresence>
 
               {/* Metric badge */}
               <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 mb-8">
@@ -138,7 +148,7 @@ export function TestimonialsSection() {
                   <img
                     src={testimonials[activeIndex]!.avatar || "/placeholder.svg"}
                     alt={testimonials[activeIndex]!.name}
-                    className="w-14 h-14 rounded-full object-cover border-2 border-border"
+                    className="w-14 h-14 rounded-full object-cover ring-2 ring-border/60 ring-offset-2"
                   />
                   <div>
                     <div className="font-semibold text-foreground">{testimonials[activeIndex]!.name}</div>
@@ -185,17 +195,17 @@ export function TestimonialsSection() {
           </div>
         </div>
 
-        {/* Stats row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16">
+        {/* Stats row - compact */}
+        <div className="flex flex-wrap justify-center gap-x-12 gap-y-4 mt-12">
           {[
             { value: "500+", label: "Компаний" },
             { value: "50K+", label: "Успешных наймов" },
             { value: "94%", label: "Точность отсева" },
             { value: "4.9", label: "Рейтинг" },
           ].map((stat, index) => (
-            <div key={index} className="text-center p-6 rounded-xl bg-card border border-border">
-              <div className="text-3xl md:text-4xl font-bold text-foreground mb-1">{stat.value}</div>
-              <div className="text-sm text-muted-foreground">{stat.label}</div>
+            <div key={index} className="text-center">
+              <div className="text-2xl md:text-3xl font-bold text-foreground">{stat.value}</div>
+              <div className="text-xs text-muted-foreground mt-0.5">{stat.label}</div>
             </div>
           ))}
         </div>

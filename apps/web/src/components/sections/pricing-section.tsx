@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@qbs-autonaim/ui/components/button"
+import { motion } from "framer-motion"
 import { Check } from "lucide-react"
 import { env } from "@/env"
 import { cn } from "@qbs-autonaim/ui"
@@ -70,14 +71,14 @@ export function PricingSection() {
             Бесплатный тариф для теста. Оплата в рублях. Годовая подписка — скидка 20%.
           </p>
 
-          <div className="inline-flex items-center gap-1 rounded-full border border-border bg-background p-1">
+          <div className="inline-flex items-center gap-1 rounded-full border-2 border-border bg-background p-1 shadow-sm">
             <button
               type="button"
               onClick={() => setIsAnnual(false)}
               className={cn(
-                "rounded-full px-5 py-2.5 text-sm font-medium transition-colors",
+                "rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200",
                 !isAnnual
-                  ? "bg-foreground text-background"
+                  ? "bg-foreground text-background shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -87,9 +88,9 @@ export function PricingSection() {
               type="button"
               onClick={() => setIsAnnual(true)}
               className={cn(
-                "rounded-full px-5 py-2.5 text-sm font-medium transition-colors flex items-center gap-2",
+                "rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200 flex items-center gap-2",
                 isAnnual
-                  ? "bg-foreground text-background"
+                  ? "bg-foreground text-background shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -100,13 +101,17 @@ export function PricingSection() {
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
-          {PLANS.map((plan) => (
-            <article
+          {PLANS.map((plan, index) => (
+            <motion.article
               key={plan.name}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.08 }}
               className={cn(
-                "relative flex flex-col rounded-xl border bg-card overflow-hidden",
+                "relative flex flex-col rounded-xl border bg-card overflow-hidden transition-transform duration-300",
                 plan.popular
-                  ? "border-amber-500/50 ring-1 ring-amber-500/20"
+                  ? "border-amber-500/50 ring-1 ring-amber-500/20 lg:scale-[1.02]"
                   : "border-border"
               )}
             >
@@ -156,7 +161,7 @@ export function PricingSection() {
                   </Button>
                 </div>
               </div>
-            </article>
+            </motion.article>
           ))}
         </div>
       </div>

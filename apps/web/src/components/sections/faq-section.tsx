@@ -74,9 +74,9 @@ export function FAQSection() {
               <AccordionItem
                 key={index}
                 value={`item-${index}`}
-                className="border-b border-border last:border-b-0"
+                className="border-b border-border last:border-b-0 data-[state=open]:bg-muted/20 transition-colors rounded-lg px-2 -mx-2"
               >
-                <AccordionTrigger className="py-5 text-left text-base font-medium text-foreground hover:no-underline hover:text-foreground data-[state=open]:text-foreground">
+                <AccordionTrigger className="py-5 text-left text-base font-medium text-foreground hover:no-underline hover:text-foreground data-[state=open]:text-foreground data-[state=open]:font-semibold">
                   {faq.question}
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-[15px] leading-[1.7] pb-5">

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import {
   Brain,
   BarChart3,
@@ -121,9 +122,9 @@ export function FeaturesSection() {
               <button
                 key={feature.id}
                 onClick={() => setActiveFeature(feature)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap relative ${
                   activeFeature.id === feature.id
-                    ? "bg-card shadow-sm text-foreground"
+                    ? "bg-card shadow-md text-foreground ring-1 ring-border"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -134,11 +135,19 @@ export function FeaturesSection() {
           </div>
         </div>
 
-        {/* Feature content */}
+        {/* Feature content - AnimatePresence for tab switch */}
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-8 items-start">
             {/* Left: Info */}
-            <div className="space-y-6">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeFeature.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-6"
+              >
               <div className={`inline-flex items-center gap-2 rounded-md ${activeFeature.bgColor} px-3 py-1.5 border border-border/60`}>
                 <activeFeature.icon className={`h-4 w-4 ${activeFeature.color}`} />
                 <span className={`text-sm font-medium ${activeFeature.color}`}>{activeFeature.label}</span>
@@ -161,30 +170,33 @@ export function FeaturesSection() {
                 Попробовать бесплатно
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
               </Button>
-            </div>
+            </motion.div>
+            </AnimatePresence>
 
             {/* Right: Demo */}
-            <div className="relative">
-              {activeFeature.demo === "screening" && <ScreeningDemo />}
+            <AnimatePresence mode="wait">
+              <motion.div key={activeFeature.demo} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="relative">
+                {activeFeature.demo === "screening" && <ScreeningDemo />}
               {activeFeature.demo === "interview" && <InterviewDemo />}
               {activeFeature.demo === "prequalification" && <PrequalificationDemo />}
               {activeFeature.demo === "analytics" && <AnalyticsDemo />}
               {activeFeature.demo === "integrations" && <IntegrationsDemo />}
-            </div>
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
 
         {/* Bottom quick features */}
         <div className="mt-20 grid md:grid-cols-4 gap-4 max-w-5xl mx-auto">
           {[
-            { icon: Zap, title: "Быстрый старт", desc: "Подключение за 2 минуты" },
+            { icon: Zap, title: "Быстрый старт", desc: "Подключение за 2 минуты", accent: "bg-blue-50 text-blue-600" },
             { icon: Users, title: "Командный режим", desc: "Общий доступ и роли" },
-            { icon: Target, title: "97% точность отсева", desc: "По вашим критериям" },
-            { icon: CheckCircle2, title: "152-ФЗ / 115-ФЗ", desc: "Соответствие требованиям РФ" },
+            { icon: Target, title: "97% точность отсева", desc: "По вашим критериям", accent: "bg-emerald-50 text-emerald-600" },
+            { icon: CheckCircle2, title: "152-ФЗ / 115-ФЗ", desc: "Соответствие требованиям РФ", accent: "bg-amber-50 text-amber-600" },
           ].map((item, i) => (
             <div key={i} className="text-center p-6 rounded-lg border border-border/60 bg-card hover:border-border hover:shadow-sm transition-all">
-              <div className="h-10 w-10 rounded-lg bg-muted/50 flex items-center justify-center mx-auto mb-3">
-                <item.icon className="h-5 w-5 text-foreground" />
+              <div className={`h-10 w-10 rounded-lg flex items-center justify-center mx-auto mb-3 ${item.accent ?? "bg-muted/50 text-foreground"}`}>
+                <item.icon className="h-5 w-5" />
               </div>
               <h4 className="font-semibold text-foreground mb-1 text-sm">{item.title}</h4>
               <p className="text-xs text-muted-foreground">{item.desc}</p>
