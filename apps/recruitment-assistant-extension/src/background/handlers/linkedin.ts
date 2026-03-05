@@ -72,16 +72,27 @@ function extractFromTab(url: string, selectors: string[]): Promise<string[]> {
                   return document.querySelector(sel);
                 }
 
+                function isPlaceholder(el: Element): boolean {
+                  const text = (el.textContent ?? "")
+                    .replace(/\s+/g, " ")
+                    .trim()
+                    .toLowerCase();
+                  if (!text) return true;
+                  return /^(load\s*more|show\s*more|see\s*more)\.?\s*$/.test(
+                    text,
+                  );
+                }
+
                 const results: string[] = [];
                 for (const sel of sels) {
                   const el = await waitForElementWithContent(sel);
-                  if (el) {
+                  if (el && !isPlaceholder(el)) {
                     const match = sel.match(/\[data-testid="lazy-column"\]/);
                     if (match) {
                       const cols = document.querySelectorAll(sel);
                       const parts: string[] = [];
                       cols.forEach((c) => {
-                        parts.push(c.outerHTML);
+                        if (!isPlaceholder(c)) parts.push(c.outerHTML);
                       });
                       results.push(
                         parts.length ? `<div>${parts.join("")}</div>` : "",
