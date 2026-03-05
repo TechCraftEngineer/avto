@@ -1,0 +1,102 @@
+/**
+ * Отслеживание SPA-навигации (React Router, History API).
+ *
+ * LinkedIn и другие SPA не перезагружают страницу при переходе между профилями,
+ * поэтому DOMContentLoaded и beforeunload не срабатывают. Данный модуль
+ * обнаруживает смену URL через History API (pushState, replaceState, popstate).
+ */
+
+const LINKEDIN_PROFILE_PATH = /^\/in\/[^/]+\/?/;
+
+function isLinkedInProfileUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url, window.location.origin);
+    return (
+      parsed.hostname.includes("linkedin.com") &&
+      LINKEDIN_PROFILE_PATH.test(parsed.pathname)
+    );
+  } catch {
+    return false;
+  }
+}
+
+export type OnUrlChangeCallback = (oldUrl: string, newUrl: string) => void;
+
+let lastUrl = typeof window !== "undefined" ? window.location.href : "";
+let listeners: OnUrlChangeCallback[] = [];
+
+function notifyUrlChange(oldUrl: string, newUrl: string): void {
+  lastUrl = newUrl;
+  for (const cb of listeners) {
+    try {
+      cb(oldUrl, newUrl);
+    } catch (e) {
+      console.error("[SPA Nav] listener error:", e);
+    }
+  }
+}
+
+function checkAndNotify(): void {
+  const newUrl = window.location.href;
+  if (newUrl !== lastUrl) {
+    notifyUrlChange(lastUrl, newUrl);
+  }
+}
+
+/**
+ * Подписывается на изменения URL (SPA-навигация).
+ * Вызывает callback только если старый и новый URL — профили LinkedIn.
+ */
+export function observeSpaNavigation(
+  callback: OnUrlChangeCallback,
+): () => void {
+  if (typeof window === "undefined") return () => {};
+
+  lastUrl = window.location.href;
+  listeners.push(callback);
+
+  // popstate — кнопки назад/вперёд
+  const onPopState = () => checkAndNotify();
+  window.addEventListener("popstate", onPopState);
+
+  // pushState/replaceState — программатическая навигация (React Router)
+  const origPushState = history.pushState.bind(history);
+  const origReplaceState = history.replaceState.bind(history);
+
+  history.pushState = (...args: Parameters<typeof history.pushState>): void => {
+    const prev = window.location.href;
+    origPushState(...args);
+    const next = window.location.href;
+    if (prev !== next) notifyUrlChange(prev, next);
+  };
+
+  history.replaceState = (
+    ...args: Parameters<typeof history.replaceState>
+  ): void => {
+    const prev = window.location.href;
+    origReplaceState(...args);
+    const next = window.location.href;
+    if (prev !== next) notifyUrlChange(prev, next);
+  };
+
+  return () => {
+    listeners = listeners.filter((l) => l !== callback);
+    window.removeEventListener("popstate", onPopState);
+    history.pushState = origPushState;
+    history.replaceState = origReplaceState;
+  };
+}
+
+/**
+ * Проверяет, нужно ли инвалидировать кэш: оба URL — профили LinkedIn и они различаются.
+ */
+export function shouldInvalidateLinkedInCache(
+  oldUrl: string,
+  newUrl: string,
+): boolean {
+  return (
+    isLinkedInProfileUrl(oldUrl) &&
+    isLinkedInProfileUrl(newUrl) &&
+    oldUrl !== newUrl
+  );
+}
