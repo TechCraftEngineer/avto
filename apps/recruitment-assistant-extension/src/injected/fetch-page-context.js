@@ -64,10 +64,18 @@
   if (type === "image" || type === "pdf") {
     const defaultContentType =
       type === "pdf" ? "application/pdf" : "image/jpeg";
-    const sendResult = (base64, contentType) =>
+    const sendResult = (base64, contentType) => {
+      console.warn("[Photo Fetch] успех", {
+        url: url?.slice(0, 70),
+        contentType,
+        len: base64?.length,
+      });
       window.postMessage({ type: messageType, id, base64, contentType }, "*");
-    const sendError = (err) =>
+    };
+    const sendError = (err) => {
+      console.warn("[Photo Fetch] ошибка", { url: url?.slice(0, 70), err });
       window.postMessage({ type: messageType, id, error: err }, "*");
+    };
 
     let useXHR = false;
     try {
@@ -80,7 +88,7 @@
       if (typeof XHR === "function") {
         const xhr = new XHR();
         xhr.open("GET", url, true);
-        xhr.withCredentials = true;
+        xhr.withCredentials = false; // omit — CORS * не совместим с credentials
         xhr.responseType = "arraybuffer";
         xhr.onload = () => {
           if (xhr.status < 200 || xhr.status >= 300) {
@@ -109,7 +117,8 @@
   if (type === "image" || type === "pdf") {
     const defaultContentType =
       type === "pdf" ? "application/pdf" : "image/jpeg";
-    fetch(url, { credentials: "include" })
+    console.warn("[Photo Fetch] fetch() запущен", { url: url?.slice(0, 70) });
+    fetch(url, { credentials: "omit" })
       .then((res) => {
         if (!res.ok) {
           throw new Error(formatHttpError(res.status, res.statusText || ""));
@@ -126,14 +135,19 @@
         let b = "";
         for (let i = 0; i < bytes.byteLength; i++)
           b += String.fromCharCode(bytes[i] ?? 0);
+        console.warn("[Photo Fetch] fetch() успех", {
+          contentType,
+          size: buffer.byteLength,
+        });
         window.postMessage(
           { type: messageType, id, base64: btoa(b), contentType },
           "*",
         );
       })
-      .catch((e) =>
-        window.postMessage({ type: messageType, id, error: e.message }, "*"),
-      );
+      .catch((e) => {
+        console.warn("[Photo Fetch] fetch() ошибка", e.message);
+        window.postMessage({ type: messageType, id, error: e.message }, "*");
+      });
     return;
   }
 

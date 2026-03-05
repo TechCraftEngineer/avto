@@ -5,7 +5,20 @@
 import { logError } from "../lib";
 import type { ServiceWorkerResponse } from "../types";
 
-function extractFromTab(url: string, selectors: string[]): Promise<string[]> {
+interface ExtractOptions {
+  /** Задержка перед извлечением (ms). Для React-страниц — дольше. */
+  delayMs?: number;
+  /** Минимальная длина текста элемента для учёта готовности. Для контактов — меньше. */
+  minContentLength?: number;
+}
+
+function extractFromTab(
+  url: string,
+  selectors: string[],
+  options: ExtractOptions = {},
+): Promise<string[]> {
+  const { delayMs = 3000, minContentLength = 50 } = options;
+
   return new Promise((resolve, reject) => {
     chrome.tabs.create({ url, active: false }, (tab) => {
       if (chrome.runtime.lastError || !tab?.id) {
@@ -50,14 +63,13 @@ function extractFromTab(url: string, selectors: string[]): Promise<string[]> {
           chrome.scripting
             .executeScript({
               target: { tabId },
-              func: async (sels: string[]) => {
-                const MIN_CONTENT_LENGTH = 50;
+              func: async (sels: string[], minLen: number) => {
                 const POLL_INTERVAL_MS = 400;
                 const MAX_WAIT_MS = 8000;
 
                 function hasContent(el: Element): boolean {
                   const text = (el.textContent ?? "").trim();
-                  return text.length >= MIN_CONTENT_LENGTH;
+                  return text.length >= minLen;
                 }
 
                 async function waitForElementWithContent(
@@ -106,7 +118,7 @@ function extractFromTab(url: string, selectors: string[]): Promise<string[]> {
                 }
                 return results;
               },
-              args: [selectors],
+              args: [selectors, minContentLength],
             })
             .then(([result]) => {
               cleanup(resolve, (result?.result as string[]) ?? []);
@@ -114,7 +126,7 @@ function extractFromTab(url: string, selectors: string[]): Promise<string[]> {
             .catch((err) => {
               cleanup(reject, err);
             });
-        }, 3000);
+        }, delayMs);
       };
       chrome.tabs.onUpdated.addListener(onUpdated);
     });
@@ -160,10 +172,18 @@ export async function handleFetchLinkedInDetails(
       )[0] ?? "";
     const contactInfoHtml =
       (
-        await extractFromTab(urls.contactInfo, [
-          'div[data-view-name="profile-contact-info-details-view"]',
-        ])
-      )[0] ?? "";
+        await extractFromTab(
+          urls.contactInfo,
+          [
+            'div[data-view-name="profile-contact-info-details-view"]',
+            '[data-view-name="profile-contact-info-details-view"]', // fallback если не div
+          ],
+          {
+            delayMs: 5500, // React-страница overlay дольше рендерит
+            minContentLength: 15, // блок контактов может быть небольшим
+          },
+        )
+      ).find((html) => html?.trim().length > 0) ?? "";
 
     sendResponse({
       success: true,

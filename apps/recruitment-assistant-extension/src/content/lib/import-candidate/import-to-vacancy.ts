@@ -36,7 +36,6 @@ export async function importToVacancy(
   const profileUrl =
     data.profileUrl ||
     (typeof window !== "undefined" ? window.location.href : undefined);
-  const responseText = buildResponseText(data, rawSource);
   const candidateName = data.basicInfo.fullName ?? "Кандидат";
   const telegram = extractTelegramFromSocialLinks(data.contacts?.socialLinks);
 
@@ -53,7 +52,6 @@ export async function importToVacancy(
       token,
       vacancyId,
       globalCandidateId,
-      responseText,
       profileUrl,
       telegram,
       linkedInSkillsHtml,
@@ -62,6 +60,7 @@ export async function importToVacancy(
     return;
   }
 
+  const responseText = buildResponseText(data, rawSource);
   await importGenericToVacancy({
     data,
     token,
@@ -80,7 +79,6 @@ interface LinkedInImportParams {
   token: string;
   vacancyId: string;
   globalCandidateId?: string;
-  responseText: string;
   profileUrl?: string;
   telegram?: string;
   photoUrl?: string;
@@ -95,7 +93,6 @@ async function importLinkedInToVacancy(
     token,
     vacancyId,
     globalCandidateId,
-    responseText,
     profileUrl,
     telegram,
     photoUrl,
@@ -149,7 +146,6 @@ async function importLinkedInToVacancy(
       telegram: telegram || undefined,
       platformProfileUrl: profileUrl,
     },
-    responseText: responseText || "Импортировано из LinkedIn",
     ...(photoUrl ? { photoUrl } : {}),
     ...(experienceHtml ? { experienceHtml } : {}),
     ...(educationHtml ? { educationHtml } : {}),

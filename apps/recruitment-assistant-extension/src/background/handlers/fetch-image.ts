@@ -49,7 +49,7 @@ export async function handleFetchImage(
   try {
     log("Загрузка изображения", { url });
     const response = await fetch(url, {
-      credentials: "include",
+      credentials: "omit", // CDN профильных фото не требуют auth, omit обходит CORS * vs credentials
       headers: { Accept: "image/*" },
       redirect: "error",
     });

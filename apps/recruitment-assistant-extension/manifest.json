@@ -19,6 +19,8 @@
     "https://linkedin.com/*",
     "https://media.licdn.com/*",
     "https://*.media.licdn.com/*",
+    "https://dms.licdn.com/*",
+    "https://*.dms.licdn.com/*",
     "https://hh.ru/*",
     "https://www.hh.ru/*",
     "https://*.hh.ru/*",

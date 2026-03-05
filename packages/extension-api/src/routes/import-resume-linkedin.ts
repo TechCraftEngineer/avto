@@ -36,10 +36,13 @@ const bodySchema = z.object({
       platformProfileUrl: z.string().max(1000).optional(),
     })
     .optional(),
+  /** Для LinkedIn не используется — cover letter отсутствует */
   responseText: z
     .string()
     .max(2000)
-    .transform((s) => s.slice(0, 2000)),
+    .transform((s) => s.slice(0, 2000))
+    .optional()
+    .default(""),
   photoUrl: z
     .string()
     .regex(/^data:image\/(png|jpeg|jpg|gif|webp);base64,/, {
@@ -229,12 +232,15 @@ export async function handleImportResumeLinkedIn(c: Context) {
     parsedAt: new Date().toISOString(),
   };
 
+  const trimmedResponse = input.responseText?.trim() ?? "";
+  const coverLetter = trimmedResponse.length > 0 ? trimmedResponse : null;
+
   const insertValues = {
     entityId: input.vacancyId,
     entityType: "vacancy" as const,
     candidateId,
     candidateName: input.freelancerName,
-    coverLetter: input.responseText,
+    coverLetter,
     importSource: "WEB_LINK" as const,
     profileUrl: normalizedProfileUrl,
     phone: input.contactInfo?.phone,
@@ -265,7 +271,7 @@ export async function handleImportResumeLinkedIn(c: Context) {
       ],
       set: {
         candidateName: input.freelancerName,
-        coverLetter: input.responseText,
+        coverLetter,
         profileUrl: normalizedProfileUrl,
         phone: input.contactInfo?.phone,
         telegramUsername: input.contactInfo?.telegram,
@@ -307,7 +313,7 @@ export async function handleImportResumeLinkedIn(c: Context) {
     importedBy: userId,
     importMode: "SINGLE",
     platformSource: "WEB_LINK",
-    rawText: input.responseText,
+    rawText: coverLetter ?? "",
     parsedCount: 1,
     successCount: 1,
     failureCount: 0,

@@ -106,12 +106,23 @@ export function buildProfileDataForImport(
   };
 }
 
-/** Формирует responseText для импорта (краткое резюме для отображения) */
+/** Проверяет, что строка содержит осмысленный контент (не только bullet + пробелы) */
+function hasMeaningfulContent(line: string): boolean {
+  const trimmed = line.replace(/^•\s*/, "").trim();
+  return trimmed.length > 0;
+}
+
+/** Формирует responseText для импорта (краткое резюме для отображения).
+ * Не добавляет секции Опыт/Образование, если в них только пустые bullet'ы.
+ */
 export function buildResponseText(
   data: CandidateData,
   rawSource: ValidPlatformSource | string,
 ): string {
   const isLinkedIn = String(rawSource).toUpperCase() === "LINKEDIN";
+  const fallback = isLinkedIn
+    ? "Импортировано из LinkedIn"
+    : "Импортировано из расширения";
   const parts: string[] = [];
   if (data.basicInfo.currentPosition)
     parts.push(data.basicInfo.currentPosition);
@@ -119,24 +130,29 @@ export function buildResponseText(
     parts.push(`Локация: ${data.basicInfo.location}`);
   if (data.skills?.length) parts.push(`Навыки: ${data.skills.join(", ")}`);
   if (isLinkedIn && data.experience?.length) {
-    const expLines = data.experience.map((e) => {
-      const duration =
-        e.startDate || e.endDate
-          ? [e.startDate, e.endDate].filter(Boolean).join(" — ")
-          : "";
-      return `• ${e.position}${e.company ? ` в ${e.company}` : ""}${duration ? ` (${duration})` : ""}`;
-    });
-    parts.push(`Опыт:\n${expLines.join("\n")}`);
+    const expLines = data.experience
+      .map((e) => {
+        const duration =
+          e.startDate || e.endDate
+            ? [e.startDate, e.endDate].filter(Boolean).join(" — ")
+            : "";
+        return `• ${e.position ?? ""}${e.company ? ` в ${e.company}` : ""}${duration ? ` (${duration})` : ""}`;
+      })
+      .filter(hasMeaningfulContent);
+    if (expLines.length > 0) parts.push(`Опыт:\n${expLines.join("\n")}`);
   }
   if (isLinkedIn && data.education?.length) {
-    const eduLines = data.education.map((e) => {
-      const years =
-        e.startDate || e.endDate
-          ? [e.startDate, e.endDate].filter(Boolean).join(" — ")
-          : "";
-      return `• ${e.institution}${e.degree ? `, ${e.degree}` : ""}${years ? ` (${years})` : ""}`;
-    });
-    parts.push(`Образование:\n${eduLines.join("\n")}`);
+    const eduLines = data.education
+      .map((e) => {
+        const years =
+          e.startDate || e.endDate
+            ? [e.startDate, e.endDate].filter(Boolean).join(" — ")
+            : "";
+        return `• ${e.institution ?? ""}${e.degree ? `, ${e.degree}` : ""}${years ? ` (${years})` : ""}`;
+      })
+      .filter(hasMeaningfulContent);
+    if (eduLines.length > 0) parts.push(`Образование:\n${eduLines.join("\n")}`);
   }
-  return parts.filter(Boolean).join("\n\n") || "Импортировано из расширения";
+  const result = parts.filter(Boolean).join("\n\n");
+  return result.trim().length > 0 ? result : fallback;
 }

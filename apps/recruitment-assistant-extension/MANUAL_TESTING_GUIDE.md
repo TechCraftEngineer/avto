@@ -165,6 +165,22 @@ console.log('JSON:', JSON.stringify(allData, null, 2));
 - `profileUrl` содержит текущий URL
 - `extractedAt` содержит дату извлечения
 
+### Отладка импорта фото LinkedIn
+
+Если фото не импортируется с профиля LinkedIn:
+
+1. Откройте DevTools на вкладке LinkedIn (F12 → Console).
+2. Выполните импорт кандидата (кнопка «Импортировать»).
+3. В консоли ищите сообщения с префиксом `[LinkedIn Photo]` и `[Photo Fetch]`.
+4. Расшифровка:
+   - `fetchPlatformAssets вызван` — старт загрузки фото.
+   - `DOM: { found, selector }` — найден ли элемент (found: true/false), какой селектор сработал.
+   - `fallbackPhotoUrl` — есть ли запасной URL из данных профиля.
+   - `Загрузка:` — URL, с которого идёт загрузка.
+   - `fetch() запущен` / `успех` / `ошибка` — этап загрузки в page context.
+5. Если `found: false` и `selector: "none"` — селекторы не находят фото в DOM, возможно, изменилась вёрстка LinkedIn.
+6. Если `Ошибка fetchPhotoAsBase64` — фото не загружается (CORS, таймаут, 403).
+
 ## Тестирование HeadHunter адаптера
 
 ### Тестовые профили
