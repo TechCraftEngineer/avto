@@ -179,7 +179,7 @@ console.log('JSON:', JSON.stringify(allData, null, 2));
    - `Загрузка:` — URL, с которого идёт загрузка.
    - `fetch() запущен` / `успех` / `ошибка` — этап загрузки в page context.
 5. Если `found: false` и `selector: "none"` — селекторы не находят фото в DOM, возможно, изменилась вёрстка LinkedIn.
-6. Если `Ошибка fetchPhotoAsBase64` — фото не загружается (CORS, таймаут, 403).
+6. Если `[LinkedIn Photo] fetch failed` или `Ошибка загрузки фото:` — фото не загружается (CORS, таймаут, 403).
 
 ## Тестирование HeadHunter адаптера
 

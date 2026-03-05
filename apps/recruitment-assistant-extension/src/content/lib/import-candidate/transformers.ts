@@ -106,10 +106,19 @@ export function buildProfileDataForImport(
   };
 }
 
-/** Проверяет, что строка содержит осмысленный контент (не только bullet + пробелы) */
+const PLACEHOLDER_PATTERNS = [
+  /^load\s+more$/i,
+  /^show\s+more$/i,
+  /^see\s+more$/i,
+  /^more\s+results$/i,
+  /^view\s+more$/i,
+];
+
+/** Проверяет, что строка содержит осмысленный контент (не только bullet + пробелы и не placeholder) */
 function hasMeaningfulContent(line: string): boolean {
   const trimmed = line.replace(/^•\s*/, "").trim();
-  return trimmed.length > 0;
+  if (trimmed.length === 0) return false;
+  return !PLACEHOLDER_PATTERNS.some((p) => p.test(trimmed));
 }
 
 /** Формирует responseText для импорта (краткое резюме для отображения).

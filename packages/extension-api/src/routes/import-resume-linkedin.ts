@@ -37,12 +37,7 @@ const bodySchema = z.object({
     })
     .optional(),
   /** Для LinkedIn не используется — cover letter отсутствует */
-  responseText: z
-    .string()
-    .max(2000)
-    .transform((s) => s.slice(0, 2000))
-    .optional()
-    .default(""),
+  responseText: z.string().max(2000).optional(),
   photoUrl: z
     .string()
     .regex(/^data:image\/(png|jpeg|jpg|gif|webp);base64,/, {
@@ -232,8 +227,12 @@ export async function handleImportResumeLinkedIn(c: Context) {
     parsedAt: new Date().toISOString(),
   };
 
-  const trimmedResponse = input.responseText?.trim() ?? "";
-  const coverLetter = trimmedResponse.length > 0 ? trimmedResponse : null;
+  const coverLetter =
+    input.responseText !== undefined
+      ? input.responseText.trim().length > 0
+        ? input.responseText.trim()
+        : null
+      : null;
 
   const insertValues = {
     entityId: input.vacancyId,
@@ -260,6 +259,19 @@ export async function handleImportResumeLinkedIn(c: Context) {
     skills: input.skills,
   };
 
+  const updateSet = {
+    candidateName: input.freelancerName,
+    ...(input.responseText !== undefined && { coverLetter }),
+    profileUrl: normalizedProfileUrl,
+    phone: input.contactInfo?.phone,
+    telegramUsername: input.contactInfo?.telegram,
+    globalCandidateId: globalCandidateId ?? undefined,
+    contacts: insertValues.contacts,
+    profileData,
+    skills: input.skills,
+    updatedAt: new Date(),
+  };
+
   const [targetResponse] = await db
     .insert(responseTable)
     .values(insertValues)
@@ -269,18 +281,7 @@ export async function handleImportResumeLinkedIn(c: Context) {
         responseTable.entityId,
         responseTable.candidateId,
       ],
-      set: {
-        candidateName: input.freelancerName,
-        coverLetter,
-        profileUrl: normalizedProfileUrl,
-        phone: input.contactInfo?.phone,
-        telegramUsername: input.contactInfo?.telegram,
-        globalCandidateId: globalCandidateId ?? undefined,
-        contacts: insertValues.contacts,
-        profileData,
-        skills: input.skills,
-        updatedAt: new Date(),
-      },
+      set: updateSet,
     })
     .returning();
 

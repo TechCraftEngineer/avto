@@ -1,6 +1,6 @@
 {
   "name": "@qbs-autonaim/recruitment-assistant-extension",
-  "version": "0.0.29",
+  "version": "0.0.30",
   "private": true,
   "description": "Chrome extension for recruitment automation",
   "type": "module",

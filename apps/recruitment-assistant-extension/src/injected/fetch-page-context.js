@@ -9,6 +9,9 @@
  */
 
 (() => {
+  const PHOTO_FETCH_DEBUG =
+    typeof window !== "undefined" &&
+    window.__RECRUITMENT_ASSISTANT_DEBUG__ === true;
   const MAX_STATUS_TEXT_LENGTH = 100;
   const SAFE_CHAR_REGEX = /[^\x20-\x7E\u0400-\u04FF]/g;
   const ANGLE_BRACKET_REGEX = /[<>]/g;
@@ -64,16 +67,21 @@
   if (type === "image" || type === "pdf") {
     const defaultContentType =
       type === "pdf" ? "application/pdf" : "image/jpeg";
+    const isPdfRequest = type === "pdf" || url?.toLowerCase().endsWith(".pdf");
     const sendResult = (base64, contentType) => {
-      console.warn("[Photo Fetch] успех", {
-        url: url?.slice(0, 70),
-        contentType,
-        len: base64?.length,
-      });
+      if (PHOTO_FETCH_DEBUG) {
+        console.warn("[Photo Fetch] успех", {
+          url: url?.slice(0, 70),
+          contentType,
+          len: base64?.length,
+        });
+      }
       window.postMessage({ type: messageType, id, base64, contentType }, "*");
     };
     const sendError = (err) => {
-      console.warn("[Photo Fetch] ошибка", { url: url?.slice(0, 70), err });
+      if (PHOTO_FETCH_DEBUG) {
+        console.warn("[Photo Fetch] ошибка", { url: url?.slice(0, 70), err });
+      }
       window.postMessage({ type: messageType, id, error: err }, "*");
     };
 
@@ -88,7 +96,7 @@
       if (typeof XHR === "function") {
         const xhr = new XHR();
         xhr.open("GET", url, true);
-        xhr.withCredentials = false; // omit — CORS * не совместим с credentials
+        xhr.withCredentials = isPdfRequest; // PDF может требовать cookies
         xhr.responseType = "arraybuffer";
         xhr.onload = () => {
           if (xhr.status < 200 || xhr.status >= 300) {
@@ -117,8 +125,11 @@
   if (type === "image" || type === "pdf") {
     const defaultContentType =
       type === "pdf" ? "application/pdf" : "image/jpeg";
-    console.warn("[Photo Fetch] fetch() запущен", { url: url?.slice(0, 70) });
-    fetch(url, { credentials: "omit" })
+    const isPdfRequest = type === "pdf" || url?.toLowerCase().endsWith(".pdf");
+    if (PHOTO_FETCH_DEBUG) {
+      console.warn("[Photo Fetch] fetch() запущен", { url: url?.slice(0, 70) });
+    }
+    fetch(url, { credentials: isPdfRequest ? "include" : "omit" })
       .then((res) => {
         if (!res.ok) {
           throw new Error(formatHttpError(res.status, res.statusText || ""));
@@ -135,17 +146,21 @@
         let b = "";
         for (let i = 0; i < bytes.byteLength; i++)
           b += String.fromCharCode(bytes[i] ?? 0);
-        console.warn("[Photo Fetch] fetch() успех", {
-          contentType,
-          size: buffer.byteLength,
-        });
+        if (PHOTO_FETCH_DEBUG) {
+          console.warn("[Photo Fetch] fetch() успех", {
+            contentType,
+            size: buffer.byteLength,
+          });
+        }
         window.postMessage(
           { type: messageType, id, base64: btoa(b), contentType },
           "*",
         );
       })
       .catch((e) => {
-        console.warn("[Photo Fetch] fetch() ошибка", e.message);
+        if (PHOTO_FETCH_DEBUG) {
+          console.warn("[Photo Fetch] fetch() ошибка", e.message);
+        }
         window.postMessage({ type: messageType, id, error: e.message }, "*");
       });
     return;
