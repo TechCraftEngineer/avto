@@ -97,19 +97,19 @@ export function IntegrationsSection() {
 
   return (
     <section className="relative bg-background py-20 md:py-32 overflow-hidden">
-      {/* Subtle top border */}
+      {/* Top border */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       <div className="container mx-auto px-4 relative">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center mb-16">
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm mb-6">
-            <Zap className="h-4 w-4 text-primary" />
-            <span>Интеграции</span>
+            <Zap className="h-4 w-4 text-foreground" />
+            <span className="text-muted-foreground">Интеграции</span>
           </div>
 
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 text-balance">
-            Работает с вашими <span className="text-primary">инструментами</span>
+            Работает с вашими инструментами
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Подключите QBS Автонайм к сервисам, которые вы уже используете. Настройка занимает несколько минут.
@@ -127,12 +127,12 @@ export function IntegrationsSection() {
               <Link
                 key={integration.name}
                 href="#"
-                className="group relative bg-card border border-border rounded-2xl p-6 hover:border-primary/50 hover:shadow-lg transition-all duration-300"
+                className="group relative bg-card border border-border rounded-xl p-6 hover:border-foreground/20 transition-all"
               >
                 <div className="flex flex-col items-start gap-4">
                   <IntegrationIcon icon={integration.icon} color={integration.color} />
                   <div>
-                    <h4 className="font-semibold mb-1 group-hover:text-primary transition-colors">
+                    <h4 className="font-semibold mb-1 group-hover:text-foreground transition-colors">
                       {integration.name}
                     </h4>
                     <p className="text-sm text-muted-foreground leading-relaxed">{integration.description}</p>
@@ -155,10 +155,10 @@ export function IntegrationsSection() {
               <Link
                 key={integration.name}
                 href="#"
-                className="group flex flex-col items-center gap-3 bg-card border border-border rounded-xl p-4 hover:border-primary/50 hover:shadow-md transition-all duration-300"
+                className="group flex flex-col items-center gap-3 bg-card border border-border rounded-xl p-4 hover:border-foreground/20 transition-all"
               >
                 <IntegrationIcon icon={integration.icon} color={integration.color} />
-                <span className="text-sm font-medium text-center group-hover:text-primary transition-colors">
+                <span className="text-sm font-medium text-center group-hover:text-foreground transition-colors">
                   {integration.name}
                 </span>
               </Link>
@@ -169,7 +169,7 @@ export function IntegrationsSection() {
         {/* Bottom CTA */}
         <div className="mt-16 text-center">
           <p className="text-muted-foreground mb-4">Не нашли нужную интеграцию?</p>
-          <Link href="#" className="inline-flex items-center gap-2 text-primary font-medium hover:underline">
+          <Link href="#" className="inline-flex items-center gap-2 text-foreground font-medium hover:text-foreground/70">
             Запросить интеграцию
             <ArrowRight className="h-4 w-4" />
           </Link>

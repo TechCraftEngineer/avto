@@ -37,6 +37,18 @@ function mapAgentExperienceToProfile(exp: {
   };
 }
 
+function normalizeAndTruncateHtml(
+  html: unknown,
+  maxChars = 2000,
+): string | undefined {
+  const str =
+    typeof html === "string" ? html : html != null ? String(html) : "";
+  const trimmed = str.trim();
+  if (!trimmed) return undefined;
+  const condensed = trimmed.replace(/\s+/g, " ").replace(/>\s+</g, "><");
+  return condensed.length > maxChars ? condensed.slice(0, maxChars) : condensed;
+}
+
 function mapAgentEducationToProfile(edu: {
   institution?: string;
   degree?: string | null;
@@ -91,16 +103,17 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
 
       // HTML берём из event (основной поток) или из profileData (fallback для старых задач в очереди)
       const profileData = (resp.profileData || {}) as Record<string, unknown>;
+      const toStr = (v: unknown) =>
+        typeof v === "string" ? v : v != null ? String(v) : "";
       const experienceHtml =
-        eventExp ?? (profileData.linkedInExperienceHtml as string | undefined);
+        eventExp ?? toStr(profileData.linkedInExperienceHtml);
       const educationHtml =
-        eventEdu ?? (profileData.linkedInEducationHtml as string | undefined);
-      const skillsHtml =
-        eventSkills ?? (profileData.linkedInSkillsHtml as string | undefined);
+        eventEdu ?? toStr(profileData.linkedInEducationHtml);
+      const skillsHtml = eventSkills ?? toStr(profileData.linkedInSkillsHtml);
 
-      const hasExperienceHtml = (experienceHtml?.trim().length ?? 0) > 0;
-      const hasEducationHtml = (educationHtml?.trim().length ?? 0) > 0;
-      const hasSkillsHtml = (skillsHtml?.trim().length ?? 0) > 0;
+      const hasExperienceHtml = experienceHtml.trim().length > 0;
+      const hasEducationHtml = educationHtml.trim().length > 0;
+      const hasSkillsHtml = skillsHtml.trim().length > 0;
 
       if (!hasExperienceHtml && !hasEducationHtml && !hasSkillsHtml) {
         throw new Error(
@@ -128,11 +141,20 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
       });
 
       const agent = factory.createLinkedInHtmlStructurer();
+      const normalizedExperience = normalizeAndTruncateHtml(
+        responseData.experienceHtml,
+      );
+      const normalizedEducation = normalizeAndTruncateHtml(
+        responseData.educationHtml,
+      );
+      const normalizedSkills = normalizeAndTruncateHtml(
+        responseData.skillsHtml,
+      );
       const result = await agent.execute(
         {
-          experienceHtml: responseData.experienceHtml,
-          educationHtml: responseData.educationHtml,
-          skillsHtml: responseData.skillsHtml,
+          experienceHtml: normalizedExperience,
+          educationHtml: normalizedEducation,
+          skillsHtml: normalizedSkills,
         },
         { abortSignal },
       );

@@ -1,55 +1,33 @@
 "use client"
 
 import { Zap, TrendingUp, Users, CheckCircle2, Clock, ArrowRight } from "lucide-react"
-import { motion } from "framer-motion"
 import Link from "next/link"
 import { ScreenshotPreview } from "@/components/ui/screenshot-preview"
 
 export function ValuePropositionSection() {
   return (
     <section id="value" className="relative bg-background py-24 md:py-32 overflow-hidden">
-      {/* Soft mesh gradient - replaces harsh grid pattern */}
-      <div className="absolute inset-0 bg-mesh-soft opacity-50" />
-
-      {/* Top border for visual separation */}
+      {/* Top border */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       <div className="container relative mx-auto px-4">
         <div className="mx-auto max-w-4xl">
           {/* Section header */}
           <div className="text-center mb-16">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-              className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-6"
-            >
-              <Zap className="h-4 w-4" />
-              Ценностное предложение
-            </motion.div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm mb-6">
+              <Zap className="h-4 w-4 text-foreground" />
+              <span className="text-muted-foreground">Ценностное предложение</span>
+            </div>
 
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              viewport={{ once: true }}
-              className="text-3xl md:text-5xl font-bold tracking-tight text-foreground mb-6 text-balance leading-tight"
-            >
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground mb-6 text-balance leading-tight">
               Автоматизация подбора персонала —
               <br className="hidden md:block" />
               <span className="text-muted-foreground">без таблиц и ручного скрининга резюме</span>
-            </motion.h2>
+            </h2>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              viewport={{ once: true }}
-              className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
-            >
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Скрининг резюме, первичные интервью, учёт кандидатов и аналитика подбора — в единой системе для HR-команд
-            </motion.p>
+            </p>
           </div>
 
           {/* Key metrics - 3 cards */}
@@ -74,37 +52,21 @@ export function ValuePropositionSection() {
                 description: "Кандидаты проходят в удобное время",
               },
             ].map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="group relative h-full"
-              >
-                <div className="absolute inset-0 bg-gradient-to-b from-border/50 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative h-full min-h-[280px] flex flex-col bg-card/80 backdrop-blur-sm border-2 border-border rounded-2xl p-6 hover:shadow-lg transition-all hover:-translate-y-1">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 rounded-xl bg-foreground/10 backdrop-blur-sm">
-                      <stat.icon className="h-6 w-6 text-foreground" />
-                    </div>
+              <div key={index} className="bg-card border border-border rounded-xl p-6 hover:border-foreground/20 transition-colors">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-3 rounded-xl bg-muted">
+                    <stat.icon className="h-6 w-6 text-foreground" />
                   </div>
-                  <div className="text-4xl md:text-5xl font-bold mb-3 text-foreground">{stat.value}</div>
-                  <div className="text-base font-semibold text-foreground mb-2 leading-snug">{stat.label}</div>
-                  <div className="text-sm text-foreground/70 mt-auto">{stat.description}</div>
                 </div>
-              </motion.div>
+                <div className="text-4xl md:text-5xl font-bold mb-3 text-foreground">{stat.value}</div>
+                <div className="text-base font-semibold text-foreground mb-2 leading-snug">{stat.label}</div>
+                <div className="text-sm text-muted-foreground">{stat.description}</div>
+              </div>
             ))}
           </div>
 
           {/* Value points with live demo */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="bg-card border border-border rounded-2xl p-8 md:p-10"
-          >
+          <div className="bg-card border border-border rounded-xl p-8 md:p-10">
             <div className="space-y-8">
               <div className="max-w-3xl mx-auto text-center">
                 <h3 className="text-2xl font-semibold text-foreground mb-3">Все этапы подбора персонала в одном месте</h3>
@@ -116,46 +78,30 @@ export function ValuePropositionSection() {
                     "Единый список отобранных по всем вакансиям",
                     "hh.ru, SuperJob, Avito — без ручного копирования",
                   ].map((item, index) => (
-                    <motion.li
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.4, delay: index * 0.1 }}
-                      viewport={{ once: true }}
-                      className="flex items-start gap-3"
-                    >
+                    <li key={index} className="flex items-start gap-3">
                       <CheckCircle2 className="h-6 w-6 text-foreground shrink-0 mt-0.5" />
-                      <span className="text-foreground/80">{item}</span>
-                    </motion.li>
+                      <span className="text-muted-foreground">{item}</span>
+                    </li>
                   ))}
                 </ul>
               </div>
 
-              {/* Live demo card - full width below text */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                viewport={{ once: true }}
-                className="relative"
-              >
-                <div className="absolute -inset-4 bg-gradient-to-r from-primary/10 via-violet-500/10 to-accent/10 rounded-3xl blur-2xl" />
-                <div className="relative bg-muted/50 border border-border rounded-xl overflow-hidden">
-                  <ScreenshotPreview
-                    src="/screenshots/app-dashboard-recent-activity-1920x1080.png"
-                    alt="Дашборд подбора персонала — кандидаты и вакансии в реальном времени"
-                    height="aspect-video"
-                  />
-                </div>
-              </motion.div>
+              {/* Live demo card */}
+              <div className="bg-muted/50 border border-border rounded-xl overflow-hidden">
+                <ScreenshotPreview
+                  src="/screenshots/app-dashboard-recent-activity-1920x1080.png"
+                  alt="Дашборд подбора персонала — кандидаты и вакансии в реальном времени"
+                  height="aspect-video"
+                />
+              </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Bottom CTA link */}
           <div className="text-center mt-10">
             <Link
               href="/features"
-              className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors group"
+              className="inline-flex items-center gap-2 text-foreground hover:text-foreground/70 font-medium transition-colors group"
             >
               Подробнее о возможностях
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
