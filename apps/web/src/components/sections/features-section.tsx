@@ -103,7 +103,7 @@ export function FeaturesSection() {
   const [activeFeature, setActiveFeature] = useState(features[0]!)
 
   return (
-    <section id="features" className="relative py-24 md:py-32 bg-muted/10">
+    <section id="features" className="relative py-24 md:py-32 bg-dub-grid">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center mb-16">

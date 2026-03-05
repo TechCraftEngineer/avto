@@ -35,7 +35,7 @@ export function SocialProof() {
   ]
 
   return (
-    <section className="bg-muted/30 py-16 md:py-20">
+    <section className="py-16 md:py-20 bg-dub-grid-dark">
       <div className="container mx-auto px-4">
         <p className="text-center text-sm uppercase tracking-wider text-muted-foreground mb-12 font-semibold">
           Система подбора персонала для российского рынка

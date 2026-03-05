@@ -99,7 +99,7 @@ function ConnectorLines({ delay }: { delay: number }) {
 
 export function DataFlowSection() {
   return (
-    <section className="relative pt-8 md:pt-12 pb-20 md:pb-28 overflow-hidden bg-muted/30">
+    <section className="relative pt-8 md:pt-12 pb-20 md:pb-28 overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-border to-transparent" />
 
       <div className="container mx-auto px-4">

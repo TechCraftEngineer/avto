@@ -50,7 +50,7 @@ const FAQS = [
 
 export function FAQSection() {
   return (
-    <section id="faq" className="relative py-28 md:py-36 lg:py-44 bg-muted/10">
+    <section id="faq" className="relative py-28 md:py-36 lg:py-44 bg-dub-glow-bottom">
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto text-center mb-16">
           <div className="inline-block mb-8 h-px w-12 bg-linear-to-r from-transparent via-amber-500/60 to-transparent" />

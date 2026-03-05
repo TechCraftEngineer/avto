@@ -54,7 +54,7 @@ export function PricingSection() {
   const [isAnnual, setIsAnnual] = useState(false)
 
   return (
-    <section id="pricing" className="relative py-28 md:py-36 lg:py-44 bg-background">
+    <section id="pricing" className="relative py-28 md:py-36 lg:py-44 bg-dub-grid">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center mb-16">
           <div className="inline-block mb-8 h-px w-12 bg-linear-to-r from-transparent via-amber-500/60 to-transparent" />

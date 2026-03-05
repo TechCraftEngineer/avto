@@ -27,13 +27,13 @@ export default function Home() {
         <SocialProof />
 
         {/* 3. Value Proposition + Target Audience - What & Who */}
-        <div className="bg-muted/20">
+        <div className="bg-dub-glow-top relative">
           <ValuePropositionSection />
           <TargetAudienceSection />
         </div>
 
         {/* 4. How It Works + Data Flow - Path from HH to candidate */}
-        <div className="bg-background">
+        <div className="bg-dub-grid relative">
           <HowItWorks />
           <DataFlowSection />
         </div>
