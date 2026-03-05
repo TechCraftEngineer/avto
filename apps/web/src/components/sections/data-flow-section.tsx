@@ -498,24 +498,6 @@ export function DataFlowSection() {
                 </div>
               </div>
             </motion.div>
-
-            {/* Bottom grid placeholder */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{
-                delay: stagger.delay + 0.9,
-                type: "spring",
-                stiffness: 400,
-                damping: 28,
-              }}
-              className="w-full mt-6 h-20 lg:h-24 rounded-xl border border-dashed border-border bg-muted/30 flex items-center justify-center"
-            >
-              <span className="text-xs text-muted-foreground">
-                Остальные отобранные кандидаты →
-              </span>
-            </motion.div>
           </div>
 
           {/* Bottom-right corner */}

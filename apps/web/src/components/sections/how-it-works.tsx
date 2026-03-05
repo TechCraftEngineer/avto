@@ -11,6 +11,8 @@ export function HowItWorks() {
       title: "Подключение HeadHunter и SuperJob",
       description: "Интеграция с hh.ru, SuperJob, Avito — авторизация один раз, отклики синхронизируются автоматически",
       features: ["hh.ru", "SuperJob", "Avito"],
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
     },
     {
       number: "02",
@@ -18,6 +20,8 @@ export function HowItWorks() {
       title: "Скрининг резюме по вашим критериям",
       description: "Автоматический отбор резюме: система оценивает кандидатов по настраиваемым параметрам и выставляет рейтинг соответствия",
       features: ["Ваши критерии", "Рейтинг", "Профиль кандидата"],
+      color: "text-violet-600",
+      bgColor: "bg-violet-50",
     },
     {
       number: "03",
@@ -25,6 +29,8 @@ export function HowItWorks() {
       title: "Интервью в веб-чате",
       description: "Кандидат получает приглашение и проходит интервью в веб-чате в удобное время",
       features: ["Веб-чат", "Голос или текст", "24/7"],
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50",
     },
     {
       number: "04",
@@ -32,6 +38,8 @@ export function HowItWorks() {
       title: "Список отобранных готов",
       description: "Отсортированный список с транскрипциями, оценками и рекомендациями — остаётся провести финальные интервью",
       features: ["Топ кандидаты", "Транскрипции", "Рекомендации"],
+      color: "text-amber-600",
+      bgColor: "bg-amber-50",
     },
   ]
 
@@ -66,8 +74,8 @@ export function HowItWorks() {
               </div>
 
               {/* Icon */}
-              <div className="h-10 w-10 rounded-lg bg-muted/50 flex items-center justify-center mb-4">
-                <step.icon className="h-5 w-5 text-foreground" />
+              <div className={`h-10 w-10 rounded-lg ${step.bgColor} flex items-center justify-center mb-4`}>
+                <step.icon className={`h-5 w-5 ${step.color}`} />
               </div>
 
               {/* Content */}
@@ -93,24 +101,30 @@ export function HowItWorks() {
               icon: Clock,
               title: "Меньше рутины",
               desc: "Первичный отбор за 15 минут вместо 5 часов в день",
+              color: "text-blue-600",
+              bgColor: "bg-blue-50",
             },
             {
               icon: Shield,
               title: "Настраиваемая оценка",
               desc: "Параметры и веса под специфику ваших вакансий",
+              color: "text-violet-600",
+              bgColor: "bg-violet-50",
             },
             {
               icon: Zap,
               title: "Быстрое подключение",
               desc: "hh.ru за 2 минуты — первый отклик уже в платформе",
+              color: "text-emerald-600",
+              bgColor: "bg-emerald-50",
             },
           ].map((item, i) => (
             <div
               key={i}
               className="p-6 rounded-xl border border-border/60 bg-card hover:border-border hover:shadow-sm transition-all text-center"
             >
-              <div className="h-10 w-10 rounded-lg bg-muted/50 flex items-center justify-center mb-4 mx-auto">
-                <item.icon className="h-5 w-5 text-foreground" />
+              <div className={`h-10 w-10 rounded-lg ${item.bgColor} flex items-center justify-center mb-4 mx-auto`}>
+                <item.icon className={`h-5 w-5 ${item.color}`} />
               </div>
               <h3 className="font-semibold text-foreground mb-2 text-sm">{item.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>

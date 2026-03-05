@@ -27,11 +27,13 @@ const features = [
     title: "Скрининг резюме по вашим критериям",
     description: "Автоматический отбор резюме: система оценивает кандидатов по настраиваемым параметрам — навыки, опыт, релевантность — и выставляет рейтинг за секунды",
     stats: [
-      { label: "Точность отсева", value: "97%" },
-      { label: "Время на резюме", value: "< 5 сек" },
-      { label: "Настраиваемых параметров", value: "50+" },
+      { label: "Точность отсева", value: "97%", color: "text-emerald-600" },
+      { label: "Время на резюме", value: "< 5 сек", color: "text-blue-600" },
+      { label: "Настраиваемых параметров", value: "50+", color: "text-violet-600" },
     ],
     demo: "screening",
+    color: "text-violet-600",
+    bgColor: "bg-violet-50",
   },
   {
     id: "voice-interview",
@@ -40,11 +42,13 @@ const features = [
     title: "Интервью в веб-чате",
     description: "Кандидат проходит интервью в удобное время — голосом или текстом. Транскрипция сохраняется, ответы оцениваются автоматически",
     stats: [
-      { label: "Качество транскрипции", value: "98.5%" },
-      { label: "Доступность", value: "24/7" },
-      { label: "Рост конверсии", value: "+40%" },
+      { label: "Качество транскрипции", value: "98.5%", color: "text-emerald-600" },
+      { label: "Доступность", value: "24/7", color: "text-blue-600" },
+      { label: "Рост конверсии", value: "+40%", color: "text-amber-600" },
     ],
     demo: "interview",
+    color: "text-blue-600",
+    bgColor: "bg-blue-50",
   },
   {
     id: "prequalification",
@@ -54,11 +58,13 @@ const features = [
     description:
       "Кнопка на сайте: кандидат загружает резюме, проходит короткий чат и получает оценку соответствия. Откликаются только те, кто подходит",
     stats: [
-      { label: "Меньше нерелевантных", value: "-65%" },
-      { label: "Экономия на скрининге", value: "4ч/день" },
-      { label: "Удовлетворённость кандидатов", value: "+40%" },
+      { label: "Меньше нерелевантных", value: "-65%", color: "text-emerald-600" },
+      { label: "Экономия на скрининге", value: "4ч/день", color: "text-blue-600" },
+      { label: "Удовлетворённость кандидатов", value: "+40%", color: "text-amber-600" },
     ],
     demo: "prequalification",
+    color: "text-emerald-600",
+    bgColor: "bg-emerald-50",
   },
   {
     id: "analytics",
@@ -67,11 +73,13 @@ const features = [
     title: "Воронка и метрики",
     description: "Конверсия по этапам, время до найма, узкие места — данные для оптимизации процесса с опорой на факты",
     stats: [
-      { label: "Экономия на отчётности", value: "85%" },
-      { label: "Точность прогнозов", value: "94%" },
-      { label: "Цикл найма", value: "от 3 дней" },
+      { label: "Экономия на отчётности", value: "85%", color: "text-emerald-600" },
+      { label: "Точность прогнозов", value: "94%", color: "text-blue-600" },
+      { label: "Цикл найма", value: "от 3 дней", color: "text-violet-600" },
     ],
     demo: "analytics",
+    color: "text-amber-600",
+    bgColor: "bg-amber-50",
   },
   {
     id: "integrations",
@@ -80,11 +88,13 @@ const features = [
     title: "Интеграция HeadHunter и SuperJob",
     description: "Подключение hh.ru, SuperJob, Avito, Telegram — отклики с площадок подбора персонала попадают в систему автоматически",
     stats: [
-      { label: "Поддерживаемых сервисов", value: "10+" },
-      { label: "Время настройки", value: "2 мин" },
-      { label: "Интервал синхронизации", value: "15 сек" },
+      { label: "Поддерживаемых сервисов", value: "10+", color: "text-blue-600" },
+      { label: "Время настройки", value: "2 мин", color: "text-emerald-600" },
+      { label: "Интервал синхронизации", value: "15 сек", color: "text-violet-600" },
     ],
     demo: "integrations",
+    color: "text-blue-600",
+    bgColor: "bg-blue-50",
   },
 ]
 
@@ -129,9 +139,9 @@ export function FeaturesSection() {
           <div className="grid lg:grid-cols-2 gap-8 items-start">
             {/* Left: Info */}
             <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-md bg-muted/50 px-3 py-1.5 border border-border/60">
-                <activeFeature.icon className="h-4 w-4 text-foreground" />
-                <span className="text-sm font-medium text-foreground">{activeFeature.label}</span>
+              <div className={`inline-flex items-center gap-2 rounded-md ${activeFeature.bgColor} px-3 py-1.5 border border-border/60`}>
+                <activeFeature.icon className={`h-4 w-4 ${activeFeature.color}`} />
+                <span className={`text-sm font-medium ${activeFeature.color}`}>{activeFeature.label}</span>
               </div>
 
               <h3 className="text-3xl font-bold text-foreground">{activeFeature.title}</h3>
@@ -141,7 +151,7 @@ export function FeaturesSection() {
               <div className="grid grid-cols-3 gap-3">
                 {activeFeature.stats.map((stat, i) => (
                   <div key={i} className="bg-card border border-border/60 rounded-lg p-4 text-center hover:border-border hover:shadow-sm transition-all">
-                    <div className="text-xl font-bold text-foreground">{stat.value}</div>
+                    <div className={`text-xl font-bold ${stat.color}`}>{stat.value}</div>
                     <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
                   </div>
                 ))}
@@ -197,30 +207,98 @@ function ScreeningDemo() {
 
 function InterviewDemo() {
   return (
-    <div className="rounded-lg border border-border/60 bg-card overflow-hidden shadow-sm">
+    <div className="rounded-xl border border-border/60 bg-card overflow-hidden shadow-sm">
       <div className="flex items-center gap-3 px-4 py-3 bg-muted/30 border-b border-border/60">
-        <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-xs font-bold">
-          QD
+        <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center text-xs font-bold text-blue-600">
+          AI
         </div>
         <div className="flex-1">
-          <div className="font-medium text-foreground text-sm">QBS Дмитрий</div>
-          <div className="text-xs text-muted-foreground">онлайн</div>
+          <div className="font-medium text-foreground text-sm">QBS AI-Рекрутер</div>
+          <div className="flex items-center gap-1.5 text-xs text-emerald-600">
+            <div className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+            онлайн
+          </div>
         </div>
       </div>
 
-      <div className="p-4 space-y-3 max-h-[300px] overflow-y-auto bg-muted/10">
+      <div className="p-4 space-y-3 max-h-[320px] overflow-y-auto bg-muted/10">
+        {/* Bot message */}
         <div className="flex justify-start">
-          <div className="max-w-[85%] rounded-lg bg-card border border-border/60 px-3 py-2">
-            <p className="text-sm text-foreground">Расскажите о вашем опыте работы с Python</p>
-            <div className="text-xs text-muted-foreground mt-1">12:32</div>
+          <div className="max-w-[85%]">
+            <div className="rounded-xl rounded-tl-sm bg-card border border-border/60 px-3.5 py-2.5 shadow-sm">
+              <p className="text-sm text-foreground leading-relaxed">Расскажите о вашем опыте работы с Python. Можете ответить голосом или текстом.</p>
+              <div className="text-xs text-muted-foreground mt-1.5">12:32</div>
+            </div>
           </div>
         </div>
 
+        {/* User voice message */}
         <div className="flex justify-end">
-          <div className="max-w-[85%] rounded-lg bg-foreground text-background px-3 py-2">
-            <p className="text-sm">Работаю с Python уже 6 лет...</p>
-            <div className="text-xs opacity-70 mt-1">12:33</div>
+          <div className="max-w-[85%]">
+            <div className="rounded-xl rounded-tr-sm bg-foreground text-background px-3.5 py-2.5 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-7 w-7 rounded-full bg-background/20 flex items-center justify-center">
+                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" />
+                  </svg>
+                </div>
+                <div className="flex-1 flex items-center gap-1">
+                  {[...Array(20)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-0.5 rounded-full bg-background/60"
+                      style={{ height: `${Math.random() * 16 + 8}px` }}
+                    />
+                  ))}
+                </div>
+                <span className="text-xs opacity-90">0:47</span>
+              </div>
+              <div className="text-xs opacity-90 text-right">12:34</div>
+            </div>
+            
+            {/* Transcription */}
+            <div className="mt-2 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2">
+              <div className="flex items-center gap-1.5 mb-1">
+                <svg className="h-3 w-3 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-xs font-medium text-emerald-700">Транскрибация</span>
+              </div>
+              <p className="text-xs text-emerald-900 leading-relaxed">Работаю с Python уже 6 лет. Последние 3 года специализируюсь на бэкенд-разработке с Django и FastAPI.</p>
+            </div>
           </div>
+        </div>
+
+        {/* Bot follow-up */}
+        <div className="flex justify-start">
+          <div className="max-w-[85%]">
+            <div className="rounded-xl rounded-tl-sm bg-card border border-border/60 px-3.5 py-2.5 shadow-sm">
+              <p className="text-sm text-foreground leading-relaxed">Отличный опыт! Расскажите о самом сложном техническом вызове?</p>
+              <div className="text-xs text-muted-foreground mt-1.5">12:35</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Input area */}
+      <div className="px-3 py-3 bg-muted/30 border-t border-border/60">
+        <div className="flex items-center gap-2 bg-card rounded-lg border border-border/60 px-3 py-2">
+          <button className="text-muted-foreground hover:text-foreground transition-colors">
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+            </svg>
+          </button>
+          <input
+            type="text"
+            placeholder="Напишите сообщение..."
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+            disabled
+          />
+          <button className="h-7 w-7 rounded-lg bg-foreground hover:bg-foreground/90 flex items-center justify-center text-background transition-colors">
+            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>
@@ -229,33 +307,64 @@ function InterviewDemo() {
 
 function PrequalificationDemo() {
   return (
-    <div className="rounded-lg border border-border/60 bg-card p-6 shadow-sm">
+    <div className="rounded-xl border border-border/60 bg-card p-6 shadow-sm">
       <div className="space-y-3">
         {[
-          { icon: Target, title: "Кнопка на сайте", desc: "«Узнай, подходишь ли ты»" },
-          { icon: Upload, title: "Загрузка резюме", desc: "CV анализируется AI" },
-          { icon: MessageSquare, title: "Чат-ассистент", desc: "Общение с ассистентом" },
+          { 
+            icon: Target, 
+            title: "Кнопка на сайте", 
+            desc: "«Узнай, подходишь ли ты»",
+            color: "text-blue-600",
+            bgColor: "bg-blue-50",
+            status: "done"
+          },
+          { 
+            icon: Upload, 
+            title: "Загрузка резюме", 
+            desc: "CV анализируется AI",
+            color: "text-violet-600",
+            bgColor: "bg-violet-50",
+            status: "done"
+          },
+          { 
+            icon: MessageSquare, 
+            title: "Чат-ассистент", 
+            desc: "Общение с ассистентом",
+            color: "text-emerald-600",
+            bgColor: "bg-emerald-50",
+            status: "done"
+          },
         ].map((step, i) => (
           <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/60">
-            <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-              <step.icon className="h-4 w-4 text-foreground" />
+            <div className={`h-8 w-8 rounded-lg ${step.bgColor} flex items-center justify-center shrink-0`}>
+              <step.icon className={`h-4 w-4 ${step.color}`} />
             </div>
             <div className="flex-1">
               <div className="text-sm font-medium text-foreground">{step.title}</div>
               <div className="text-xs text-muted-foreground">{step.desc}</div>
             </div>
-            <CheckCircle2 className="h-4 w-4 text-foreground" />
+            <div className="h-5 w-5 rounded-full bg-emerald-50 flex items-center justify-center">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+            </div>
           </div>
         ))}
 
-        <div className="p-3 rounded-lg bg-foreground/5 border border-border/60">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-foreground/10 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="h-4 w-4 text-foreground" />
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+          <div className="flex items-start gap-3">
+            <div className="h-10 w-10 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
             </div>
-            <div>
-              <div className="text-sm font-medium text-foreground">Результат: 87% соответствие</div>
-              <div className="text-xs text-muted-foreground">Рекомендуем отправить отклик</div>
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-emerald-900 mb-1">Результат: 87% соответствие</div>
+              <div className="text-xs text-emerald-700">Рекомендуем отправить отклик на вакансию</div>
+              <div className="mt-3 flex gap-2">
+                <div className="px-2 py-1 rounded-md bg-emerald-100 text-xs font-medium text-emerald-700">
+                  Python: 9/10
+                </div>
+                <div className="px-2 py-1 rounded-md bg-emerald-100 text-xs font-medium text-emerald-700">
+                  Опыт: 6 лет
+                </div>
+              </div>
             </div>
           </div>
         </div>

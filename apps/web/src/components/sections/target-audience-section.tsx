@@ -12,6 +12,8 @@ export function TargetAudienceSection() {
       stat: "20+ ч/нед",
       statLabel: "экономия на рутине",
       link: "/audiences/hr-managers",
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
     },
     {
       icon: Building2,
@@ -20,6 +22,8 @@ export function TargetAudienceSection() {
       stat: "3×",
       statLabel: "объём без роста команды",
       link: "/audiences/company-leaders",
+      color: "text-violet-600",
+      bgColor: "bg-violet-50",
     },
     {
       icon: Rocket,
@@ -28,6 +32,8 @@ export function TargetAudienceSection() {
       stat: "48 ч",
       statLabel: "от вакансии до интервью",
       link: "/audiences/startups",
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50",
     },
     {
       icon: TrendingUp,
@@ -36,6 +42,8 @@ export function TargetAudienceSection() {
       stat: "5×",
       statLabel: "обработанных кандидатов",
       link: "/audiences/recruitment-agencies",
+      color: "text-amber-600",
+      bgColor: "bg-amber-50",
     },
   ]
 
@@ -64,8 +72,8 @@ export function TargetAudienceSection() {
                 className="group block h-full bg-card border border-border/60 rounded-xl p-6 hover:border-border hover:shadow-sm transition-all"
               >
                 {/* Icon */}
-                <div className="w-10 h-10 rounded-lg bg-muted/50 flex items-center justify-center mb-4">
-                  <Icon className="w-5 h-5 text-foreground" />
+                <div className={`w-10 h-10 rounded-lg ${audience.bgColor} flex items-center justify-center mb-4`}>
+                  <Icon className={`w-5 h-5 ${audience.color}`} />
                 </div>
 
                 {/* Title */}
@@ -76,7 +84,7 @@ export function TargetAudienceSection() {
 
                 {/* Stat */}
                 <div className="pt-4 border-t border-border/40">
-                  <div className="text-2xl font-bold text-foreground">{audience.stat}</div>
+                  <div className={`text-2xl font-bold ${audience.color}`}>{audience.stat}</div>
                   <div className="text-xs text-muted-foreground mt-1">{audience.statLabel}</div>
                 </div>
 
