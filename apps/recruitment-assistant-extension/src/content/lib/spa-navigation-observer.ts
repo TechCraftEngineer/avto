@@ -23,7 +23,7 @@ function isLinkedInProfileUrl(url: string): boolean {
 export type OnUrlChangeCallback = (oldUrl: string, newUrl: string) => void;
 
 let lastUrl = typeof window !== "undefined" ? window.location.href : "";
-let listeners: OnUrlChangeCallback[] = [];
+const listeners: OnUrlChangeCallback[] = [];
 let subscriptionCount = 0;
 let origPushState: typeof history.pushState | null = null;
 let origReplaceState: typeof history.replaceState | null = null;
@@ -98,11 +98,17 @@ export function observeSpaNavigation(
     installHistoryPatch();
   }
 
+  let unsubscribed = false;
   return () => {
-    listeners = listeners.filter((l) => l !== callback);
-    subscriptionCount--;
-    if (subscriptionCount === 0) {
-      uninstallHistoryPatch();
+    if (unsubscribed) return;
+    unsubscribed = true;
+
+    const idx = listeners.indexOf(callback);
+    if (idx !== -1) listeners.splice(idx, 1);
+
+    if (subscriptionCount > 0) {
+      subscriptionCount--;
+      if (subscriptionCount === 0) uninstallHistoryPatch();
     }
   };
 }

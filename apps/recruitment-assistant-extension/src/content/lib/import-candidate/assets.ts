@@ -30,16 +30,27 @@ function isValidPhotoUrl(src: string | undefined): boolean {
   );
 }
 
-/** Проверяет, что URL — реальное фото LinkedIn (не placeholder) */
-function isRealMediaUrl(url: string): boolean {
+/** Только CDN профильных фото LinkedIn. Исключает px.ads, tracking, и т.п. */
+function isLinkedInProfilePhotoUrl(url: string): boolean {
   try {
     const urlObj = new URL(url);
     const host = urlObj.hostname.toLowerCase();
-    return (
+    const path = urlObj.pathname.toLowerCase();
+    if (
+      host.includes("ads.") ||
+      host.startsWith("px.") ||
+      path.includes("/collect")
+    )
+      return false;
+    const isCdn =
       host === "media.licdn.com" ||
-      host === "licdn.com" ||
-      host.endsWith(".licdn.com")
-    );
+      host === "dms.licdn.com" ||
+      host.endsWith(".media.licdn.com");
+    const looksLikePhoto =
+      path.includes("profile") ||
+      path.includes("displayphoto") ||
+      path.includes("dms/image");
+    return isCdn && looksLikePhoto;
   } catch {
     return false;
   }
@@ -50,51 +61,83 @@ function isDataUrlBase64(s: string): boolean {
   return /^data:image\/(png|jpeg|jpg|gif|webp);base64,/.test(s);
 }
 
+/** Селекторы фото профиля LinkedIn. profile-top-card-member-photo — фото в шапке профиля. */
+const LINKEDIN_PHOTO_SELECTORS = [
+  'a[data-view-name="profile-top-card-member-photo"] img', // фото в шапке профиля
+  'figure[data-view-name="image"] img',
+  'img[src*="media.licdn.com"][src*="profile-displayphoto"]',
+  'img[data-delayed-url*="media.licdn"]',
+  'img[data-delayed-url*="profile-displayphoto"]',
+  ".pv-top-card-profile-picture img",
+  "img.pv-top-card-profile-picture__image",
+  ".pv-top-card-photo img",
+  ".pv-top-card img[src*='media.licdn.com']",
+  ".pv-top-card img[src*='profile-displayphoto']",
+  'section[data-section="profile-photo"] img',
+  '[data-view-name="profile-photo"] img',
+  "img[src*='media.licdn.com']",
+  "img[src*='profile-displayphoto']",
+];
+
+const DEBUG_LINKEDIN_PHOTO = true; // Отладка: открой DevTools → Console, фильтр [LinkedIn Photo]
+
 /** Загружает фото для LinkedIn профиля.
- * Селектор: figure[data-view-name="image"] img (профильное фото).
+ * Использует несколько селекторов (как parse-profile-dom) для устойчивости к изменениям DOM.
  * Возвращает base64 data URL для импорта.
  */
 async function fetchLinkedInPhoto(
   document: Document,
   fallbackPhotoUrl?: string,
 ): Promise<string | undefined> {
-  const photoImg = document.querySelector<HTMLImageElement>(
-    'figure[data-view-name="image"] img',
-  );
-  const srcAttr = photoImg?.getAttribute("src");
-  const delayedUrl = photoImg?.getAttribute("data-delayed-url");
-  const resolvedSrc = photoImg?.src;
+  const log = DEBUG_LINKEDIN_PHOTO
+    ? console.warn.bind(console, "[LinkedIn Photo]")
+    : () => {};
 
-  // LinkedIn lazy-load: data-delayed-url содержит реальный CDN URL,
-  // а src может быть placeholder. Предпочитаем data-delayed-url на licdn.com
   let photoSrc: string | undefined;
-  if (delayedUrl && isValidPhotoUrl(delayedUrl) && isRealMediaUrl(delayedUrl)) {
-    photoSrc = delayedUrl;
-  } else if (
-    resolvedSrc &&
-    isValidPhotoUrl(resolvedSrc) &&
-    isRealMediaUrl(resolvedSrc)
-  ) {
-    photoSrc = resolvedSrc;
-  } else {
-    photoSrc =
-      (resolvedSrc && isValidPhotoUrl(resolvedSrc) ? resolvedSrc : undefined) ||
-      (srcAttr && isValidPhotoUrl(srcAttr) ? srcAttr : undefined) ||
-      (delayedUrl && isValidPhotoUrl(delayedUrl) ? delayedUrl : undefined) ||
-      (fallbackPhotoUrl && isValidPhotoUrl(fallbackPhotoUrl)
-        ? fallbackPhotoUrl
-        : undefined);
+  let matchedSelector: string | null = null;
+
+  for (const sel of LINKEDIN_PHOTO_SELECTORS) {
+    const nodes = document.querySelectorAll<HTMLImageElement>(sel);
+    for (const el of nodes) {
+      const u =
+        el.getAttribute("data-delayed-url") || el.getAttribute("src") || el.src;
+      if (u && isLinkedInProfilePhotoUrl(u)) {
+        photoSrc = u;
+        matchedSelector = sel;
+        break;
+      }
+    }
+    if (photoSrc) break;
   }
 
-  if (!isValidPhotoUrl(photoSrc ?? undefined)) return undefined;
+  log("DOM:", {
+    found: !!photoSrc,
+    selector: matchedSelector ?? "none",
+    host: photoSrc ? safeHost(photoSrc) : null,
+    fallbackHost: fallbackPhotoUrl ? safeHost(fallbackPhotoUrl) : undefined,
+  });
 
-  // Уже base64 — возвращаем как есть (API ожидает data:image/...;base64,...)
-  if (photoSrc && isDataUrlBase64(photoSrc)) {
+  if (
+    !photoSrc &&
+    fallbackPhotoUrl &&
+    isLinkedInProfilePhotoUrl(fallbackPhotoUrl)
+  ) {
+    photoSrc = fallbackPhotoUrl;
+    log("Используем fallbackPhotoUrl из данных профиля");
+  }
+
+  if (!photoSrc) {
+    log("Пропуск: ни DOM, ни fallback не дали валидный URL профильного фото");
+    return undefined;
+  }
+
+  if (isDataUrlBase64(photoSrc)) {
+    log("Уже base64 — возвращаем как есть");
     return photoSrc;
   }
 
   const urlToFetch = photoSrc;
-  if (!urlToFetch) return undefined;
+  log("Загрузка:", `${urlToFetch.slice(0, 80)}...`);
 
   try {
     const { fetchImageAsBase64ViaExtension } = await import(
@@ -102,16 +145,18 @@ async function fetchLinkedInPhoto(
     );
     const { base64, contentType } =
       await fetchImageAsBase64ViaExtension(urlToFetch);
+    log("Успех:", { contentType, sizeBase64: base64.length });
     return `data:${contentType};base64,${base64}`;
   } catch (err) {
-    console.error(
-      "[fetchLinkedInPhoto] fetchImageAsBase64ViaExtension failed",
-      {
-        host: safeHost(urlToFetch),
-        hasPhoto: !!urlToFetch,
-        message: err instanceof Error ? err.message : String(err),
-      },
+    log(
+      "Ошибка загрузки фото:",
+      err instanceof Error ? err.message : String(err),
     );
+    console.error("[LinkedIn Photo] fetch failed", {
+      host: safeHost(urlToFetch),
+      url: urlToFetch.slice(0, 120),
+      message: err instanceof Error ? err.message : String(err),
+    });
     return undefined;
   }
 }
@@ -192,10 +237,21 @@ export async function fetchPlatformAssets(
   if (!document || typeof document === "undefined") return {};
 
   if (source === "LINKEDIN") {
+    if (DEBUG_LINKEDIN_PHOTO) {
+      console.warn("[LinkedIn Photo] fetchPlatformAssets вызван", {
+        hasFallback: !!context.fallbackPhotoUrl,
+        fallbackHost: context.fallbackPhotoUrl
+          ? safeHost(context.fallbackPhotoUrl)
+          : undefined,
+      });
+    }
     const photoUrl = await fetchLinkedInPhoto(
       document,
       context.fallbackPhotoUrl,
     );
+    if (DEBUG_LINKEDIN_PHOTO) {
+      console.warn("[LinkedIn Photo] результат:", { gotPhoto: !!photoUrl });
+    }
     return { photoUrl };
   }
 

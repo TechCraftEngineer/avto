@@ -19,6 +19,7 @@ export const ALLOWED_API_HOSTS = [
 
 export const ALLOWED_IMAGE_HOSTS = [
   "media.licdn.com",
+  "dms.licdn.com",
   "hh.ru",
   "www.hh.ru",
   ...(isTest ? ["cdn.example.com"] : []),
