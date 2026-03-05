@@ -15,7 +15,7 @@ export function HeroSection() {
 
           <h1 className="mb-8 text-[2.75rem] leading-[1.12] font-semibold tracking-tight sm:text-5xl lg:text-[3.5rem] lg:leading-[1.08]">
             <span className="text-foreground">Подбор персонала: от сотен откликов — </span>
-            <span className="text-blue-600">
+            <span className="bg-linear-to-r from-amber-600 via-amber-500 to-amber-600 bg-clip-text text-transparent">
               к лучшим кандидатам
             </span>
           </h1>
