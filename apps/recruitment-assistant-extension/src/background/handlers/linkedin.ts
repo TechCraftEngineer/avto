@@ -13,13 +13,38 @@ function extractFromTab(url: string, selectors: string[]): Promise<string[]> {
         return;
       }
       const tabId = tab.id;
-      const timeout = setTimeout(() => {
+      let completed = false;
+      const timeoutId = setTimeout(() => {
+        if (completed) return;
+        completed = true;
         chrome.tabs.onUpdated.removeListener(onUpdated);
         chrome.tabs.remove(tabId).catch(() => {});
         resolve([]);
       }, 20000);
+
+      function cleanup(
+        resolveOrReject: (value: string[] | PromiseLike<string[]>) => void,
+        value: string[],
+      ): void;
+      function cleanup(
+        rejectFn: (reason?: unknown) => void,
+        err: unknown,
+      ): void;
+      function cleanup(
+        fn: ((v: string[]) => void) | ((err?: unknown) => void),
+        val: string[] | unknown,
+      ): void {
+        if (completed) return;
+        completed = true;
+        clearTimeout(timeoutId);
+        chrome.tabs.onUpdated.removeListener(onUpdated);
+        chrome.tabs.remove(tabId).catch(() => {});
+        (fn as (arg?: unknown) => void)(val);
+      }
+
       const onUpdated = (id: number, info: { status?: string }) => {
         if (id !== tabId || info.status !== "complete") return;
+        clearTimeout(timeoutId);
         chrome.tabs.onUpdated.removeListener(onUpdated);
         setTimeout(() => {
           chrome.scripting
@@ -73,14 +98,10 @@ function extractFromTab(url: string, selectors: string[]): Promise<string[]> {
               args: [selectors],
             })
             .then(([result]) => {
-              clearTimeout(timeout);
-              chrome.tabs.remove(tabId).catch(() => {});
-              resolve((result?.result as string[]) ?? []);
+              cleanup(resolve, (result?.result as string[]) ?? []);
             })
             .catch((err) => {
-              clearTimeout(timeout);
-              chrome.tabs.remove(tabId).catch(() => {});
-              reject(err);
+              cleanup(reject, err);
             });
         }, 3000);
       };
@@ -99,13 +120,15 @@ export async function handleFetchLinkedInDetails(
     return;
   }
 
+  const normalizedUsername = encodeURIComponent(username.trim());
+
   try {
     const baseUrl = "https://www.linkedin.com";
     const urls = {
-      experience: `${baseUrl}/in/${username}/details/experience/`,
-      education: `${baseUrl}/in/${username}/details/education/`,
-      skills: `${baseUrl}/in/${username}/details/skills/`,
-      contactInfo: `${baseUrl}/in/${username}/overlay/contact-info/`,
+      experience: `${baseUrl}/in/${normalizedUsername}/details/experience/`,
+      education: `${baseUrl}/in/${normalizedUsername}/details/education/`,
+      skills: `${baseUrl}/in/${normalizedUsername}/details/skills/`,
+      contactInfo: `${baseUrl}/in/${normalizedUsername}/overlay/contact-info/`,
     };
 
     const expHtml =

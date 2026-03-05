@@ -42,8 +42,8 @@ export async function handleFetchChatikChats(
 
     while (hasNextPage) {
       if (page >= MAX_PAGES) {
-        logError("Chatik API: exceeded max pagination iterations", { page });
-        throw new Error("Chatik API: exceeded max pagination iterations");
+        logError("Chatik API: превышено максимальное число страниц", { page });
+        throw new Error("Chatik API: превышено максимальное число страниц");
       }
 
       const url = new URL("https://chatik.hh.ru/chatik/api/chats");

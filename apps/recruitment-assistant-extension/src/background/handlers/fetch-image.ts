@@ -55,13 +55,13 @@ export async function handleFetchImage(
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      throw new Error(`Ошибка HTTP ${response.status}: ${response.statusText}`);
     }
 
     const contentType = response.headers.get("content-type");
     if (!contentType?.toLowerCase().startsWith("image/")) {
       throw new Error(
-        `Invalid content-type: expected image/*, got ${contentType ?? "unknown"}`,
+        `Недопустимый content-type: ожидалось image/*, получено ${contentType ?? "unknown"}`,
       );
     }
 
@@ -70,43 +70,40 @@ export async function handleFetchImage(
       const size = parseInt(contentLength, 10);
       if (!Number.isNaN(size) && size > MAX_IMAGE_BYTES) {
         throw new Error(
-          `Image too large: ${size} bytes (max ${MAX_IMAGE_BYTES})`,
+          `Изображение слишком большое: ${size} байт (макс. ${MAX_IMAGE_BYTES})`,
         );
       }
     }
 
-    let bytes: Uint8Array;
-    if (contentLength != null) {
-      const buffer = await response.arrayBuffer();
-      bytes = new Uint8Array(buffer);
-    } else {
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error("No response body");
-      const chunks: Uint8Array[] = [];
-      let totalBytes = 0;
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        totalBytes += value.length;
-        if (totalBytes > MAX_IMAGE_BYTES) {
-          reader.cancel();
-          throw new Error(
-            `Image too large: exceeded ${MAX_IMAGE_BYTES} bytes while streaming`,
-          );
-        }
-        chunks.push(value);
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error("Тело ответа отсутствует");
+    const chunks: Uint8Array[] = [];
+    let totalBytes = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      totalBytes += value.length;
+      if (totalBytes > MAX_IMAGE_BYTES) {
+        reader.cancel();
+        throw new Error(
+          `Изображение слишком большое: превышен лимит ${MAX_IMAGE_BYTES} байт при потоковой загрузке`,
+        );
       }
+      chunks.push(value);
+    }
+    const bytes = (() => {
       const total = chunks.reduce((sum, c) => sum + c.length, 0);
-      bytes = new Uint8Array(total);
+      const arr = new Uint8Array(total);
       let offset = 0;
       for (const c of chunks) {
-        bytes.set(c, offset);
+        arr.set(c, offset);
         offset += c.length;
       }
-    }
+      return arr;
+    })();
     if (bytes.byteLength > MAX_IMAGE_BYTES) {
       throw new Error(
-        `Image too large: ${bytes.byteLength} bytes (max ${MAX_IMAGE_BYTES})`,
+        `Изображение слишком большое: ${bytes.byteLength} байт (макс. ${MAX_IMAGE_BYTES})`,
       );
     }
 

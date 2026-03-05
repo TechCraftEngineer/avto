@@ -4,6 +4,16 @@
 
 import type { ValidPlatformSource } from "./platform";
 
+/** Возвращает хост URL или undefined для безопасного логирования (без PII) */
+function safeHost(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  try {
+    return new URL(url).host;
+  } catch {
+    return undefined;
+  }
+}
+
 export interface FetchedAssets {
   photoUrl?: string;
   resumePdfBase64?: string;
@@ -48,8 +58,9 @@ async function fetchLinkedInPhoto(
     console.error(
       "[fetchLinkedInPhoto] fetchImageAsBase64ViaExtension failed",
       {
-        photoSrc,
-        err,
+        host: safeHost(photoSrc ?? undefined),
+        hasPhoto: !!photoSrc,
+        message: err instanceof Error ? err.message : String(err),
       },
     );
     return undefined;
@@ -82,8 +93,9 @@ async function fetchHHAssets(
       result.photoUrl = `data:${contentType};base64,${base64}`;
     } catch (err) {
       console.error("[fetchHHAssets] fetchPhotoAsBase64 failed", {
-        photoSrc,
-        err,
+        host: safeHost(photoSrc ?? undefined),
+        hasPhoto: !!photoSrc,
+        message: err instanceof Error ? err.message : String(err),
       });
     }
   }
@@ -96,9 +108,8 @@ async function fetchHHAssets(
     );
   } catch (err) {
     console.error("[fetchHHAssets] fetchResumeTextHtml failed", {
-      profileUrl,
-      candidateName,
-      err,
+      host: safeHost(profileUrl),
+      message: err instanceof Error ? err.message : String(err),
     });
   }
 
@@ -109,8 +120,8 @@ async function fetchHHAssets(
       result.resumePdfBase64 = base64;
     } catch (err) {
       console.error("[fetchHHAssets] fetchResumePdfAsBase64 failed", {
-        pdfUrl,
-        err,
+        host: safeHost(pdfUrl),
+        message: err instanceof Error ? err.message : String(err),
       });
     }
   }

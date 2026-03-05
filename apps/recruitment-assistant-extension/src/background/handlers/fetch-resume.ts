@@ -54,10 +54,21 @@ async function fetchWithTimeout(
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
-    return await fetch(url, {
+    const response = await fetch(url, {
       ...options,
       signal: controller.signal,
+      redirect: "manual",
     });
+    if (
+      response.type === "opaqueredirect" ||
+      (response.status >= 300 && response.status < 400)
+    ) {
+      const location = response.headers.get("Location");
+      throw new Error(
+        `Редирект не разрешён: ${response.status}${location ? ` → ${location}` : ""}`,
+      );
+    }
+    return response;
   } finally {
     clearTimeout(timeoutId);
   }

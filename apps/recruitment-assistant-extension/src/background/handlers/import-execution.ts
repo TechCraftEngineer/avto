@@ -32,7 +32,7 @@ async function injectAndSend(
 ): Promise<ServiceWorkerResponse> {
   const { scriptPath, cssPath } = getScriptPaths(kind);
   if (!scriptPath) {
-    throw new Error(`Script path not found for kind: ${kind}`);
+    throw new Error(`Путь к скрипту не найден для типа: ${kind}`);
   }
   if (cssPath && kind === "profile") {
     await chrome.scripting.insertCSS({

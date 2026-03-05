@@ -5,6 +5,7 @@
  * Вызывать из content script на linkedin.com.
  */
 
+import { z } from "zod";
 import type {
   ContactInfo,
   EducationEntry,
@@ -63,13 +64,15 @@ export async function fetchLinkedInDetails(
 
     if (!resp?.success || !resp.data) return null;
 
+    const linkedInDetailsDataSchema = z.object({
+      experienceHtml: z.string().optional(),
+      educationHtml: z.string().optional(),
+      skillsHtml: z.string().optional(),
+      contactInfoHtml: z.string().optional(),
+    });
+    const parsed = linkedInDetailsDataSchema.safeParse(resp.data);
     const { experienceHtml, educationHtml, skillsHtml, contactInfoHtml } =
-      resp.data as {
-        experienceHtml?: string;
-        educationHtml?: string;
-        skillsHtml?: string;
-        contactInfoHtml?: string;
-      };
+      parsed.success ? parsed.data : {};
 
     const result: LinkedInDetailsResult = {
       experience: [],
