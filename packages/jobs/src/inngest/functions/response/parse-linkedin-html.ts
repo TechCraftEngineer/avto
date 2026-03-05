@@ -4,7 +4,7 @@
  */
 
 import { AgentFactory } from "@qbs-autonaim/ai";
-import { eq, mergeProfileData } from "@qbs-autonaim/db";
+import { eq, mergeProfileData, type StoredProfileData } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
@@ -68,7 +68,12 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
   },
   { event: "response/linkedin-html.parse" },
   async ({ event, step }) => {
-    const { responseId } = event.data;
+    const {
+      responseId,
+      experienceHtml: eventExp,
+      educationHtml: eventEdu,
+      skillsHtml: eventSkills,
+    } = event.data;
 
     const responseData = await step.run("fetch-response", async () => {
       const [resp] = await db
@@ -84,28 +89,31 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
         throw new Error("Отклик не найден");
       }
 
-      const profileData = (resp.profileData || {}) as {
-        linkedInExperienceHtml?: string;
-        linkedInEducationHtml?: string;
-        linkedInSkillsHtml?: string;
-      };
+      // HTML берём из event (основной поток) или из profileData (fallback для старых задач в очереди)
+      const profileData = (resp.profileData || {}) as Record<string, unknown>;
+      const experienceHtml =
+        eventExp ?? (profileData.linkedInExperienceHtml as string | undefined);
+      const educationHtml =
+        eventEdu ?? (profileData.linkedInEducationHtml as string | undefined);
+      const skillsHtml =
+        eventSkills ?? (profileData.linkedInSkillsHtml as string | undefined);
 
-      const hasExperienceHtml =
-        (profileData.linkedInExperienceHtml?.trim().length ?? 0) > 0;
-      const hasEducationHtml =
-        (profileData.linkedInEducationHtml?.trim().length ?? 0) > 0;
-      const hasSkillsHtml =
-        (profileData.linkedInSkillsHtml?.trim().length ?? 0) > 0;
+      const hasExperienceHtml = (experienceHtml?.trim().length ?? 0) > 0;
+      const hasEducationHtml = (educationHtml?.trim().length ?? 0) > 0;
+      const hasSkillsHtml = (skillsHtml?.trim().length ?? 0) > 0;
 
       if (!hasExperienceHtml && !hasEducationHtml && !hasSkillsHtml) {
         throw new Error(
-          "Нет linkedInExperienceHtml, linkedInEducationHtml или linkedInSkillsHtml для парсинга",
+          "Нет experienceHtml, educationHtml или skillsHtml для парсинга",
         );
       }
 
       return {
         id: resp.id,
-        profileData,
+        profileData: profileData as Record<string, unknown>,
+        experienceHtml,
+        educationHtml,
+        skillsHtml,
       };
     });
 
@@ -122,9 +130,9 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
       const agent = factory.createLinkedInHtmlStructurer();
       const result = await agent.execute(
         {
-          experienceHtml: responseData.profileData.linkedInExperienceHtml,
-          educationHtml: responseData.profileData.linkedInEducationHtml,
-          skillsHtml: responseData.profileData.linkedInSkillsHtml,
+          experienceHtml: responseData.experienceHtml,
+          educationHtml: responseData.educationHtml,
+          skillsHtml: responseData.skillsHtml,
         },
         { abortSignal },
       );
@@ -144,7 +152,7 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
         : undefined;
 
     await step.run("update-response", async () => {
-      const existing = responseData.profileData as Record<string, unknown>;
+      const existing = responseData.profileData;
       const updates: Record<string, unknown> = {
         experience,
         education,
@@ -153,12 +161,19 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
       if (skills && skills.length > 0) {
         updates.skills = skills;
       }
-      const updated = mergeProfileData(existing, updates);
+      const merged = mergeProfileData(existing, updates);
+      // Не сохраняем HTML-поля в БД — они только для парсинга
+      const {
+        linkedInExperienceHtml,
+        linkedInEducationHtml,
+        linkedInSkillsHtml,
+        ...updated
+      } = merged as Record<string, unknown>;
 
       await db
         .update(response)
         .set({
-          profileData: updated,
+          profileData: updated as StoredProfileData,
           ...(skills && skills.length > 0 ? { skills } : {}),
           updatedAt: new Date(),
         })

@@ -45,7 +45,8 @@ function isLinkedInProfilePhotoUrl(url: string): boolean {
     const isCdn =
       host === "media.licdn.com" ||
       host === "dms.licdn.com" ||
-      host.endsWith(".media.licdn.com");
+      host.endsWith(".media.licdn.com") ||
+      host.endsWith(".dms.licdn.com");
     const looksLikePhoto =
       path.includes("profile") ||
       path.includes("displayphoto") ||
@@ -79,7 +80,7 @@ const LINKEDIN_PHOTO_SELECTORS = [
   "img[src*='profile-displayphoto']",
 ];
 
-const DEBUG_LINKEDIN_PHOTO = true; // Отладка: открой DevTools → Console, фильтр [LinkedIn Photo]
+const DEBUG_LINKEDIN_PHOTO = false; // Включить для отладки: DevTools → Console, фильтр [LinkedIn Photo]
 
 /** Загружает фото для LinkedIn профиля.
  * Использует несколько селекторов (как parse-profile-dom) для устойчивости к изменениям DOM.
@@ -152,11 +153,12 @@ async function fetchLinkedInPhoto(
       "Ошибка загрузки фото:",
       err instanceof Error ? err.message : String(err),
     );
-    console.error("[LinkedIn Photo] fetch failed", {
-      host: safeHost(urlToFetch),
-      url: urlToFetch.slice(0, 120),
-      message: err instanceof Error ? err.message : String(err),
-    });
+    if (DEBUG_LINKEDIN_PHOTO) {
+      console.error("[LinkedIn Photo] fetch failed", {
+        host: safeHost(urlToFetch),
+        message: err instanceof Error ? err.message : String(err),
+      });
+    }
     return undefined;
   }
 }
