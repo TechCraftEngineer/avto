@@ -24,6 +24,9 @@ export type OnUrlChangeCallback = (oldUrl: string, newUrl: string) => void;
 
 let lastUrl = typeof window !== "undefined" ? window.location.href : "";
 let listeners: OnUrlChangeCallback[] = [];
+let subscriptionCount = 0;
+let origPushState: typeof history.pushState | null = null;
+let origReplaceState: typeof history.replaceState | null = null;
 
 function notifyUrlChange(oldUrl: string, newUrl: string): void {
   lastUrl = newUrl;
@@ -43,6 +46,41 @@ function checkAndNotify(): void {
   }
 }
 
+function installHistoryPatch(): void {
+  if (origPushState !== null) return;
+  const push = history.pushState.bind(history);
+  const replace = history.replaceState.bind(history);
+  origPushState = push;
+  origReplaceState = replace;
+
+  history.pushState = (...args: Parameters<typeof history.pushState>): void => {
+    const prev = window.location.href;
+    push(...args);
+    const next = window.location.href;
+    if (prev !== next) notifyUrlChange(prev, next);
+  };
+
+  history.replaceState = (
+    ...args: Parameters<typeof history.replaceState>
+  ): void => {
+    const prev = window.location.href;
+    replace(...args);
+    const next = window.location.href;
+    if (prev !== next) notifyUrlChange(prev, next);
+  };
+
+  window.addEventListener("popstate", checkAndNotify);
+}
+
+function uninstallHistoryPatch(): void {
+  if (subscriptionCount > 0) return;
+  window.removeEventListener("popstate", checkAndNotify);
+  if (origPushState) history.pushState = origPushState;
+  if (origReplaceState) history.replaceState = origReplaceState;
+  origPushState = null;
+  origReplaceState = null;
+}
+
 /**
  * Подписывается на изменения URL (SPA-навигация).
  * Вызывает callback только если старый и новый URL — профили LinkedIn.
@@ -54,36 +92,18 @@ export function observeSpaNavigation(
 
   lastUrl = window.location.href;
   listeners.push(callback);
+  subscriptionCount++;
 
-  // popstate — кнопки назад/вперёд
-  const onPopState = () => checkAndNotify();
-  window.addEventListener("popstate", onPopState);
-
-  // pushState/replaceState — программатическая навигация (React Router)
-  const origPushState = history.pushState.bind(history);
-  const origReplaceState = history.replaceState.bind(history);
-
-  history.pushState = (...args: Parameters<typeof history.pushState>): void => {
-    const prev = window.location.href;
-    origPushState(...args);
-    const next = window.location.href;
-    if (prev !== next) notifyUrlChange(prev, next);
-  };
-
-  history.replaceState = (
-    ...args: Parameters<typeof history.replaceState>
-  ): void => {
-    const prev = window.location.href;
-    origReplaceState(...args);
-    const next = window.location.href;
-    if (prev !== next) notifyUrlChange(prev, next);
-  };
+  if (subscriptionCount === 1) {
+    installHistoryPatch();
+  }
 
   return () => {
     listeners = listeners.filter((l) => l !== callback);
-    window.removeEventListener("popstate", onPopState);
-    history.pushState = origPushState;
-    history.replaceState = origReplaceState;
+    subscriptionCount--;
+    if (subscriptionCount === 0) {
+      uninstallHistoryPatch();
+    }
   };
 }
 

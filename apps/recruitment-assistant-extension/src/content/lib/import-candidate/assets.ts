@@ -32,11 +32,17 @@ function isValidPhotoUrl(src: string | undefined): boolean {
 
 /** Проверяет, что URL — реальное фото LinkedIn (не placeholder) */
 function isRealMediaUrl(url: string): boolean {
-  return (
-    url.includes("media.licdn.com") ||
-    url.includes("licdn.com") ||
-    url.includes("profile-displayphoto")
-  );
+  try {
+    const urlObj = new URL(url);
+    const host = urlObj.hostname.toLowerCase();
+    return (
+      host === "media.licdn.com" ||
+      host === "licdn.com" ||
+      host.endsWith(".licdn.com")
+    );
+  } catch {
+    return false;
+  }
 }
 
 /** Проверяет, что строка уже в формате data:image/...;base64,... */

@@ -65,7 +65,16 @@ async function fetchWithTimeout(
     ) {
       const location = response.headers.get("Location");
       if (location) {
-        log("FETCH_RESUME redirect Location (diagnostics)", { location });
+        try {
+          const locationUrl = new URL(location, url);
+          log("FETCH_RESUME redirect Location (diagnostics)", {
+            host: locationUrl.host,
+          });
+        } catch {
+          log("FETCH_RESUME redirect Location (diagnostics)", {
+            host: "(invalid URL)",
+          });
+        }
       }
       throw new Error(`Редирект не разрешён: ${response.status}`);
     }
