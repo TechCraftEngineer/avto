@@ -37,7 +37,7 @@ export function ROICalculator() {
   }, [vacancies, hireTimeManual, hrSalary])
 
   return (
-    <section className="relative py-24 md:py-32 border-b border-border/40">
+    <section className="relative py-24 md:py-32 bg-muted/30 border-y border-border/30">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center mb-16">

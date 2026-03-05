@@ -71,22 +71,23 @@ export function SocialProof() {
           </motion.div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3 max-w-4xl mx-auto">
+        {/* Compact stats row - less visual weight than cards */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16 max-w-3xl mx-auto">
           {stats.map((stat, index) => (
             <motion.div
               key={index}
-              className="relative group"
-              initial={{ opacity: 0, y: 20 }}
+              className="relative flex items-center gap-4 group"
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
+              transition={{ delay: index * 0.08 }}
             >
-              <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-card/50 border border-border/40 backdrop-blur-sm hover:border-border hover:shadow-lg transition-all duration-300">
-                <div className="mb-4 p-3 rounded-xl bg-foreground/5 group-hover:bg-foreground/10 transition-colors duration-300">
-                  <stat.icon className="h-6 w-6 text-foreground" />
-                </div>
-                <div className="text-4xl font-bold text-foreground mb-2">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
+              <div className="p-2.5 rounded-xl bg-foreground/5 group-hover:bg-foreground/10 transition-colors duration-300">
+                <stat.icon className="h-5 w-5 text-foreground" />
+              </div>
+              <div>
+                <div className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">{stat.value}</div>
+                <div className="text-sm text-muted-foreground mt-0.5">{stat.label}</div>
               </div>
             </motion.div>
           ))}

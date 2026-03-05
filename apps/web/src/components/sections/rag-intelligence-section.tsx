@@ -15,7 +15,7 @@ export function RAGIntelligenceSection() {
   const [activeQuestion, setActiveQuestion] = useState(0)
 
   return (
-    <section className="relative py-24 md:py-32 border-b border-border/40">
+    <section className="relative py-24 md:py-32 bg-background">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center mb-16">

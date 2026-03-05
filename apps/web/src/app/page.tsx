@@ -26,29 +26,29 @@ export default function Home() {
         {/* 2. Social Proof - Build trust immediately */}
         <SocialProof />
 
-        {/* 3. Value Proposition - Explain the value */}
-        <ValuePropositionSection />
+        {/* 3. Value Proposition + Target Audience - What & Who */}
+        <div className="bg-muted/20">
+          <ValuePropositionSection />
+          <TargetAudienceSection />
+        </div>
 
-        {/* 4. Target Audience - Who is it for */}
-        <TargetAudienceSection />
+        {/* 4. How It Works + Data Flow - Path from HH to candidate */}
+        <div className="bg-background">
+          <HowItWorks />
+          <DataFlowSection />
+        </div>
 
-        {/* 5. How It Works - Simple 4-step process */}
-        <HowItWorks />
-
-        {/* 5.5. Data Flow - Visual pipeline from HH/SuperJob to candidate card */}
-        <DataFlowSection />
-
-        {/* 6. Features - All capabilities including Prequalification and White-label */}
+        {/* 5. Features - All capabilities */}
         <FeaturesSection />
 
-        {/* 6.5. RAG Intelligence - Show AI answering questions using real data */}
+        {/* 6. RAG Intelligence - AI analytics */}
         <RAGIntelligenceSection />
 
-        {/* 7. ROI Calculator - Justify the investment */}
-        <ROICalculator />
-
-        {/* 8. Testimonials - Social proof */}
+        {/* 7. Testimonials - Social proof before numbers */}
         <TestimonialsSection />
+
+        {/* 8. ROI Calculator - Justify the investment */}
+        <ROICalculator />
 
         {/* 9. Pricing - Convert */}
         <PricingSection />

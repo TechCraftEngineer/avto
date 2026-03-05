@@ -88,7 +88,7 @@ export function TestimonialsSection() {
   }
 
   return (
-    <section ref={sectionRef} className="relative bg-background py-20 md:py-32 overflow-hidden">
+    <section ref={sectionRef} className="relative py-20 md:py-32 overflow-hidden bg-muted/20">
       {/* Top border */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 

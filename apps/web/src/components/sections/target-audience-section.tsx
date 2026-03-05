@@ -48,7 +48,7 @@ export function TargetAudienceSection() {
   ]
 
   return (
-    <section className="relative py-24 md:py-32 border-b border-border/40">
+    <section className="relative pt-8 md:pt-12 pb-24 md:pb-32">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center mb-16">
@@ -60,16 +60,21 @@ export function TargetAudienceSection() {
           </p>
         </div>
 
-        {/* Grid */}
+        {/* Grid - first card has subtle accent */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
           {audiences.map((audience, index) => {
             const Icon = audience.icon
+            const isFeatured = index === 0
 
             return (
               <Link
                 key={index}
                 href={audience.link}
-                className="group block h-full bg-card border border-border/60 rounded-xl p-6 hover:border-border hover:shadow-sm transition-all"
+                className={`group block h-full rounded-xl p-6 transition-all ${
+                  isFeatured
+                    ? "bg-card border-2 border-blue-500/30 shadow-md hover:shadow-lg hover:border-blue-500/50"
+                    : "bg-card border border-border/60 hover:border-border hover:shadow-sm"
+                }`}
               >
                 {/* Icon */}
                 <div className={`w-10 h-10 rounded-lg ${audience.bgColor} flex items-center justify-center mb-4`}>

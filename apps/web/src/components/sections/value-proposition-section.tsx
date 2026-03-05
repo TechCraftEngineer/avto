@@ -6,7 +6,7 @@ import { ScreenshotPreview } from "@/components/ui/screenshot-preview"
 
 export function ValuePropositionSection() {
   return (
-    <section id="value" className="relative bg-background py-24 md:py-32 overflow-hidden">
+    <section id="value" className="relative pt-24 md:pt-32 pb-12 md:pb-16 overflow-hidden">
       {/* Top border */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
