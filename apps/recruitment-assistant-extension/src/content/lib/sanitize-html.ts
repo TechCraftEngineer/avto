@@ -6,6 +6,11 @@ import DOMPurify from "dompurify";
 
 const MAX_SANITIZED_HTML_LENGTH = 50000;
 
+export interface LinkedInHtmlAdapter {
+  getSkillsHtml?: () => string | null;
+  getContactsHtml?: () => string | null;
+}
+
 /**
  * Санитизирует и ограничивает HTML.
  * Возвращает undefined для пустых/невалидных результатов.
@@ -39,4 +44,20 @@ export function sanitizeAndLimitHtml(
   return sanitized.length > MAX_SANITIZED_HTML_LENGTH
     ? sanitized.slice(0, MAX_SANITIZED_HTML_LENGTH)
     : sanitized;
+}
+
+/**
+ * Извлекает и санитизирует HTML-поля (skills, contacts) из LinkedIn-адаптера.
+ * Возвращает undefined для полей, которые отсутствуют или невалидны.
+ */
+export function extractAndSanitizeLinkedInHtml(
+  adapter: LinkedInHtmlAdapter | null,
+): { skillsHtml?: string; contactsHtml?: string } {
+  if (!adapter) return {};
+  const rawSkills = adapter.getSkillsHtml?.() ?? undefined;
+  const rawContacts = adapter.getContactsHtml?.() ?? undefined;
+  return {
+    skillsHtml: sanitizeAndLimitHtml(rawSkills) ?? undefined,
+    contactsHtml: sanitizeAndLimitHtml(rawContacts) ?? undefined,
+  };
 }

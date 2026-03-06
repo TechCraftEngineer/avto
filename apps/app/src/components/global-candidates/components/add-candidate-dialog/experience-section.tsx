@@ -41,7 +41,13 @@ export function ExperienceSection({ form }: ExperienceSectionProps) {
                 onClick={() =>
                   field.onChange([
                     ...list,
-                    { company: "", position: "", period: "", description: "" },
+                    {
+                      company: "",
+                      position: "",
+                      period: "",
+                      description: "",
+                      _key: crypto.randomUUID(),
+                    },
                   ])
                 }
               >
@@ -52,7 +58,10 @@ export function ExperienceSection({ form }: ExperienceSectionProps) {
             <div className="space-y-3">
               {list.map((entry, i) => (
                 <ExperienceEntryCard
-                  key={i}
+                  key={
+                    (entry as { _key?: string })._key ??
+                    `${entry.company ?? ""}-${entry.position ?? ""}-${entry.period ?? ""}`
+                  }
                   entry={entry}
                   index={i}
                   list={list}

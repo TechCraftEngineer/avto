@@ -130,6 +130,9 @@ export class LinkedInAdapter extends PlatformAdapter {
    * Загружает details-страницы (experience, education, skills) для полных данных.
    */
   override async prepareForExtraction(): Promise<void> {
+    this.overlayContactsFromDialog = null;
+    this.fetchedDetails = null;
+
     const overlayOpened = await openContactInfoOverlay(document);
     // Извлекаем контакты сразу из открытого overlay (до scroll — он может закрыть модал)
     if (overlayOpened) {

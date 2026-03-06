@@ -452,7 +452,7 @@ function ProfileContent({
                     Опыт работы
                   </h4>
                   <div className="space-y-3">
-                    {candidateDetail.profileData.experience.map((exp, i) => {
+                    {candidateDetail.profileData.experience.map((exp) => {
                       const item =
                         exp && typeof exp === "object" && "experience" in exp
                           ? (
@@ -478,7 +478,7 @@ function ProfileContent({
                       if (!company && !position && !period) return null;
                       return (
                         <div
-                          key={i}
+                          key={`${company}-${position}-${period}`}
                           className="rounded-lg border bg-muted/30 p-3 space-y-1"
                         >
                           {(company || position) && (
@@ -515,7 +515,7 @@ function ProfileContent({
                     Образование
                   </h4>
                   <div className="space-y-3">
-                    {candidateDetail.profileData.education.map((edu, i) => {
+                    {candidateDetail.profileData.education.map((edu) => {
                       const item = edu as {
                         institution?: string;
                         degree?: string;
@@ -536,7 +536,7 @@ function ProfileContent({
                       if (!institution && !degree && !field) return null;
                       return (
                         <div
-                          key={i}
+                          key={`${institution}-${degree}-${field}-${period}`}
                           className="rounded-lg border bg-muted/30 p-3 space-y-1"
                         >
                           {(institution || degree) && (
