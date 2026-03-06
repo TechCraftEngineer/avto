@@ -12,6 +12,29 @@ import { parseBirthDate, parseFullName } from "@qbs-autonaim/lib";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
 import { inngest } from "../../client";
 
+/** Тип данных, ожидаемых processResumeStructuredData и createResumeProfileData (без null) */
+type NormalizedResumeData = Parameters<typeof processResumeStructuredData>[0];
+
+/** Нормализует данные из Inngest step (Jsonify с null) в типы без null */
+function normalizeParsedData(value: unknown): NormalizedResumeData {
+  if (value === null) {
+    return undefined as unknown as NormalizedResumeData;
+  }
+  if (Array.isArray(value)) {
+    return value.map((v) =>
+      normalizeParsedData(v),
+    ) as unknown as NormalizedResumeData;
+  }
+  if (typeof value === "object" && value !== null) {
+    const result: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value)) {
+      result[k] = normalizeParsedData(v);
+    }
+    return result as NormalizedResumeData;
+  }
+  return value as NormalizedResumeData;
+}
+
 /**
  * Обрабатывает распарсенные данные резюме из ResumeStructurerAgent
  * Извлекает контакты, дату рождения, опыт работы в годах
@@ -250,10 +273,11 @@ export const parseSingleResumeFunction = inngest.createFunction(
           return null;
         }
 
-        const { personalInfo, skills } = parsedData;
+        const normalizedData = normalizeParsedData(parsedData);
+        const { personalInfo, skills } = normalizedData;
 
         // Обрабатываем распарсенные данные
-        const processedData = processResumeStructuredData(parsedData);
+        const processedData = processResumeStructuredData(normalizedData);
 
         // Проверяем наличие контактов
         if (
@@ -286,12 +310,12 @@ export const parseSingleResumeFunction = inngest.createFunction(
               skills: skills || null,
               experienceYears: processedData.experienceYears || null,
               profileData: createResumeProfileData({
-                experience: parsedData.experience || [],
-                education: parsedData.education || [],
-                languages: parsedData.languages || [],
-                skills: parsedData.skills || [],
-                summary: parsedData.summary,
-                personalInfo: parsedData.personalInfo,
+                experience: normalizedData.experience || [],
+                education: normalizedData.education || [],
+                languages: normalizedData.languages || [],
+                skills: normalizedData.skills || [],
+                summary: normalizedData.summary,
+                personalInfo: normalizedData.personalInfo,
               }),
               source: "APPLICANT",
               originalSource: "HH",
@@ -313,10 +337,11 @@ export const parseSingleResumeFunction = inngest.createFunction(
 
     // Обновляем response с распарсенными данными и связью с global_candidate
     await step.run("update-response", async () => {
-      const { personalInfo, skills } = parsedData;
+      const normalizedData = normalizeParsedData(parsedData);
+      const { personalInfo, skills } = normalizedData;
 
       // Обрабатываем распарсенные данные
-      const processedData = processResumeStructuredData(parsedData);
+      const processedData = processResumeStructuredData(normalizedData);
 
       // Обновляем поля в response из распарсенных данных
       await db
@@ -333,12 +358,12 @@ export const parseSingleResumeFunction = inngest.createFunction(
           skills: skills || null,
           // Сохраняем структурированные данные в profileData (без resumeText и parsedResume)
           profileData: createResumeProfileData({
-            experience: parsedData.experience || [],
-            education: parsedData.education || [],
-            languages: parsedData.languages || [],
-            skills: parsedData.skills || [],
-            summary: parsedData.summary,
-            personalInfo: parsedData.personalInfo,
+            experience: normalizedData.experience || [],
+            education: normalizedData.education || [],
+            languages: normalizedData.languages || [],
+            skills: normalizedData.skills || [],
+            summary: normalizedData.summary,
+            personalInfo: normalizedData.personalInfo,
           }),
         })
         .where(eq(response.id, responseId));

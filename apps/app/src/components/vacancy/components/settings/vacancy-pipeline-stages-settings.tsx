@@ -58,7 +58,10 @@ export function VacancyPipelineStagesSettings({
     }),
   );
 
-  const sortableIds = stages.map((s, i) => s.id ?? s.clientId ?? `stage-${i}`);
+  const sortableIds = stages.map((s, i) => {
+    const item = s as { id?: string; clientId?: string; legacyKey?: string };
+    return item.id ?? item.clientId ?? item.legacyKey ?? `stage-${i}`;
+  });
 
   const content = (
     <div className="space-y-4">

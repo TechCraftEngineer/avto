@@ -63,8 +63,6 @@ export function CandidateForm({
                     ) {
                       event.preventDefault();
                       form.handleSubmit(onSubmit)();
-                    } else {
-                      field.onKeyDown?.(event);
                     }
                   }}
                 />

@@ -1,7 +1,6 @@
 import { AgentFactory } from "@qbs-autonaim/ai";
 import type { HHContacts } from "@qbs-autonaim/jobs";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
-import type { WorkExperience } from "@qbs-autonaim/validators";
 import type { Page } from "puppeteer";
 import { HH_CONFIG } from "../../core/config/config";
 import { downloadCandidatePhoto } from "./download-candidate-photo";
@@ -143,29 +142,40 @@ export async function parseResumeData(
 
     // Преобразуем опыт работы
     if (structuredData.experience && structuredData.experience.length > 0) {
-      result.experience = structuredData.experience.map(
-        (exp: WorkExperience) => ({
-          experience: {
-            company: exp.company,
-            position: exp.position,
-            period: `${exp.startDate} - ${exp.endDate || "настоящее время"}`,
-            description: exp.description,
-          },
-        }),
-      );
+      result.experience = structuredData.experience.map((exp) => ({
+        experience: {
+          company: exp.company,
+          position: exp.position,
+          period: `${exp.startDate ?? ""} - ${exp.endDate ?? "настоящее время"}`,
+          description: exp.description ?? undefined,
+        },
+      }));
       console.log(`✅ Опыт работы: ${result.experience.length} записей`);
     }
 
-    // Сохраняем полные структурированные данные для profileData
+    // Сохраняем полные структурированные данные для profileData (нормализуем null → undefined)
     result.structuredData = {
-      personalInfo: structuredData.personalInfo,
-      education: structuredData.education,
+      personalInfo: structuredData.personalInfo
+        ? {
+            name:
+              structuredData.personalInfo.name === null
+                ? undefined
+                : structuredData.personalInfo.name,
+          }
+        : undefined,
+      education: structuredData.education?.map((edu) => ({
+        institution: edu.institution,
+        degree: edu.degree ?? undefined,
+        field: edu.field ?? undefined,
+        startDate: edu.startDate ?? undefined,
+        endDate: edu.endDate ?? undefined,
+      })),
       languages: structuredData.languages?.map((lang) => ({
         name: lang.name,
-        level: lang.level || "Базовый",
+        level: (lang.level ?? "Базовый") as string,
       })),
-      skills: structuredData.skills,
-      summary: structuredData.summary,
+      skills: structuredData.skills ?? undefined,
+      summary: structuredData.summary ?? undefined,
     };
 
     if (structuredData.education && structuredData.education.length > 0) {

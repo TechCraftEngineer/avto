@@ -39,7 +39,7 @@ async function proxyRequest(
     const headers = new Headers(request.headers);
     headers.delete("host");
 
-    const fetchOptions: RequestInit = {
+    const fetchOptions: RequestInit & { duplex?: "half" } = {
       method: request.method,
       headers,
       signal: controller.signal,
