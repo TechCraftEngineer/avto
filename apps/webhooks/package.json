@@ -22,7 +22,7 @@
   "devDependencies": {
     "@qbs-autonaim/config": "workspace:*",
     "@qbs-autonaim/tsconfig": "workspace:*",
-    "@types/bun": "^1.3.100",
+    "@types/bun": "1.3.10",
     "fast-check": "4.5.3",
     "typescript": "5.9.3"
   }
