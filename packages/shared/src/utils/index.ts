@@ -10,6 +10,15 @@ export {
   getExperienceSummary,
   hasExperience,
 } from "./experience-helpers";
+// Контакты — канонический формат Contact[] и форматирование
+export {
+  type Contact,
+  type ContactsData,
+  formatContacts,
+  getPrimaryContacts,
+  mergeContacts,
+  normalizeToContactsData,
+} from "./format-contacts";
 // Утилиты для работы с фриланс-платформами
 export {
   getPlatformTaskUrl,

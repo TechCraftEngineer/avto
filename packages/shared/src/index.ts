@@ -116,9 +116,15 @@ export {
 } from "./types";
 // Утилиты
 export {
+  type Contact,
+  type ContactsData,
+  formatContacts,
   getInitials,
   getPlatformTaskUrl,
+  getPrimaryContacts,
   getResponseEventTitle,
+  mergeContacts,
+  normalizeToContactsData,
   type ParsedPlatformLink,
   parsePlatformLink,
   pluralize,

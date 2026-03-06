@@ -5,16 +5,15 @@
 
 import { AgentFactory } from "@qbs-autonaim/ai";
 import { eq, mergeProfileData, type StoredProfileData } from "@qbs-autonaim/db";
-
-interface ContactsData {
-  email?: string;
-  phone?: string;
-  telegram?: string;
-}
-
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
+import {
+  type ContactsData,
+  formatContacts,
+  getPrimaryContacts,
+  mergeContacts,
+} from "@qbs-autonaim/shared";
 import { inngest } from "../../client";
 
 function mapAgentExperienceToProfile(exp: {
@@ -59,24 +58,19 @@ function normalizeAndTruncateHtml(
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TELEGRAM_REGEX = /^[a-zA-Z0-9_]{5,32}$/;
 
-function normalizeContacts(parsed: {
+/**
+ * Валидирует и нормализует контакты из агента (string) в канонический ContactsData (Contact[]).
+ */
+function normalizeParsedContacts(parsed: {
   email?: string | null;
   phone?: string | null;
   telegram?: string | null;
-}): {
-  email?: string;
-  phone?: string;
-  telegram?: string;
-} {
-  const result: {
-    email?: string;
-    phone?: string;
-    telegram?: string;
-  } = {};
+}): ContactsData | null {
+  const result: ContactsData = {};
 
   if (parsed.email != null && typeof parsed.email === "string") {
     const email = parsed.email.trim().toLowerCase().replace(/\s+/g, "");
-    if (email && EMAIL_REGEX.test(email)) result.email = email;
+    if (email && EMAIL_REGEX.test(email)) result.email = [{ raw: email }];
   }
 
   if (parsed.phone != null && typeof parsed.phone === "string") {
@@ -84,7 +78,7 @@ function normalizeContacts(parsed: {
     const hasPlus = raw.startsWith("+");
     const digits = raw.replace(/\D/g, "");
     if (digits.length >= 10) {
-      result.phone = (hasPlus ? "+" : "") + digits;
+      result.phone = [{ raw: (hasPlus ? "+" : "") + digits }];
     }
   }
 
@@ -93,10 +87,11 @@ function normalizeContacts(parsed: {
       .replace(/^@+/, "")
       .trim()
       .replace(/\s+/g, "");
-    if (telegram && TELEGRAM_REGEX.test(telegram)) result.telegram = telegram;
+    if (telegram && TELEGRAM_REGEX.test(telegram))
+      result.telegram = [{ raw: telegram }];
   }
 
-  return result;
+  return Object.keys(result).length > 0 ? result : null;
 }
 
 function mapAgentEducationToProfile(edu: {
@@ -236,9 +231,10 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
       parsed.skills && parsed.skills.length > 0
         ? [...new Set(parsed.skills)].filter(Boolean)
         : undefined;
-    const contacts = parsed.contacts
-      ? normalizeContacts(parsed.contacts)
-      : undefined;
+    const parsedContacts = parsed.contacts
+      ? normalizeParsedContacts(parsed.contacts)
+      : null;
+    const contactsData = parsedContacts ? formatContacts(parsedContacts) : null;
 
     await step.run("update-response", async () => {
       const existing = responseData.profileData;
@@ -266,15 +262,11 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
       };
       if (skills && skills.length > 0) setFields.skills = skills;
 
-      const hasContacts =
-        contacts && (contacts.email ?? contacts.phone ?? contacts.telegram);
-      const contactsData: ContactsData | null = hasContacts ? contacts : null;
       if (contactsData) {
-        setFields.phone = contactsData.phone;
-        setFields.telegramUsername = contactsData.telegram;
-      }
+        const primary = getPrimaryContacts(contactsData);
+        setFields.phone = primary.phone;
+        setFields.telegramUsername = primary.telegram;
 
-      if (contactsData) {
         await db.transaction(async (tx) => {
           const [locked] = await tx
             .select({ contacts: response.contacts })
@@ -284,14 +276,8 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
           if (!locked) {
             throw new Error("Отклик не найден или был удалён");
           }
-          const existingContacts: ContactsData = (locked.contacts ??
-            {}) as ContactsData;
-          (setFields as Record<string, unknown>).contacts = {
-            ...existingContacts,
-            email: contactsData.email ?? existingContacts.email,
-            phone: contactsData.phone ?? existingContacts.phone,
-            telegram: contactsData.telegram ?? existingContacts.telegram,
-          };
+          const merged = mergeContacts(locked.contacts, contactsData);
+          (setFields as Record<string, unknown>).contacts = merged;
           await tx
             .update(response)
             .set(setFields as Record<string, unknown>)

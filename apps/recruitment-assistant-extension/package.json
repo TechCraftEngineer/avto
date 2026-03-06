@@ -32,7 +32,7 @@
     "@qbs-autonaim/tailwind-config": "workspace:*",
     "@qbs-autonaim/tsconfig": "workspace:*",
     "@testing-library/jest-dom": "^6.9.1",
-    "@types/bun": "^1.3.9",
+    "@types/bun": "1.3.10",
     "@types/chrome": "^0.1.37",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",

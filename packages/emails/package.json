@@ -47,11 +47,11 @@
   },
   "devDependencies": {
     "@react-email/preview-server": "5.2.8",
-    "@types/node": "25.3.3",
+    "@types/node": "25.3.5",
     "@types/nodemailer": "^7.0.10",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "tsdown": "0.20.3",
+    "tsdown": "0.21.0",
     "typescript": "5.9.3"
   }
 }

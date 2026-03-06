@@ -17,12 +17,12 @@
     "@qbs-autonaim/server-utils": "workspace:*",
     "@qbs-autonaim/validators": "workspace:*",
     "@t3-oss/env-core": "0.13.10",
-    "hono": "4.12.3",
+    "hono": "4.12.5",
     "zod": "4.3.6"
   },
   "devDependencies": {
     "@qbs-autonaim/tsconfig": "workspace:*",
-    "@types/bun": "1.3.9",
+    "@types/bun": "1.3.10",
     "typescript": "5.9.3"
   }
 }

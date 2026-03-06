@@ -156,7 +156,7 @@ POSTGRES_URL=postgresql://...
 ### Docker
 
 ```dockerfile
-FROM oven/bun:1.3.9
+FROM oven/bun:1.3.10
 
 WORKDIR /app
 

@@ -5,7 +5,7 @@
 ### 1. Docker (рекомендуется для production)
 
 ```dockerfile
-FROM oven/bun:1.3.9 as base
+FROM oven/bun:1.3.10 as base
 
 WORKDIR /app
 
@@ -21,7 +21,7 @@ RUN bun install --frozen-lockfile
 RUN bun run build:webhooks
 
 # Production образ
-FROM oven/bun:1.3.9-slim
+FROM oven/bun:1.3.10-slim
 
 WORKDIR /app
 

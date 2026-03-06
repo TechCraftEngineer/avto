@@ -14,7 +14,7 @@
     "with-env": "bun run --env-file ../../.env"
   },
   "dependencies": {
-    "@ai-sdk/react": "3.0.113",
+    "@ai-sdk/react": "3.0.118",
     "@hookform/resolvers": "^5.2.2",
     "@opentelemetry/api": "^1.9.0",
     "@orpc/client": "1.13.6",
@@ -31,7 +31,7 @@
     "@qbs-autonaim/ui": "workspace:*",
     "@t3-oss/env-nextjs": "0.13.10",
     "@tanstack/react-query": "5.90.21",
-    "ai": "6.0.105",
+    "ai": "6.0.116",
     "dompurify": "^3.3.1",
     "lucide-react": "^0.576.0",
     "motion": "^12.34.3",
@@ -47,7 +47,7 @@
   "devDependencies": {
     "@qbs-autonaim/tailwind-config": "workspace:*",
     "@qbs-autonaim/tsconfig": "workspace:*",
-    "@types/node": "25.3.3",
+    "@types/node": "25.3.5",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@types/sanitize-html": "^2.16.0",
