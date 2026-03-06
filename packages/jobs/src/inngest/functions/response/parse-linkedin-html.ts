@@ -49,6 +49,48 @@ function normalizeAndTruncateHtml(
   return condensed.length > maxChars ? condensed.slice(0, maxChars) : condensed;
 }
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const TELEGRAM_REGEX = /^[a-zA-Z0-9_]{5,32}$/;
+
+function normalizeContacts(parsed: {
+  email?: string | null;
+  phone?: string | null;
+  telegram?: string | null;
+}): {
+  email?: string;
+  phone?: string;
+  telegram?: string;
+} {
+  const result: {
+    email?: string;
+    phone?: string;
+    telegram?: string;
+  } = {};
+
+  if (parsed.email != null && typeof parsed.email === "string") {
+    const email = parsed.email.trim().toLowerCase().replace(/\s+/g, "");
+    if (email && EMAIL_REGEX.test(email)) result.email = email;
+  }
+
+  if (parsed.phone != null && typeof parsed.phone === "string") {
+    const raw = parsed.phone.trim();
+    const hasPlus = raw.startsWith("+");
+    const digits = raw.replace(/\D/g, "");
+    const phone = (hasPlus ? "+" : "") + digits;
+    if (phone.length >= 10) result.phone = phone;
+  }
+
+  if (parsed.telegram != null && typeof parsed.telegram === "string") {
+    const telegram = parsed.telegram
+      .replace(/^@+/, "")
+      .trim()
+      .replace(/\s+/g, "");
+    if (telegram && TELEGRAM_REGEX.test(telegram)) result.telegram = telegram;
+  }
+
+  return result;
+}
+
 function mapAgentEducationToProfile(edu: {
   institution?: string;
   degree?: string | null;
@@ -186,7 +228,9 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
       parsed.skills && parsed.skills.length > 0
         ? [...new Set(parsed.skills)].filter(Boolean)
         : undefined;
-    const contacts = parsed.contacts;
+    const contacts = parsed.contacts
+      ? normalizeContacts(parsed.contacts)
+      : undefined;
 
     await step.run("update-response", async () => {
       const existing = responseData.profileData;
@@ -214,30 +258,43 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
       };
       if (skills && skills.length > 0) setFields.skills = skills;
 
-      if (contacts && (contacts.email ?? contacts.phone ?? contacts.telegram)) {
-        if (contacts.phone) setFields.phone = contacts.phone;
-        if (contacts.telegram) setFields.telegramUsername = contacts.telegram;
-        const [current] = await db
-          .select({ contacts: response.contacts })
-          .from(response)
-          .where(eq(response.id, responseId))
-          .limit(1);
-        const existingContacts = (current?.contacts ?? {}) as Record<
-          string,
-          unknown
-        >;
-        setFields.contacts = {
-          ...existingContacts,
-          email: contacts.email ?? existingContacts.email,
-          phone: contacts.phone ?? existingContacts.phone,
-          telegram: contacts.telegram ?? existingContacts.telegram,
-        };
+      const hasContacts =
+        contacts && (contacts.email ?? contacts.phone ?? contacts.telegram);
+      const contactsData = hasContacts ? contacts : null;
+      if (contactsData) {
+        setFields.phone = contactsData.phone ?? setFields.phone;
+        setFields.telegramUsername =
+          contactsData.telegram ?? setFields.telegramUsername;
       }
 
-      await db
-        .update(response)
-        .set(setFields as Record<string, unknown>)
-        .where(eq(response.id, responseId));
+      if (contactsData) {
+        await db.transaction(async (tx) => {
+          const [locked] = await tx
+            .select({ contacts: response.contacts })
+            .from(response)
+            .where(eq(response.id, responseId))
+            .for("update");
+          const existingContacts = (locked?.contacts ?? {}) as Record<
+            string,
+            unknown
+          >;
+          (setFields as Record<string, unknown>).contacts = {
+            ...existingContacts,
+            email: contactsData.email ?? existingContacts.email,
+            phone: contactsData.phone ?? existingContacts.phone,
+            telegram: contactsData.telegram ?? existingContacts.telegram,
+          };
+          await tx
+            .update(response)
+            .set(setFields as Record<string, unknown>)
+            .where(eq(response.id, responseId));
+        });
+      } else {
+        await db
+          .update(response)
+          .set(setFields as Record<string, unknown>)
+          .where(eq(response.id, responseId));
+      }
     });
 
     return { success: true, responseId };

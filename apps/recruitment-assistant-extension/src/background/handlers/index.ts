@@ -1,5 +1,5 @@
 import { log, logError } from "../lib";
-import type { Message, MessageType, ServiceWorkerResponse } from "../types";
+import type { Message, ServiceWorkerResponse } from "../types";
 import { handleApiRequest, handlePing } from "./api";
 import { handleFetchChatikChats, handleFetchChatikSearch } from "./chatik";
 import { handleFetchImage, validateImageUrl } from "./fetch-image";

@@ -319,6 +319,13 @@ export async function handleImportResumeLinkedIn(c: Context) {
     failureCount: 0,
   });
 
+  const MAX_HTML_FIELD_CHARS = 2000;
+  const truncateHtml = (v: string | null | undefined): string | undefined => {
+    if (v == null || typeof v !== "string") return undefined;
+    const t = v.trim();
+    return t ? t.slice(0, MAX_HTML_FIELD_CHARS) : undefined;
+  };
+
   // Запуск парсинга LinkedIn HTML через LLM (если есть experienceHtml, educationHtml, skillsHtml или contactsHtml)
   const hasLinkedInHtml =
     (input.experienceHtml?.trim().length ?? 0) > 0 ||
@@ -331,10 +338,10 @@ export async function handleImportResumeLinkedIn(c: Context) {
         name: "response/linkedin-html.parse",
         data: {
           responseId: targetResponse.id,
-          experienceHtml: input.experienceHtml,
-          educationHtml: input.educationHtml,
-          skillsHtml: input.skillsHtml,
-          contactsHtml: input.contactsHtml,
+          experienceHtml: truncateHtml(input.experienceHtml),
+          educationHtml: truncateHtml(input.educationHtml),
+          skillsHtml: truncateHtml(input.skillsHtml),
+          contactsHtml: truncateHtml(input.contactsHtml),
         },
       });
     } catch (err) {

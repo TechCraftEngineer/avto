@@ -50,6 +50,7 @@ const outputSchema = z.object({
 });
 
 const MAX_HTML_CHARS = 50_000;
+const MAX_PROMPT_LEN = 32_000;
 
 const inputSchema = z.object({
   experienceHtml: z.string().max(MAX_HTML_CHARS).optional(),
@@ -191,10 +192,14 @@ export class LinkedInHtmlStructurerAgent extends BaseAgent<
     if (skillsHtml.trim()) outputFields.push("skills");
     if (contactsHtml.trim()) outputFields.push("contacts");
 
-    return `${parts.join("\n\n")}
+    let mainBody = parts.join("\n\n");
+    const instructionSuffix = `\n\n---\n\nИзвлеки структурированные данные и верни JSON с полями ${outputFields.join(", ")}.`;
 
----
+    if (mainBody.length + instructionSuffix.length > MAX_PROMPT_LEN) {
+      const allowableBodyLen = MAX_PROMPT_LEN - instructionSuffix.length - 3;
+      mainBody = `${mainBody.slice(0, allowableBodyLen)}...`;
+    }
 
-Извлеки структурированные данные и верни JSON с полями ${outputFields.join(", ")}.`;
+    return mainBody + instructionSuffix;
   }
 }

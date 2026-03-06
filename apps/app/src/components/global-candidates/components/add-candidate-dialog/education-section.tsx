@@ -40,7 +40,13 @@ export function EducationSection({ form }: EducationSectionProps) {
                 onClick={() =>
                   field.onChange([
                     ...list,
-                    { institution: "", degree: "", field: "", period: "" },
+                    {
+                      institution: "",
+                      degree: "",
+                      field: "",
+                      period: "",
+                      _key: crypto.randomUUID(),
+                    },
                   ])
                 }
               >
@@ -51,7 +57,10 @@ export function EducationSection({ form }: EducationSectionProps) {
             <div className="space-y-3">
               {list.map((entry, i) => (
                 <EducationEntryCard
-                  key={i}
+                  key={
+                    (entry as { _key?: string })._key ??
+                    `${entry.institution ?? ""}-${entry.degree ?? ""}-${entry.period ?? ""}`
+                  }
                   entry={entry}
                   index={i}
                   list={list}

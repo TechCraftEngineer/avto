@@ -17,7 +17,10 @@ import {
   resolvePlatform,
   showNotification,
 } from "./lib";
-import { sanitizeAndLimitHtml } from "./lib/sanitize-html";
+import {
+  extractAndSanitizeLinkedInHtml,
+  type LinkedInHtmlAdapter,
+} from "./lib/sanitize-html";
 import {
   observeSpaNavigation,
   shouldInvalidateLinkedInCache,
@@ -157,14 +160,12 @@ export class ContentScript {
       };
     }
     const sanitizedData = this.normalizeFullName(result.data);
-    const linkedInAdapter = this.currentAdapter as {
-      getSkillsHtml?: () => string | null;
-      getContactsHtml?: () => string | null;
-    } | null;
-    const rawSkillsHtml = linkedInAdapter?.getSkillsHtml?.() ?? undefined;
-    const rawContactsHtml = linkedInAdapter?.getContactsHtml?.() ?? undefined;
-    const linkedInSkillsHtml = sanitizeAndLimitHtml(rawSkillsHtml);
-    const linkedInContactsHtml = sanitizeAndLimitHtml(rawContactsHtml);
+    const {
+      skillsHtml: linkedInSkillsHtml,
+      contactsHtml: linkedInContactsHtml,
+    } = extractAndSanitizeLinkedInHtml(
+      this.currentAdapter as LinkedInHtmlAdapter,
+    );
     try {
       await importCandidateData(sanitizedData, {
         vacancyId: payload.vacancyId,
@@ -200,14 +201,12 @@ export class ContentScript {
     if (!data) {
       throw new Error("Не удалось извлечь данные профиля");
     }
-    const linkedInAdapter = this.currentAdapter as {
-      getSkillsHtml?: () => string | null;
-      getContactsHtml?: () => string | null;
-    } | null;
-    const rawSkillsHtml = linkedInAdapter?.getSkillsHtml?.() ?? undefined;
-    const rawContactsHtml = linkedInAdapter?.getContactsHtml?.() ?? undefined;
-    const linkedInSkillsHtml = sanitizeAndLimitHtml(rawSkillsHtml);
-    const linkedInContactsHtml = sanitizeAndLimitHtml(rawContactsHtml);
+    const {
+      skillsHtml: linkedInSkillsHtml,
+      contactsHtml: linkedInContactsHtml,
+    } = extractAndSanitizeLinkedInHtml(
+      this.currentAdapter as LinkedInHtmlAdapter,
+    );
     await importToVacancyWithExisting(data, {
       ...payload,
       linkedInSkillsHtml: linkedInSkillsHtml ?? undefined,
@@ -433,14 +432,12 @@ export class ContentScript {
       return;
     }
     data = this.normalizeFullName(data);
-    const linkedInAdapter = this.currentAdapter as {
-      getSkillsHtml?: () => string | null;
-      getContactsHtml?: () => string | null;
-    } | null;
-    const rawSkillsHtml = linkedInAdapter?.getSkillsHtml?.() ?? undefined;
-    const rawContactsHtml = linkedInAdapter?.getContactsHtml?.() ?? undefined;
-    const linkedInSkillsHtml = sanitizeAndLimitHtml(rawSkillsHtml);
-    const linkedInContactsHtml = sanitizeAndLimitHtml(rawContactsHtml);
+    const {
+      skillsHtml: linkedInSkillsHtml,
+      contactsHtml: linkedInContactsHtml,
+    } = extractAndSanitizeLinkedInHtml(
+      this.currentAdapter as LinkedInHtmlAdapter,
+    );
     try {
       await importCandidateData(data, {
         vacancyId: payload?.vacancyId,
