@@ -5,6 +5,13 @@
 
 import { AgentFactory } from "@qbs-autonaim/ai";
 import { eq, mergeProfileData, type StoredProfileData } from "@qbs-autonaim/db";
+
+interface ContactsData {
+  email?: string;
+  phone?: string;
+  telegram?: string;
+}
+
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
@@ -76,8 +83,9 @@ function normalizeContacts(parsed: {
     const raw = parsed.phone.trim();
     const hasPlus = raw.startsWith("+");
     const digits = raw.replace(/\D/g, "");
-    const phone = (hasPlus ? "+" : "") + digits;
-    if (phone.length >= 10) result.phone = phone;
+    if (digits.length >= 10) {
+      result.phone = (hasPlus ? "+" : "") + digits;
+    }
   }
 
   if (parsed.telegram != null && typeof parsed.telegram === "string") {
@@ -260,11 +268,10 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
 
       const hasContacts =
         contacts && (contacts.email ?? contacts.phone ?? contacts.telegram);
-      const contactsData = hasContacts ? contacts : null;
+      const contactsData: ContactsData | null = hasContacts ? contacts : null;
       if (contactsData) {
-        setFields.phone = contactsData.phone ?? setFields.phone;
-        setFields.telegramUsername =
-          contactsData.telegram ?? setFields.telegramUsername;
+        setFields.phone = contactsData.phone;
+        setFields.telegramUsername = contactsData.telegram;
       }
 
       if (contactsData) {
@@ -274,10 +281,11 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
             .from(response)
             .where(eq(response.id, responseId))
             .for("update");
-          const existingContacts = (locked?.contacts ?? {}) as Record<
-            string,
-            unknown
-          >;
+          if (!locked) {
+            throw new Error("Отклик не найден или был удалён");
+          }
+          const existingContacts: ContactsData = (locked.contacts ??
+            {}) as ContactsData;
           (setFields as Record<string, unknown>).contacts = {
             ...existingContacts,
             email: contactsData.email ?? existingContacts.email,

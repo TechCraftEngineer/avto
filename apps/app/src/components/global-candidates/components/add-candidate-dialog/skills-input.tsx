@@ -29,9 +29,9 @@ export function SkillsInput({ form }: SkillsInputProps) {
             <FormLabel>Навыки</FormLabel>
             <FormControl>
               <div className="flex flex-wrap gap-2 rounded-md border border-input bg-transparent px-3 py-2 min-h-10 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-                {skillsList.map((skill) => (
+                {skillsList.map((skill, i) => (
                   <Badge
-                    key={skill}
+                    key={`${skill}-${i}`}
                     variant="secondary"
                     className="gap-1 pr-1 font-normal"
                   >
@@ -39,11 +39,7 @@ export function SkillsInput({ form }: SkillsInputProps) {
                     <button
                       type="button"
                       onClick={() => {
-                        const idx = skillsList.indexOf(skill);
-                        const next =
-                          idx >= 0
-                            ? skillsList.filter((_, i) => i !== idx)
-                            : skillsList;
+                        const next = skillsList.filter((_, idx) => idx !== i);
                         field.onChange(next.length > 0 ? next : undefined);
                       }}
                       className="ml-0.5 flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full hover:bg-muted-foreground/20 sm:min-h-6 sm:min-w-6"

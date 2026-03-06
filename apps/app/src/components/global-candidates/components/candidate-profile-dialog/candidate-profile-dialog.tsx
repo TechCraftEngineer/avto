@@ -452,56 +452,61 @@ function ProfileContent({
                     Опыт работы
                   </h4>
                   <div className="space-y-3">
-                    {candidateDetail.profileData.experience.map((exp) => {
-                      const item =
-                        exp && typeof exp === "object" && "experience" in exp
-                          ? (
-                              exp as {
-                                experience?: {
-                                  company?: string;
-                                  position?: string;
-                                  period?: string;
-                                  description?: string;
-                                };
-                              }
-                            ).experience
-                          : (exp as {
-                              company?: string;
-                              position?: string;
-                              period?: string;
-                              description?: string;
-                            });
-                      const company = item?.company ?? item?.position ?? "";
-                      const position =
-                        "position" in (item ?? {}) ? item?.position : "";
-                      const period = item?.period ?? "";
-                      if (!company && !position && !period) return null;
-                      return (
-                        <div
-                          key={`${company}-${position}-${period}`}
-                          className="rounded-lg border bg-muted/30 p-3 space-y-1"
-                        >
-                          {(company || position) && (
-                            <div className="font-medium text-sm">
-                              {company}
-                              {company && position && " · "}
-                              {position}
-                            </div>
-                          )}
-                          {period && (
-                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                              <Calendar className="h-3 w-3" />
-                              {period}
-                            </div>
-                          )}
-                          {item?.description && (
-                            <p className="text-sm mt-1 text-muted-foreground">
-                              {item.description}
-                            </p>
-                          )}
-                        </div>
-                      );
-                    })}
+                    {candidateDetail.profileData.experience.map(
+                      (exp, expIndex) => {
+                        const item =
+                          exp && typeof exp === "object" && "experience" in exp
+                            ? (
+                                exp as {
+                                  experience?: {
+                                    company?: string;
+                                    position?: string;
+                                    period?: string;
+                                    description?: string;
+                                  };
+                                }
+                              ).experience
+                            : (exp as {
+                                company?: string;
+                                position?: string;
+                                period?: string;
+                                description?: string;
+                              });
+                        const company = item?.company ?? item?.position ?? "";
+                        const position =
+                          "position" in (item ?? {}) ? item?.position : "";
+                        const period = item?.period ?? "";
+                        if (!company && !position && !period) return null;
+                        const expKey =
+                          (exp as { _key?: string })?._key ??
+                          `${company}-${position}-${period}-${expIndex}`;
+                        return (
+                          <div
+                            key={expKey}
+                            className="rounded-lg border bg-muted/30 p-3 space-y-1"
+                          >
+                            {(company || position) && (
+                              <div className="font-medium text-sm">
+                                {company}
+                                {company && position && " · "}
+                                {position}
+                              </div>
+                            )}
+                            {period && (
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <Calendar className="h-3 w-3" />
+                                {period}
+                              </div>
+                            )}
+                            {item?.description && (
+                              <p className="text-sm mt-1 text-muted-foreground">
+                                {item.description}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      },
+                    )}
                   </div>
                 </div>
               )}
@@ -515,51 +520,57 @@ function ProfileContent({
                     Образование
                   </h4>
                   <div className="space-y-3">
-                    {candidateDetail.profileData.education.map((edu) => {
-                      const item = edu as {
-                        institution?: string;
-                        degree?: string;
-                        field?: string;
-                        period?: string;
-                        specialization?: string;
-                        startDate?: string;
-                        endDate?: string;
-                      };
-                      const institution = item?.institution ?? "";
-                      const degree = item?.degree ?? item?.specialization ?? "";
-                      const field = item?.field ?? "";
-                      const period =
-                        item?.period ??
-                        (item?.startDate && item?.endDate
-                          ? `${item.startDate} — ${item.endDate}`
-                          : (item?.startDate ?? item?.endDate ?? ""));
-                      if (!institution && !degree && !field) return null;
-                      return (
-                        <div
-                          key={`${institution}-${degree}-${field}-${period}`}
-                          className="rounded-lg border bg-muted/30 p-3 space-y-1"
-                        >
-                          {(institution || degree) && (
-                            <div className="font-medium text-sm">
-                              {institution}
-                              {institution && degree && " · "}
-                              {degree}
-                            </div>
-                          )}
-                          {field && (
-                            <div className="text-sm text-muted-foreground">
-                              {field}
-                            </div>
-                          )}
-                          {period && (
-                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                              <Calendar className="h-3 w-3" />
-                              {period}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                    {candidateDetail.profileData.education.map(
+                      (edu, eduIndex) => {
+                        const item = edu as {
+                          institution?: string;
+                          degree?: string;
+                          field?: string;
+                          period?: string;
+                          specialization?: string;
+                          startDate?: string;
+                          endDate?: string;
+                        };
+                        const institution = item?.institution ?? "";
+                        const degree =
+                          item?.degree ?? item?.specialization ?? "";
+                        const field = item?.field ?? "";
+                        const period =
+                          item?.period ??
+                          (item?.startDate && item?.endDate
+                            ? `${item.startDate} — ${item.endDate}`
+                            : (item?.startDate ?? item?.endDate ?? ""));
+                        if (!institution && !degree && !field) return null;
+                        const eduKey =
+                          (edu as { _key?: string })?._key ??
+                          `${institution}-${degree}-${field}-${period}-${eduIndex}`;
+                        return (
+                          <div
+                            key={eduKey}
+                            className="rounded-lg border bg-muted/30 p-3 space-y-1"
+                          >
+                            {(institution || degree) && (
+                              <div className="font-medium text-sm">
+                                {institution}
+                                {institution && degree && " · "}
+                                {degree}
+                              </div>
+                            )}
+                            {field && (
+                              <div className="text-sm text-muted-foreground">
+                                {field}
+                              </div>
+                            )}
+                            {period && (
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <Calendar className="h-3 w-3" />
+                                {period}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      },
+                    )}
                   </div>
                 </div>
               )}

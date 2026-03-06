@@ -23,10 +23,10 @@ export class DataExtractor {
   constructor() {
     this.adapters = new Map<string, PlatformAdapter>(
       PLATFORM_ADAPTERS.map((a, index) => {
-        const base = (
-          a as { platformName?: string }
-        ).platformName?.toLowerCase();
-        const key = base && base.length > 0 ? base : `unknown-${index}`;
+        const platformName = (a as { platformName?: string }).platformName;
+        const base =
+          platformName != null ? String(platformName).trim().toLowerCase() : "";
+        const key = base.length > 0 ? base : `unknown-${index}`;
         return [key, a];
       }),
     );

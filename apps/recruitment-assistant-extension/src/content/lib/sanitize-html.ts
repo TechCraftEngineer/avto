@@ -54,8 +54,20 @@ export function extractAndSanitizeLinkedInHtml(
   adapter: LinkedInHtmlAdapter | null,
 ): { skillsHtml?: string; contactsHtml?: string } {
   if (!adapter) return {};
-  const rawSkills = adapter.getSkillsHtml?.() ?? undefined;
-  const rawContacts = adapter.getContactsHtml?.() ?? undefined;
+  let rawSkills: string | null | undefined;
+  let rawContacts: string | null | undefined;
+  try {
+    rawSkills = adapter.getSkillsHtml?.() ?? undefined;
+  } catch (e) {
+    console.warn("[sanitize-html] getSkillsHtml failed:", e);
+    rawSkills = undefined;
+  }
+  try {
+    rawContacts = adapter.getContactsHtml?.() ?? undefined;
+  } catch (e) {
+    console.warn("[sanitize-html] getContactsHtml failed:", e);
+    rawContacts = undefined;
+  }
   return {
     skillsHtml: sanitizeAndLimitHtml(rawSkills) ?? undefined,
     contactsHtml: sanitizeAndLimitHtml(rawContacts) ?? undefined,

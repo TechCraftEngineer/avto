@@ -60,7 +60,7 @@ export function ExperienceSection({ form }: ExperienceSectionProps) {
                 <ExperienceEntryCard
                   key={
                     (entry as { _key?: string })._key ??
-                    `${entry.company ?? ""}-${entry.position ?? ""}-${entry.period ?? ""}`
+                    `${entry.company ?? ""}-${entry.position ?? ""}-${entry.period ?? ""}-${i}`
                   }
                   entry={entry}
                   index={i}
