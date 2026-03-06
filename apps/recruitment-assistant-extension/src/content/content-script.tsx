@@ -83,6 +83,15 @@ export class ContentScript {
     return this.handleImport(payload);
   }
 
+  private getSanitizedLinkedInHtml(): {
+    skillsHtml?: string;
+    contactsHtml?: string;
+  } {
+    return extractAndSanitizeLinkedInHtml(
+      this.currentAdapter as LinkedInHtmlAdapter,
+    );
+  }
+
   /** Проверяет, актуальны ли закэшированные данные (URL страницы не изменился) */
   private isCacheStale(): boolean {
     if (!this.currentData?.profileUrl) return false;
@@ -163,9 +172,7 @@ export class ContentScript {
     const {
       skillsHtml: linkedInSkillsHtml,
       contactsHtml: linkedInContactsHtml,
-    } = extractAndSanitizeLinkedInHtml(
-      this.currentAdapter as LinkedInHtmlAdapter,
-    );
+    } = this.getSanitizedLinkedInHtml();
     try {
       await importCandidateData(sanitizedData, {
         vacancyId: payload.vacancyId,
@@ -204,9 +211,7 @@ export class ContentScript {
     const {
       skillsHtml: linkedInSkillsHtml,
       contactsHtml: linkedInContactsHtml,
-    } = extractAndSanitizeLinkedInHtml(
-      this.currentAdapter as LinkedInHtmlAdapter,
-    );
+    } = this.getSanitizedLinkedInHtml();
     await importToVacancyWithExisting(data, {
       ...payload,
       linkedInSkillsHtml: linkedInSkillsHtml ?? undefined,
@@ -435,9 +440,7 @@ export class ContentScript {
     const {
       skillsHtml: linkedInSkillsHtml,
       contactsHtml: linkedInContactsHtml,
-    } = extractAndSanitizeLinkedInHtml(
-      this.currentAdapter as LinkedInHtmlAdapter,
-    );
+    } = this.getSanitizedLinkedInHtml();
     try {
       await importCandidateData(data, {
         vacancyId: payload?.vacancyId,

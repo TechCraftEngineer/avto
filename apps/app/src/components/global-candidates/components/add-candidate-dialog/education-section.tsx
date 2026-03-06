@@ -59,7 +59,7 @@ export function EducationSection({ form }: EducationSectionProps) {
                 <EducationEntryCard
                   key={
                     (entry as { _key?: string })._key ??
-                    `${entry.institution ?? ""}-${entry.degree ?? ""}-${entry.period ?? ""}`
+                    `${entry.institution ?? ""}-${entry.degree ?? ""}-${entry.field ?? ""}-${entry.period ?? ""}-${i}`
                   }
                   entry={entry}
                   index={i}
