@@ -31,6 +31,7 @@ export async function importToVacancy(
   vacancyId: string,
   globalCandidateId?: string,
   linkedInSkillsHtml?: string,
+  linkedInContactsHtml?: string,
 ): Promise<void> {
   const rawSource = inferRawSourceFromData(data.platform);
   const profileUrl =
@@ -55,6 +56,7 @@ export async function importToVacancy(
       profileUrl,
       telegram,
       linkedInSkillsHtml,
+      linkedInContactsHtml,
       ...assets,
     });
     return;
@@ -83,6 +85,7 @@ interface LinkedInImportParams {
   telegram?: string;
   photoUrl?: string;
   linkedInSkillsHtml?: string;
+  linkedInContactsHtml?: string;
 }
 
 async function importLinkedInToVacancy(
@@ -97,6 +100,7 @@ async function importLinkedInToVacancy(
     telegram,
     photoUrl,
     linkedInSkillsHtml,
+    linkedInContactsHtml,
   } = params;
 
   let aboutMe: string | undefined;
@@ -135,6 +139,9 @@ async function importLinkedInToVacancy(
   const filteredSkillsHtml = isMeaningfulLinkedInHtml(skillsHtml)
     ? skillsHtml
     : undefined;
+  const filteredContactsHtml = isMeaningfulLinkedInHtml(linkedInContactsHtml)
+    ? linkedInContactsHtml
+    : undefined;
 
   const body = {
     vacancyId,
@@ -150,6 +157,7 @@ async function importLinkedInToVacancy(
     ...(experienceHtml ? { experienceHtml } : {}),
     ...(educationHtml ? { educationHtml } : {}),
     ...(filteredSkillsHtml ? { skillsHtml: filteredSkillsHtml } : {}),
+    ...(filteredContactsHtml ? { contactsHtml: filteredContactsHtml } : {}),
     ...(aboutMe ? { aboutMe } : {}),
     ...(data.skills?.length ? { skills: data.skills } : {}),
     ...(profileUrl ? { profileUrl } : {}),

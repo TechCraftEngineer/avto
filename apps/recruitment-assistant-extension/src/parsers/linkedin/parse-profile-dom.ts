@@ -935,6 +935,22 @@ function parseContactsFromDialog(doc: Document): {
 }
 
 /**
+ * Парсинг контактов из overlay-страницы (при навигации на /overlay/contact-info/).
+ * Селектор [data-view-name="profile-contact-info-details-view"].
+ */
+function parseContactsFromOverlayView(doc: Document): {
+  email: string | null;
+  phone: string | null;
+  socialLinks: string[];
+} {
+  const container =
+    doc.querySelector('[data-view-name="profile-contact-info-details-view"]') ??
+    null;
+  if (!container) return { email: null, phone: null, socialLinks: [] };
+  return parseContactSectionsFromContainer(container);
+}
+
+/**
  * Fallback: парсинг контактов из видимой секции профиля (section.pv-contact-info).
  * Используется, когда overlay-диалог не открыт.
  */
@@ -1064,7 +1080,12 @@ export function parseContactsFromContactInfoHtml(
   const email = parsed.email ?? null;
   const phoneVal = parsed.phone;
   const phone = phoneVal && phoneVal.length > 0 ? phoneVal : null;
-  const socialLinks = parsed.socialLinks ?? [];
+  const rawLinks = parsed.socialLinks ?? [];
+  // Фильтруем некорректные URL, иначе schema падает и контакты теряются
+  const urlSchema = z.string().url();
+  const socialLinks = rawLinks.filter(
+    (href) => urlSchema.safeParse(href).success,
+  );
   const result = ContactInfoSchema.safeParse({
     email,
     phone,
@@ -1081,13 +1102,20 @@ export function parseContactsFromContactInfoHtml(
  */
 export function parseContacts(doc: Document = document): ContactInfo {
   const fromDialog = parseContactsFromDialog(doc);
+  const fromOverlayView = parseContactsFromOverlayView(doc);
   const fromSection = parseContactsFromVisibleSection(doc);
 
-  const email = fromDialog.email ?? fromSection.email ?? null;
-  const phoneVal = fromDialog.phone ?? fromSection.phone;
+  const email =
+    fromDialog.email ?? fromOverlayView.email ?? fromSection.email ?? null;
+  const phoneVal =
+    fromDialog.phone ?? fromOverlayView.phone ?? fromSection.phone;
   const phone = phoneVal && phoneVal.length > 0 ? phoneVal : null;
   const socialLinks = [
-    ...new Set([...fromDialog.socialLinks, ...fromSection.socialLinks]),
+    ...new Set([
+      ...fromDialog.socialLinks,
+      ...fromOverlayView.socialLinks,
+      ...fromSection.socialLinks,
+    ]),
   ];
 
   const result = ContactInfoSchema.safeParse({

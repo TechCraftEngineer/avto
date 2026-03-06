@@ -25,6 +25,8 @@ export interface LinkedInDetailsResult {
   skills: string[];
   skillsHtml: string | null;
   contactInfo: ContactInfo | null;
+  /** Raw HTML overlay/contact-info для передачи в LLM */
+  contactInfoHtml: string | null;
 }
 
 /**
@@ -80,6 +82,7 @@ export async function fetchLinkedInDetails(
       skills: [],
       skillsHtml: null,
       contactInfo: null,
+      contactInfoHtml: null,
     };
 
     if (experienceHtml) {
@@ -111,6 +114,7 @@ export async function fetchLinkedInDetails(
     }
 
     if (contactInfoHtml) {
+      result.contactInfoHtml = contactInfoHtml;
       const contact = parseContactsFromContactInfoHtml(contactInfoHtml);
       if (contact) result.contactInfo = contact;
     }

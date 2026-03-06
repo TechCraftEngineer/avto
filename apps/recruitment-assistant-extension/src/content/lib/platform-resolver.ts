@@ -3,17 +3,11 @@
  */
 
 import type { PlatformAdapter } from "../../adapters/base/platform-adapter";
-import { HeadHunterAdapter } from "../../adapters/headhunter/headhunter-adapter";
-import { LinkedInAdapter } from "../../adapters/linkedin/linkedin-adapter";
-
-const ADAPTERS: PlatformAdapter[] = [
-  new LinkedInAdapter(),
-  new HeadHunterAdapter(),
-];
+import { PLATFORM_ADAPTERS } from "../../adapters/registry";
 
 /** Возвращает адаптер для текущей страницы или null, если платформа не поддерживается */
 export function resolvePlatform(): PlatformAdapter | null {
-  for (const adapter of ADAPTERS) {
+  for (const adapter of PLATFORM_ADAPTERS) {
     if (adapter.isProfilePage()) {
       return adapter;
     }

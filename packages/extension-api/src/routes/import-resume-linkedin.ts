@@ -51,6 +51,8 @@ const bodySchema = z.object({
   educationHtml: z.string().max(50_000).optional(),
   /** LinkedIn: HTML навыков (profile-card-skills, без атрибутов) */
   skillsHtml: z.string().max(50_000).optional(),
+  /** LinkedIn: HTML контактов (overlay/contact-info) для парсинга через LLM */
+  contactsHtml: z.string().max(50_000).optional(),
   aboutMe: z.string().max(5000).optional(),
   skills: z.array(z.string().max(200)).max(100).optional(),
   profileUrl: z.string().max(1000).optional(),
@@ -317,11 +319,12 @@ export async function handleImportResumeLinkedIn(c: Context) {
     failureCount: 0,
   });
 
-  // Запуск парсинга LinkedIn HTML через LLM (если есть experienceHtml, educationHtml или skillsHtml)
+  // Запуск парсинга LinkedIn HTML через LLM (если есть experienceHtml, educationHtml, skillsHtml или contactsHtml)
   const hasLinkedInHtml =
     (input.experienceHtml?.trim().length ?? 0) > 0 ||
     (input.educationHtml?.trim().length ?? 0) > 0 ||
-    (input.skillsHtml?.trim().length ?? 0) > 0;
+    (input.skillsHtml?.trim().length ?? 0) > 0 ||
+    (input.contactsHtml?.trim().length ?? 0) > 0;
   if (hasLinkedInHtml && targetResponse) {
     try {
       await inngest.send({
@@ -331,6 +334,7 @@ export async function handleImportResumeLinkedIn(c: Context) {
           experienceHtml: input.experienceHtml,
           educationHtml: input.educationHtml,
           skillsHtml: input.skillsHtml,
+          contactsHtml: input.contactsHtml,
         },
       });
     } catch (err) {

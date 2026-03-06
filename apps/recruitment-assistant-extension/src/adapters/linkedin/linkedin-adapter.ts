@@ -37,6 +37,9 @@ export class LinkedInAdapter extends PlatformAdapter {
   private fetchedDetails: Awaited<ReturnType<typeof fetchLinkedInDetails>> =
     null;
 
+  /** Контакты из overlay, извлечённые до scroll (overlay мог закрыться) */
+  private overlayContactsFromDialog: ContactInfo | null = null;
+
   /**
    * Проверяет, является ли текущая страница профилем LinkedIn
    * @returns true, если это страница профиля на linkedin.com и путь /in/
@@ -101,12 +104,23 @@ export class LinkedInAdapter extends PlatformAdapter {
   }
 
   /**
+   * HTML контактов с overlay/contact-info для импорта (LLM).
+   * null если не загружено или пусто.
+   */
+  getContactsHtml(): string | null {
+    return this.fetchedDetails?.contactInfoHtml ?? null;
+  }
+
+  /**
    * Извлекает контактную информацию из профиля LinkedIn.
    * Использует данные с overlay/contact-info при наличии, иначе — dialog или section.pv-contact-info.
    */
   extractContacts(): ContactInfo {
     if (this.fetchedDetails?.contactInfo) {
       return this.fetchedDetails.contactInfo;
+    }
+    if (this.overlayContactsFromDialog) {
+      return this.overlayContactsFromDialog;
     }
     return parseContacts(document);
   }
@@ -116,10 +130,24 @@ export class LinkedInAdapter extends PlatformAdapter {
    * Загружает details-страницы (experience, education, skills) для полных данных.
    */
   override async prepareForExtraction(): Promise<void> {
-    await openContactInfoOverlay(document);
-    // Загружаем details-страницы только с главной страницы профиля (не /details/...)
+    const overlayOpened = await openContactInfoOverlay(document);
+    // Извлекаем контакты сразу из открытого overlay (до scroll — он может закрыть модал)
+    if (overlayOpened) {
+      const fromOverlay = parseContacts(document);
+      if (
+        fromOverlay.email ||
+        fromOverlay.phone ||
+        (fromOverlay.socialLinks?.length ?? 0) > 0
+      ) {
+        this.overlayContactsFromDialog = fromOverlay;
+      }
+    }
+    // Загружаем details-страницы с главной или overlay (не /details/experience и т.п.)
     const path = typeof window !== "undefined" ? window.location.pathname : "";
-    if (/^\/in\/[^/]+\/?$/.test(path) && !path.includes("/details/")) {
+    const isProfileOrOverlay =
+      /^\/in\/[^/]+(\/overlay\/contact-info)?\/?$/.test(path) &&
+      !path.includes("/details/");
+    if (isProfileOrOverlay) {
       try {
         this.fetchedDetails = await fetchLinkedInDetails(path);
       } catch (err) {
