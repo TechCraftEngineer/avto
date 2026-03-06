@@ -3,11 +3,12 @@
  *
  * Координирует процесс извлечения данных, выбирая подходящий адаптер
  * для текущей платформы (LinkedIn, HeadHunter).
+ * Использует те же экземпляры адаптеров, что и resolvePlatform,
+ * чтобы getContactsHtml/getSkillsHtml возвращали данные после extraction.
  */
 
 import type { PlatformAdapter } from "../adapters/base/platform-adapter";
-import { HeadHunterAdapter } from "../adapters/headhunter/headhunter-adapter";
-import { LinkedInAdapter } from "../adapters/linkedin/linkedin-adapter";
+import { PLATFORM_ADAPTERS } from "../adapters/registry";
 import type { CandidateData } from "../shared/types";
 
 /**
@@ -17,13 +18,16 @@ export class DataExtractor {
   private adapters: Map<string, PlatformAdapter>;
 
   /**
-   * Создает экземпляр DataExtractor с зарегистрированными адаптерами
+   * Создает экземпляр DataExtractor с общими адаптерами платформ
    */
   constructor() {
-    this.adapters = new Map<string, PlatformAdapter>([
-      ["linkedin", new LinkedInAdapter()],
-      ["headhunter", new HeadHunterAdapter()],
-    ]);
+    this.adapters = new Map<string, PlatformAdapter>(
+      PLATFORM_ADAPTERS.map((a) => [
+        (a as { platformName?: string }).platformName?.toLowerCase() ??
+          "unknown",
+        a,
+      ]),
+    );
   }
 
   /**

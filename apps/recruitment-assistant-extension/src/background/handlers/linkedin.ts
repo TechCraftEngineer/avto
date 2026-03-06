@@ -17,7 +17,7 @@ function extractFromTab(
   selectors: string[],
   options: ExtractOptions = {},
 ): Promise<string[]> {
-  const { delayMs = 3000, minContentLength = 50 } = options;
+  const { delayMs = 1800, minContentLength = 50 } = options;
 
   return new Promise((resolve, reject) => {
     chrome.tabs.create({ url, active: false }, (tab) => {
@@ -154,36 +154,34 @@ export async function handleFetchLinkedInDetails(
       contactInfo: `${baseUrl}/in/${normalizedUsername}/overlay/contact-info/`,
     };
 
-    const expHtml =
-      (
-        await extractFromTab(urls.experience, [
+    // Параллельная загрузка: 4 вкладки одновременно вместо последовательно
+    const [expResults, eduResults, skillsResults, contactInfoResults] =
+      await Promise.all([
+        extractFromTab(urls.experience, [
           'div[data-testid^="profile_ExperienceDetailsSection_"]',
-        ])
-      )[0] ?? "";
-    const eduHtml =
-      (
-        await extractFromTab(urls.education, [
+        ]),
+        extractFromTab(urls.education, [
           'div[data-testid^="profile_EducationDetailsSection_"]',
-        ])
-      )[0] ?? "";
-    const skillsHtml =
-      (
-        await extractFromTab(urls.skills, ['div[data-testid="lazy-column"]'])
-      )[0] ?? "";
-    const contactInfoHtml =
-      (
-        await extractFromTab(
+        ]),
+        extractFromTab(urls.skills, ['div[data-testid="lazy-column"]']),
+        extractFromTab(
           urls.contactInfo,
           [
             'div[data-view-name="profile-contact-info-details-view"]',
             '[data-view-name="profile-contact-info-details-view"]', // fallback если не div
           ],
           {
-            delayMs: 5500, // React-страница overlay дольше рендерит
+            delayMs: 3500, // React-страница overlay дольше рендерит
             minContentLength: 15, // блок контактов может быть небольшим
           },
-        )
-      ).find((html) => html?.trim().length > 0) ?? "";
+        ),
+      ]);
+
+    const expHtml = expResults[0] ?? "";
+    const eduHtml = eduResults[0] ?? "";
+    const skillsHtml = skillsResults[0] ?? "";
+    const contactInfoHtml =
+      contactInfoResults.find((html) => html?.trim().length > 0) ?? "";
 
     sendResponse({
       success: true,

@@ -14,6 +14,7 @@ export interface LinkedInHtmlStructurerInput {
   experienceHtml?: string;
   educationHtml?: string;
   skillsHtml?: string;
+  contactsHtml?: string;
 }
 
 const experienceItemSchema = z.object({
@@ -35,10 +36,17 @@ const educationItemSchema = z.object({
   period: z.string().max(100).nullish(),
 });
 
+const contactsSchema = z.object({
+  email: z.string().max(500).optional(),
+  phone: z.string().max(50).optional(),
+  telegram: z.string().max(100).optional(),
+});
+
 const outputSchema = z.object({
   experience: z.array(experienceItemSchema).default([]),
   education: z.array(educationItemSchema).default([]),
   skills: z.array(z.string().max(200)).default([]),
+  contacts: contactsSchema.optional(),
 });
 
 const MAX_HTML_CHARS = 50_000;
@@ -47,6 +55,7 @@ const inputSchema = z.object({
   experienceHtml: z.string().max(MAX_HTML_CHARS).optional(),
   educationHtml: z.string().max(MAX_HTML_CHARS).optional(),
   skillsHtml: z.string().max(MAX_HTML_CHARS).optional(),
+  contactsHtml: z.string().max(MAX_HTML_CHARS).optional(),
 });
 
 export type LinkedInHtmlStructurerOutput = z.infer<typeof outputSchema>;
@@ -70,10 +79,10 @@ export class LinkedInHtmlStructurerAgent extends BaseAgent<
   LinkedInHtmlStructurerOutput
 > {
   constructor(config: AgentConfig) {
-    const instructions = `Ты — эксперт по разбору профилей LinkedIn. Твоя задача — извлечь структурированные данные из HTML-разметки разделов "Опыт работы" (experience), "Образование" (education) и "Навыки" (skills).
+    const instructions = `Ты — эксперт по разбору профилей LinkedIn. Твоя задача — извлечь структурированные данные из HTML-разметки разделов "Опыт работы" (experience), "Образование" (education), "Навыки" (skills) и "Контактная информация" (contacts).
 
 НА ВХОД: Текст, извлечённый из HTML (теги уже удалены, осталось содержимое).
-НА ВЫХОД: JSON с полями experience, education и skills.
+НА ВЫХОД: JSON с полями experience, education, skills и contacts (если был раздел контактов).
 
 ОПЫТ РАБОТЫ (experience):
 Для каждой должности извлеки:
@@ -99,6 +108,11 @@ export class LinkedInHtmlStructurerAgent extends BaseAgent<
 - Игнорируй "See all", "Показать всё", эндорсменты, счётчики
 - Очищай от лишних символов и пробелов
 
+КОНТАКТЫ (contacts) — если есть раздел Contact info:
+- email: email-адрес (только если явно указан)
+- phone: телефон в международном формате с + (например +7 999 123-45-67)
+- telegram: username без @ (например ivan_dev)
+
 ПРАВИЛА:
 - Извлекай только явно указанную информацию
 - Не придумывай данные
@@ -118,11 +132,13 @@ export class LinkedInHtmlStructurerAgent extends BaseAgent<
   protected validate(input: LinkedInHtmlStructurerInput): boolean {
     const result = inputSchema.safeParse(input);
     if (!result.success) return false;
-    const { experienceHtml, educationHtml, skillsHtml } = result.data;
+    const { experienceHtml, educationHtml, skillsHtml, contactsHtml } =
+      result.data;
     return !!(
       experienceHtml?.trim() ||
       educationHtml?.trim() ||
-      skillsHtml?.trim()
+      skillsHtml?.trim() ||
+      contactsHtml?.trim()
     );
   }
 
@@ -135,9 +151,15 @@ export class LinkedInHtmlStructurerAgent extends BaseAgent<
       experienceHtml = "",
       educationHtml = "",
       skillsHtml = "",
+      contactsHtml = "",
     } = parsed.success
       ? parsed.data
-      : { experienceHtml: "", educationHtml: "", skillsHtml: "" };
+      : {
+          experienceHtml: "",
+          educationHtml: "",
+          skillsHtml: "",
+          contactsHtml: "",
+        };
 
     const parts: string[] = [];
 
@@ -156,12 +178,18 @@ export class LinkedInHtmlStructurerAgent extends BaseAgent<
       parts.push(`=== НАВЫКИ (SKILLS) ===\n${text}`);
     }
 
+    if (contactsHtml.trim()) {
+      const text = stripHtmlToText(contactsHtml).slice(0, 5_000);
+      parts.push(`=== КОНТАКТЫ (CONTACT INFO) ===\n${text}`);
+    }
+
     if (parts.length === 0) {
       return "Нет данных для обработки.";
     }
 
     const outputFields = ["experience", "education"];
     if (skillsHtml.trim()) outputFields.push("skills");
+    if (contactsHtml.trim()) outputFields.push("contacts");
 
     return `${parts.join("\n\n")}
 

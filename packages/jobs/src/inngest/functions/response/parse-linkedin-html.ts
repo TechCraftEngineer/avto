@@ -85,6 +85,7 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
       experienceHtml: eventExp,
       educationHtml: eventEdu,
       skillsHtml: eventSkills,
+      contactsHtml: eventContacts,
     } = event.data;
 
     const responseData = await step.run("fetch-response", async () => {
@@ -110,14 +111,22 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
       const educationHtml =
         eventEdu ?? toStr(profileData.linkedInEducationHtml);
       const skillsHtml = eventSkills ?? toStr(profileData.linkedInSkillsHtml);
+      const contactsHtml =
+        eventContacts ?? toStr(profileData.linkedInContactsHtml);
 
       const hasExperienceHtml = experienceHtml.trim().length > 0;
       const hasEducationHtml = educationHtml.trim().length > 0;
       const hasSkillsHtml = skillsHtml.trim().length > 0;
+      const hasContactsHtml = contactsHtml.trim().length > 0;
 
-      if (!hasExperienceHtml && !hasEducationHtml && !hasSkillsHtml) {
+      if (
+        !hasExperienceHtml &&
+        !hasEducationHtml &&
+        !hasSkillsHtml &&
+        !hasContactsHtml
+      ) {
         throw new Error(
-          "Нет experienceHtml, educationHtml или skillsHtml для парсинга",
+          "Нет experienceHtml, educationHtml, skillsHtml или contactsHtml для парсинга",
         );
       }
 
@@ -127,6 +136,7 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
         experienceHtml,
         educationHtml,
         skillsHtml,
+        contactsHtml,
       };
     });
 
@@ -150,11 +160,15 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
       const normalizedSkills = normalizeAndTruncateHtml(
         responseData.skillsHtml,
       );
+      const normalizedContacts = normalizeAndTruncateHtml(
+        responseData.contactsHtml,
+      );
       const result = await agent.execute(
         {
           experienceHtml: normalizedExperience,
           educationHtml: normalizedEducation,
           skillsHtml: normalizedSkills,
+          contactsHtml: normalizedContacts,
         },
         { abortSignal },
       );
@@ -172,6 +186,7 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
       parsed.skills && parsed.skills.length > 0
         ? [...new Set(parsed.skills)].filter(Boolean)
         : undefined;
+    const contacts = parsed.contacts;
 
     await step.run("update-response", async () => {
       const existing = responseData.profileData;
@@ -189,16 +204,39 @@ export const parseLinkedInHtmlFunction = inngest.createFunction(
         linkedInExperienceHtml,
         linkedInEducationHtml,
         linkedInSkillsHtml,
+        linkedInContactsHtml,
         ...updated
       } = merged as Record<string, unknown>;
 
+      const setFields: Record<string, unknown> = {
+        profileData: updated as StoredProfileData,
+        updatedAt: new Date(),
+      };
+      if (skills && skills.length > 0) setFields.skills = skills;
+
+      if (contacts && (contacts.email ?? contacts.phone ?? contacts.telegram)) {
+        if (contacts.phone) setFields.phone = contacts.phone;
+        if (contacts.telegram) setFields.telegramUsername = contacts.telegram;
+        const [current] = await db
+          .select({ contacts: response.contacts })
+          .from(response)
+          .where(eq(response.id, responseId))
+          .limit(1);
+        const existingContacts = (current?.contacts ?? {}) as Record<
+          string,
+          unknown
+        >;
+        setFields.contacts = {
+          ...existingContacts,
+          email: contacts.email ?? existingContacts.email,
+          phone: contacts.phone ?? existingContacts.phone,
+          telegram: contacts.telegram ?? existingContacts.telegram,
+        };
+      }
+
       await db
         .update(response)
-        .set({
-          profileData: updated as StoredProfileData,
-          ...(skills && skills.length > 0 ? { skills } : {}),
-          updatedAt: new Date(),
-        })
+        .set(setFields as Record<string, unknown>)
         .where(eq(response.id, responseId));
     });
 

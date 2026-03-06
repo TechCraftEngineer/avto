@@ -43,6 +43,7 @@ export const parseLinkedInHtmlDataSchema = z.object({
   experienceHtml: z.string().max(2_000).optional(),
   educationHtml: z.string().max(2_000).optional(),
   skillsHtml: z.string().max(2_000).optional(),
+  contactsHtml: z.string().max(2_000).optional(),
 });
 
 export const refreshSingleResumeDataSchema = z.object({

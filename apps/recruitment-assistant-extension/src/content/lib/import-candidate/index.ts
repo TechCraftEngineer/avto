@@ -64,6 +64,7 @@ export async function importToVacancyWithExisting(
     vacancyId: string;
     globalCandidateId: string;
     linkedInSkillsHtml?: string | null;
+    linkedInContactsHtml?: string | null;
   },
 ): Promise<void> {
   const { authToken: token } = await getAuthFromStorage();
@@ -82,6 +83,7 @@ export async function importToVacancyWithExisting(
     options.vacancyId,
     options.globalCandidateId,
     options.linkedInSkillsHtml ?? undefined,
+    options.linkedInContactsHtml ?? undefined,
   );
 }
 
@@ -158,6 +160,7 @@ export async function importCandidateData(
     vacancyId?: string;
     globalCandidateId?: string;
     linkedInSkillsHtml?: string | null;
+    linkedInContactsHtml?: string | null;
   },
 ): Promise<void> {
   const { authToken: token, userData } = await getAuthFromStorage();
@@ -177,6 +180,7 @@ export async function importCandidateData(
       options.vacancyId,
       options.globalCandidateId,
       options.linkedInSkillsHtml ?? undefined,
+      options.linkedInContactsHtml ?? undefined,
     );
     return;
   }

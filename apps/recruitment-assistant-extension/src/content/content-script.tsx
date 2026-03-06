@@ -157,15 +157,19 @@ export class ContentScript {
       };
     }
     const sanitizedData = this.normalizeFullName(result.data);
-    const rawSkillsHtml =
-      (
-        this.currentAdapter as { getSkillsHtml?: () => string | null }
-      )?.getSkillsHtml?.() ?? undefined;
+    const linkedInAdapter = this.currentAdapter as {
+      getSkillsHtml?: () => string | null;
+      getContactsHtml?: () => string | null;
+    } | null;
+    const rawSkillsHtml = linkedInAdapter?.getSkillsHtml?.() ?? undefined;
+    const rawContactsHtml = linkedInAdapter?.getContactsHtml?.() ?? undefined;
     const linkedInSkillsHtml = sanitizeAndLimitHtml(rawSkillsHtml);
+    const linkedInContactsHtml = sanitizeAndLimitHtml(rawContactsHtml);
     try {
       await importCandidateData(sanitizedData, {
         vacancyId: payload.vacancyId,
         linkedInSkillsHtml: linkedInSkillsHtml ?? undefined,
+        linkedInContactsHtml: linkedInContactsHtml ?? undefined,
       });
       return { ok: true, duplicate: false };
     } catch (error) {
@@ -196,14 +200,18 @@ export class ContentScript {
     if (!data) {
       throw new Error("Не удалось извлечь данные профиля");
     }
-    const rawSkillsHtml =
-      (
-        this.currentAdapter as { getSkillsHtml?: () => string | null }
-      )?.getSkillsHtml?.() ?? undefined;
+    const linkedInAdapter = this.currentAdapter as {
+      getSkillsHtml?: () => string | null;
+      getContactsHtml?: () => string | null;
+    } | null;
+    const rawSkillsHtml = linkedInAdapter?.getSkillsHtml?.() ?? undefined;
+    const rawContactsHtml = linkedInAdapter?.getContactsHtml?.() ?? undefined;
     const linkedInSkillsHtml = sanitizeAndLimitHtml(rawSkillsHtml);
+    const linkedInContactsHtml = sanitizeAndLimitHtml(rawContactsHtml);
     await importToVacancyWithExisting(data, {
       ...payload,
       linkedInSkillsHtml: linkedInSkillsHtml ?? undefined,
+      linkedInContactsHtml: linkedInContactsHtml ?? undefined,
     });
   }
 
@@ -425,16 +433,20 @@ export class ContentScript {
       return;
     }
     data = this.normalizeFullName(data);
-    const rawSkillsHtml =
-      (
-        this.currentAdapter as { getSkillsHtml?: () => string | null }
-      )?.getSkillsHtml?.() ?? undefined;
+    const linkedInAdapter = this.currentAdapter as {
+      getSkillsHtml?: () => string | null;
+      getContactsHtml?: () => string | null;
+    } | null;
+    const rawSkillsHtml = linkedInAdapter?.getSkillsHtml?.() ?? undefined;
+    const rawContactsHtml = linkedInAdapter?.getContactsHtml?.() ?? undefined;
     const linkedInSkillsHtml = sanitizeAndLimitHtml(rawSkillsHtml);
+    const linkedInContactsHtml = sanitizeAndLimitHtml(rawContactsHtml);
     try {
       await importCandidateData(data, {
         vacancyId: payload?.vacancyId,
         globalCandidateId: payload?.globalCandidateId,
         linkedInSkillsHtml: linkedInSkillsHtml ?? undefined,
+        linkedInContactsHtml: linkedInContactsHtml ?? undefined,
       });
     } catch (error) {
       const msg =
