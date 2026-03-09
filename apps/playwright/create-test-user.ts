@@ -1,21 +1,16 @@
-import { createORPCClient, httpBatchLink } from "@orpc/client";
+import { createORPCClient } from "@orpc/client";
+import { RPCLink } from "@orpc/client/fetch";
 import type { AppRouter } from "@qbs-autonaim/api";
-import superjson from "superjson";
 
 const email = "playwright-test@example.com";
 const password = "TestPassword123";
 
-const orpc = createORPCClient<AppRouter>({
-  links: [
-    httpBatchLink({
-      url: "http://localhost:3000/api/orpc",
-      transformer: superjson,
-    }),
-  ],
-});
+const orpc = createORPCClient<AppRouter>(
+  new RPCLink({ url: "http://localhost:3000/api/orpc" }),
+);
 
-orpc.test?.setup
-  .mutate({
+orpc.test
+  .setup({
     email,
     password,
     name: "Playwright Test",

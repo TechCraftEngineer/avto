@@ -11,9 +11,11 @@ import { z } from "zod";
 import { publicProcedure } from "../../orpc";
 import { cleanupTestUser } from "./utils";
 
-// Только в development/test режиме
+// Только в development/test режиме или при явном разрешении для E2E
 const isTestMode =
-  process.env.NODE_ENV === "test" || process.env.NODE_ENV === "development";
+  process.env.NODE_ENV === "test" ||
+  process.env.NODE_ENV === "development" ||
+  process.env.E2E_TEST_ENABLED === "1";
 
 export const setup = publicProcedure
   .input(

@@ -25,7 +25,13 @@ const updateContactsInputSchema = z
     telegramUsername: z.string().max(100).optional(),
   })
   .refine(
-    (data) => "phone" in data || "email" in data || "telegramUsername" in data,
+    (data) =>
+      Boolean(
+        (typeof data.phone === "string" && data.phone.trim() !== "") ||
+          (typeof data.email === "string" && data.email.trim() !== "") ||
+          (typeof data.telegramUsername === "string" &&
+            data.telegramUsername.trim() !== ""),
+      ),
     { message: "Укажите хотя бы один контакт: телефон, email или Telegram" },
   );
 
@@ -60,14 +66,6 @@ export const updateContacts = protectedProcedure
     if (!vacancy) {
       throw new ORPCError("NOT_FOUND", {
         message: "Отклик не найден в рабочем пространстве",
-      });
-    }
-
-    const hasContactField =
-      "phone" in input || "email" in input || "telegramUsername" in input;
-    if (!hasContactField) {
-      throw new ORPCError("BAD_REQUEST", {
-        message: "Укажите хотя бы один контакт: телефон, email или Telegram",
       });
     }
 

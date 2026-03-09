@@ -2,9 +2,9 @@
  * Простой скрипт для тестирования oRPC API создания тестовых данных
  */
 
-import { createORPCClient, httpBatchLink } from "@orpc/client";
+import { createORPCClient } from "@orpc/client";
+import { RPCLink } from "@orpc/client/fetch";
 import type { AppRouter } from "@qbs-autonaim/api";
-import superjson from "superjson";
 
 async function testORPC() {
   const baseURL = "http://localhost:3000";
@@ -14,19 +14,14 @@ async function testORPC() {
   console.log("🧪 Тестируем oRPC API создания пользователя...");
   console.log(`Email: ${email}`);
 
-  const orpc = createORPCClient<AppRouter>({
-    links: [
-      httpBatchLink({
-        url: `${baseURL}/api/orpc`,
-        transformer: superjson,
-      }),
-    ],
-  });
+  const orpc = createORPCClient<AppRouter>(
+    new RPCLink({ url: `${baseURL}/api/orpc` }),
+  );
 
   try {
     // Создаем пользователя
     console.log("\n1️⃣ Создаем пользователя через oRPC...");
-    const result = await orpc.test?.setup.mutate({
+    const result = await orpc.test.setup({
       email,
       password,
       name: "Test User",
@@ -39,7 +34,7 @@ async function testORPC() {
 
     // Удаляем пользователя
     console.log("\n2️⃣ Удаляем пользователя...");
-    await orpc.test?.cleanup.mutate({ email });
+    await orpc.test.cleanup({ email });
 
     console.log("✅ Пользователь удален!");
     console.log("\n🎉 Все тесты прошли успешно!");

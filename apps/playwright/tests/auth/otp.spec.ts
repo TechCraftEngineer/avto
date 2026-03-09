@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { safeClickByRole } from "../helpers/auth";
-import { mockOTPResend } from "../helpers/mock-api";
+import { mockOTPResend, mockVerifyOTP } from "../helpers/mock-api";
 
 test.describe("OTP верификация", () => {
   test.beforeEach(async ({ page, context }) => {
@@ -69,6 +69,7 @@ test.describe("OTP верификация", () => {
   });
 
   test("автоматическая отправка при вводе 6 цифр", async ({ page }) => {
+    await mockVerifyOTP(page);
     const otpInput = page.getByRole("textbox", { name: "Код подтверждения" });
     await otpInput.click();
 
@@ -108,8 +109,8 @@ test.describe("OTP верификация", () => {
     await page.waitForURL("/auth/signin");
   });
 
-  test("проверка aria-label для полей OTP", async ({ page }) => {
-    // Проверяем, что input связан с label "Код подтверждения"
+  test("поле OTP имеет доступное имя от label", async ({ page }) => {
+    // Input связан с label — getByRole по имени работает через accessibility tree
     const otpInput = page.getByRole("textbox", { name: "Код подтверждения" });
     await expect(otpInput).toBeVisible();
   });

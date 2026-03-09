@@ -60,6 +60,10 @@ bun test:ci
 
 ```env
 BASE_URL=http://localhost:3000
+
+# Для E2E тестов с авторизацией (account, workspace и др.)
+# — при запуске с reuseExistingServer нужен dev-сервер с этой переменной
+E2E_TEST_ENABLED=1
 ```
 
 ## Создание тестов
@@ -187,11 +191,17 @@ npx playwright show-trace test-results/.../trace.zip
 rm apps/playwright/test-results.json
 ```
 
-### Тесты падают с FORBIDDEN ошибками
-Проверьте, что:
-1. Приложение запущено (`cd apps/app && bun dev`)
-2. База данных настроена
-3. TRPC API доступен
+### Тесты падают с FORBIDDEN или «тестовые эндпоинты недоступны»
+Для E2E тестов нужно:
+1. Запустить `bun dev:app` (app + app-server на 3000 и 7000)
+2. Добавить `E2E_TEST_ENABLED=1` в `.env`
+3. Проверить, что база данных настроена
+4. Playwright подхватит уже запущенный сервер (reuseExistingServer)
+
+### Internal Server Error при создании тестового пользователя
+test.setup может вернуть 500 при проблемах с БД или auth. Проверьте:
+- Доступность PostgreSQL (POSTGRES_URL в .env)
+- Что app-server запущен (порт 7000)
 
 ### Тесты медленные
 1. Используйте `test:fast` для быстрых тестов

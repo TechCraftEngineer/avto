@@ -5,7 +5,9 @@ import { z } from "zod";
 import { publicProcedure } from "../../orpc";
 
 const isTestMode =
-  process.env.NODE_ENV === "test" || process.env.NODE_ENV === "development";
+  process.env.NODE_ENV === "test" ||
+  process.env.NODE_ENV === "development" ||
+  process.env.E2E_TEST_ENABLED === "1";
 
 export const createArchivedVacancy = publicProcedure
   .input(

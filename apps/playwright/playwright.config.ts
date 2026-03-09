@@ -66,15 +66,18 @@ export default defineConfig({
   ],
 
   webServer: {
+    // Для e2e нужен dev:app (app + app-server). ui-fast — только app
     command: "cd ../app && bun run dev",
     url: baseURL,
     reuseExistingServer: true,
     timeout: 120_000,
     env: {
+      // Режим для E2E тестов — разрешает тестовые API (setup/cleanup)
+      NODE_ENV: "development",
+      E2E_TEST_ENABLED: "1",
       // Отключаем Next.js dev overlay для тестов
       __NEXT_DISABLE_OVERLAY: "1",
       NEXT_DISABLE_OVERLAY: "1",
-      NODE_ENV: "test",
       // Дополнительные переменные для отключения overlay
       __NEXT_DISABLE_ERROR_OVERLAY: "1",
       __NEXT_DISABLE_BUILD_ACTIVITY_INDICATOR: "1",
