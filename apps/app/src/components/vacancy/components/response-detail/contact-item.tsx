@@ -5,11 +5,11 @@ import {
   DropdownMenuTrigger,
 } from "@qbs-autonaim/ui/components/dropdown-menu";
 import { formatPhone } from "@qbs-autonaim/validators";
-import { Copy, Mail, Phone, PhoneCall } from "lucide-react";
+import { Copy, ExternalLink, Mail, Phone, PhoneCall, Send } from "lucide-react";
 import { toast } from "sonner";
 
 interface ContactItemProps {
-  type: "phone" | "email";
+  type: "phone" | "email" | "telegram";
   value: string;
 }
 
@@ -59,6 +59,47 @@ export function ContactItem({ type, value }: ContactItemProps) {
           >
             <PhoneCall className="mr-2 h-4 w-4" />
             <span>Позвонить</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => copyToClipboard(displayValue)}
+            className="cursor-pointer"
+          >
+            <Copy className="mr-2 h-4 w-4" />
+            <span>Скопировать</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
+
+  if (type === "telegram") {
+    const displayValue = value.startsWith("@") ? value : `@${value}`;
+    const telegramUrl = `https://t.me/${value.replace(/^@/, "")}`;
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            className="flex items-center gap-1.5 text-sm text-foreground hover:text-primary transition-colors min-w-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+          >
+            <Send className="h-3.5 w-3.5 shrink-0" />
+            <span className="font-medium truncate max-w-[200px]">
+              {displayValue}
+            </span>
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
+          <DropdownMenuItem asChild>
+            <a
+              href={telegramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="cursor-pointer flex items-center"
+            >
+              <ExternalLink className="mr-2 h-4 w-4" />
+              <span>Открыть в Telegram</span>
+            </a>
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => copyToClipboard(displayValue)}

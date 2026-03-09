@@ -62,12 +62,14 @@ export function CandidateInfo({
         )}
 
         {/* Контактная информация */}
-        {(response.phone || response.email) && (
+        {(response.phone || response.email || response.telegramUsername) && (
           <div className="flex flex-wrap items-center gap-3 mt-2">
             {response.phone && (
               <ContactItem type="phone" value={response.phone} />
             )}
-
+            {response.telegramUsername && (
+              <ContactItem type="telegram" value={response.telegramUsername} />
+            )}
             {response.email && (
               <ContactItem type="email" value={response.email} />
             )}
