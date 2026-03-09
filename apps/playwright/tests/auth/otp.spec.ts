@@ -110,9 +110,18 @@ test.describe("OTP верификация", () => {
   });
 
   test("поле OTP имеет доступное имя от label", async ({ page }) => {
-    // Input связан с label — getByRole по имени работает через accessibility tree
-    const otpInput = page.getByRole("textbox", { name: "Код подтверждения" });
+    const label = page
+      .locator("label")
+      .filter({ hasText: "Код подтверждения" });
+    await expect(label).toBeVisible();
+    const labelFor = await label.getAttribute("for");
+    expect(labelFor).toBeTruthy();
+
+    const otpInput = page.getByLabel("Код подтверждения");
     await expect(otpInput).toBeVisible();
+
+    // Явная проверка связи label[for] ↔ input[id]
+    expect(await otpInput.getAttribute("id")).toBe(labelFor);
   });
 
   test("описание формы видимо", async ({ page }) => {

@@ -39,9 +39,12 @@ const contactFormSchema = z
       .string()
       .max(255)
       .optional()
-      .refine(
-        (v) => !v || v.trim() === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
-        "Некорректный email",
+      .transform((v) => v?.trim() || undefined)
+      .pipe(
+        z.union([
+          z.undefined(),
+          z.email({ error: "Некорректный email" }).max(255),
+        ]),
       ),
     telegramUsername: z.string().max(100).optional(),
   })

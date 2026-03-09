@@ -15,7 +15,12 @@ async function testORPC() {
   console.log(`Email: ${email}`);
 
   const orpc = createORPCClient<AppRouter>(
-    new RPCLink({ url: `${baseURL}/api/orpc` }),
+    new RPCLink({
+      url: `${baseURL}/api/orpc`,
+      headers: () => ({
+        "x-e2e-test-secret": process.env.TEST_SHARED_SECRET ?? "",
+      }),
+    }),
   );
 
   try {

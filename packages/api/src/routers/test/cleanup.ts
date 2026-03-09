@@ -9,6 +9,22 @@ const isTestMode =
   process.env.NODE_ENV === "development" ||
   process.env.E2E_TEST_ENABLED === "1";
 
+function validateTestSecret(headers: Headers): void {
+  const secret = process.env.TEST_SHARED_SECRET;
+  if (!secret) {
+    throw new ORPCError("INTERNAL_SERVER_ERROR", {
+      message:
+        "Тестовые эндпоинты отключены: TEST_SHARED_SECRET не задан в окружении",
+    });
+  }
+  const provided = headers.get("x-e2e-test-secret");
+  if (provided !== secret) {
+    throw new ORPCError("UNAUTHORIZED", {
+      message: "Неверный или отсутствующий x-e2e-test-secret",
+    });
+  }
+}
+
 export const cleanup = publicProcedure
   .input(
     z.object({
@@ -16,12 +32,13 @@ export const cleanup = publicProcedure
       all: z.boolean().optional().default(false),
     }),
   )
-  .handler(async ({ input }) => {
+  .handler(async ({ input, context }) => {
     if (!isTestMode) {
       throw new ORPCError("FORBIDDEN", {
         message: "Тестовые эндпоинты доступны только в режиме разработки",
       });
     }
+    validateTestSecret(context.headers);
 
     const { email, all } = input;
 

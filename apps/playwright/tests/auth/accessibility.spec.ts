@@ -105,13 +105,10 @@ test.describe("Доступность форм авторизации", () => {
     await page.goto("/auth/otp");
 
     // Label виден — важно для пользователей (не sr-only)
-    const label = page
-      .locator("label")
-      .filter({ hasText: "Код подтверждения" });
-    await expect(label).toBeVisible();
+    await expect(page.getByText("Код подтверждения")).toBeVisible();
 
-    // Связь label-input даёт доступное имя для скринридеров
-    const otpInput = page.getByRole("textbox", { name: "Код подтверждения" });
+    // getByLabel проверяет, что input связан с видимым label (for/id)
+    const otpInput = page.getByLabel("Код подтверждения");
     await expect(otpInput).toBeVisible();
   });
 

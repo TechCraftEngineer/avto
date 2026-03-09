@@ -62,8 +62,9 @@ bun test:ci
 BASE_URL=http://localhost:3000
 
 # Для E2E тестов с авторизацией (account, workspace и др.)
-# — при запуске с reuseExistingServer нужен dev-сервер с этой переменной
 E2E_TEST_ENABLED=1
+# Секрет для тестовых API (setup/createArchivedVacancy/cleanup). Сгенерируйте: openssl rand -hex 16
+TEST_SHARED_SECRET=your_e2e_secret_here
 ```
 
 ## Создание тестов

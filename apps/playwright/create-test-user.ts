@@ -6,7 +6,12 @@ const email = "playwright-test@example.com";
 const password = "TestPassword123";
 
 const orpc = createORPCClient<AppRouter>(
-  new RPCLink({ url: "http://localhost:3000/api/orpc" }),
+  new RPCLink({
+    url: "http://localhost:3000/api/orpc",
+    headers: () => ({
+      "x-e2e-test-secret": process.env.TEST_SHARED_SECRET ?? "",
+    }),
+  }),
 );
 
 orpc.test

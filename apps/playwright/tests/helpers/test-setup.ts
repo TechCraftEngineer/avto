@@ -30,6 +30,9 @@ export interface TestUser {
 function createTestORPCClient(baseURL: string) {
   const link = new RPCLink({
     url: `${baseURL}/api/orpc`,
+    headers: () => ({
+      "x-e2e-test-secret": process.env.TEST_SHARED_SECRET ?? "",
+    }),
   });
   return createORPCClient<AppRouter>(link);
 }
