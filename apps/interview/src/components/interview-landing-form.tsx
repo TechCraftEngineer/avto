@@ -2,11 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@qbs-autonaim/ui/components/collapsible";
-import {
   Field,
   FieldContent,
   FieldDescription,
@@ -14,8 +9,7 @@ import {
   FieldLabel,
 } from "@qbs-autonaim/ui/components/field";
 import { Input } from "@qbs-autonaim/ui/components/input";
-import { phoneSchema } from "@qbs-autonaim/validators";
-import { ChevronDown, Loader2, Mail, Phone, Send } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -46,34 +40,9 @@ const platformProfileUrlSchema = z
 const freelancerInfoSchema = z.object({
   name: z.string().min(1, "Имя обязательно").max(500, "Имя слишком длинное"),
   platformProfileUrl: platformProfileUrlSchema,
-  // Контакты — необязательные, для быстрой связи работодателя с кандидатом
-  phone: phoneSchema,
-  email: z
-    .string()
-    .max(255)
-    .optional()
-    .refine((val) => {
-      const trimmed = val?.trim() ?? "";
-      return !trimmed || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
-    }, "Некорректный email")
-    .transform((val) => val?.trim() || undefined),
-  telegram: z
-    .string()
-    .max(100)
-    .optional()
-    .transform((val) => (val?.trim() ? val.replace(/^@/, "") : undefined)),
 });
 
 type FreelancerInfo = z.infer<typeof freelancerInfoSchema>;
-
-/** Form values: все поля строки (включая пустые для опциональных контактов) */
-type FreelancerInfoFormValues = {
-  name: string;
-  platformProfileUrl: string;
-  phone: string;
-  email: string;
-  telegram: string;
-};
 
 interface InterviewLandingFormProps {
   token: string;
@@ -112,23 +81,15 @@ export function InterviewLandingForm({
 }: InterviewLandingFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [contactsOpen, setContactsOpen] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     setError,
-  } = useForm<FreelancerInfoFormValues>({
-    resolver: zodResolver(freelancerInfoSchema) as never,
+  } = useForm<FreelancerInfo>({
+    resolver: zodResolver(freelancerInfoSchema),
     mode: "onSubmit",
-    defaultValues: {
-      name: "",
-      platformProfileUrl: "",
-      phone: "",
-      email: "",
-      telegram: "",
-    },
   });
 
   const handleFormSubmit = async (data: FreelancerInfo) => {
@@ -137,9 +98,6 @@ export function InterviewLandingForm({
     const trimmedData = {
       name: data.name.trim(),
       platformProfileUrl: data.platformProfileUrl.trim(),
-      phone: data.phone?.trim() || undefined,
-      email: data.email?.trim() || undefined,
-      telegram: data.telegram?.trim()?.replace(/^@/, "") || undefined,
     };
 
     // Проверка дубликатов только для вакансий
@@ -163,17 +121,13 @@ export function InterviewLandingForm({
     }
 
     try {
-      const result = await onSubmit({
-        ...trimmedData,
-        platformProfileUrl: trimmedData.platformProfileUrl,
-      });
+      const result = await onSubmit(trimmedData);
       if (result.interviewSessionId) {
         router.push(
           `/interview/${token}/chat?sessionId=${result.interviewSessionId}`,
         );
       } else {
         setIsSubmitting(false);
-        // Без sessionId (напр. вакансия закрыта) — страница обновится после invalidateQueries
       }
     } catch (error: unknown) {
       setIsSubmitting(false);
@@ -251,100 +205,6 @@ export function InterviewLandingForm({
           />
         </FieldContent>
       </Field>
-
-      {/* Контакты для связи — необязательно */}
-      <Collapsible open={contactsOpen} onOpenChange={setContactsOpen}>
-        <CollapsibleTrigger asChild>
-          <button
-            type="button"
-            className="flex w-full items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-4 py-3 text-left text-sm font-medium text-foreground transition-colors hover:bg-muted/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-          >
-            <span>Контакты для связи</span>
-            <span className="text-muted-foreground shrink-0 text-xs font-normal">
-              Телефон, Telegram, email
-            </span>
-            <ChevronDown
-              className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${contactsOpen ? "rotate-180" : ""}`}
-            />
-          </button>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <div className="mt-3 space-y-4 rounded-lg border border-border bg-muted/20 p-4">
-            <p className="text-muted-foreground text-xs">
-              Укажите, как работодатель может с вами связаться. Это ускорит
-              обратную связь.
-            </p>
-
-            <Field>
-              <FieldLabel htmlFor="phone" className="flex items-center gap-2">
-                <Phone className="h-3.5 w-3.5 text-muted-foreground" />
-                Телефон
-              </FieldLabel>
-              <FieldContent>
-                <Input
-                  {...register("phone")}
-                  id="phone"
-                  type="tel"
-                  autoComplete="tel"
-                  inputMode="tel"
-                  placeholder="+7 999 123-45-67"
-                  disabled={isSubmitting}
-                  aria-invalid={!!errors.phone}
-                  className="h-10"
-                />
-                <FieldError errors={errors.phone ? [errors.phone] : []} />
-              </FieldContent>
-            </Field>
-
-            <Field>
-              <FieldLabel
-                htmlFor="telegram"
-                className="flex items-center gap-2"
-              >
-                <Send className="h-3.5 w-3.5 text-muted-foreground" />
-                Telegram
-              </FieldLabel>
-              <FieldContent>
-                <Input
-                  {...register("telegram")}
-                  id="telegram"
-                  type="text"
-                  autoComplete="off"
-                  placeholder="@username или username"
-                  disabled={isSubmitting}
-                  aria-invalid={!!errors.telegram}
-                  className="h-10"
-                />
-                <FieldDescription>
-                  Можно указать @username или просто username
-                </FieldDescription>
-                <FieldError errors={errors.telegram ? [errors.telegram] : []} />
-              </FieldContent>
-            </Field>
-
-            <Field>
-              <FieldLabel htmlFor="email" className="flex items-center gap-2">
-                <Mail className="h-3.5 w-3.5 text-muted-foreground" />
-                Email
-              </FieldLabel>
-              <FieldContent>
-                <Input
-                  {...register("email")}
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  inputMode="email"
-                  placeholder="example@mail.ru"
-                  disabled={isSubmitting}
-                  aria-invalid={!!errors.email}
-                  className="h-10"
-                />
-                <FieldError errors={errors.email ? [errors.email] : []} />
-              </FieldContent>
-            </Field>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
 
       <button
         type="submit"

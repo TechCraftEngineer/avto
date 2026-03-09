@@ -8,10 +8,11 @@ import {
 import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { CardTitle } from "@qbs-autonaim/ui/components/card";
 import { Cake, User } from "lucide-react";
+import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
 import { CandidateMetrics } from "./candidate-metrics";
-import { ContactItem } from "./contact-item";
+import { ContactEditor } from "./contact-editor";
 import {
   getImportSourceLabel,
   getStatusColor,
@@ -24,6 +25,7 @@ interface CandidateInfoProps {
   matchScore: number;
   candidateRank: number;
   responseTime: string;
+  workspaceId?: string;
 }
 
 export function CandidateInfo({
@@ -31,7 +33,14 @@ export function CandidateInfo({
   matchScore,
   candidateRank,
   responseTime,
+  workspaceId: workspaceIdProp,
 }: CandidateInfoProps) {
+  const { workspaceId: contextWorkspaceId } = useWorkspaceContext();
+  const workspaceId =
+    workspaceIdProp ??
+    (response as { workspaceId?: string }).workspaceId ??
+    contextWorkspaceId ??
+    "";
   const photoUrl = useAvatarUrl(response.photoFileId);
   const candidateName = response.candidateName || "Кандидат";
   const avatarUrl = getAvatarUrl(photoUrl, candidateName);
@@ -61,19 +70,9 @@ export function CandidateInfo({
           </div>
         )}
 
-        {/* Контактная информация */}
-        {(response.phone || response.email || response.telegramUsername) && (
-          <div className="flex flex-wrap items-center gap-3 mt-2">
-            {response.phone && (
-              <ContactItem type="phone" value={response.phone} />
-            )}
-            {response.telegramUsername && (
-              <ContactItem type="telegram" value={response.telegramUsername} />
-            )}
-            {response.email && (
-              <ContactItem type="email" value={response.email} />
-            )}
-          </div>
+        {/* Контактная информация — рекрутер может добавлять и редактировать */}
+        {workspaceId && (
+          <ContactEditor response={response} workspaceId={workspaceId} />
         )}
 
         {/* Статус и источник — детали резюме и зарплаты в CandidateKeyInfo ниже */}
