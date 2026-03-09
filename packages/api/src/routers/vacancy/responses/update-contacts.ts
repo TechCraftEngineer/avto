@@ -9,23 +9,28 @@ import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 
+const updateContactsInputSchema = z
+  .object({
+    responseId: z.string().uuid(),
+    workspaceId: workspaceIdSchema,
+    phone: z.string().max(50).optional(),
+    email: z
+      .string()
+      .max(255)
+      .optional()
+      .refine(
+        (v) => !v || v.trim() === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+        "Некорректный email",
+      ),
+    telegramUsername: z.string().max(100).optional(),
+  })
+  .refine(
+    (data) => "phone" in data || "email" in data || "telegramUsername" in data,
+    { message: "Укажите хотя бы один контакт: телефон, email или Telegram" },
+  );
+
 export const updateContacts = protectedProcedure
-  .input(
-    z.object({
-      responseId: z.string().uuid(),
-      workspaceId: workspaceIdSchema,
-      phone: z.string().max(50).optional(),
-      email: z
-        .string()
-        .max(255)
-        .optional()
-        .refine(
-          (v) => !v || v.trim() === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
-          "Некорректный email",
-        ),
-      telegramUsername: z.string().max(100).optional(),
-    }),
-  )
+  .input(updateContactsInputSchema)
   .handler(async ({ context, input }) => {
     await verifyWorkspaceAccess(
       context.workspaceRepository,
@@ -53,7 +58,17 @@ export const updateContacts = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден" });
+      throw new ORPCError("NOT_FOUND", {
+        message: "Отклик не найден в рабочем пространстве",
+      });
+    }
+
+    const hasContactField =
+      "phone" in input || "email" in input || "telegramUsername" in input;
+    if (!hasContactField) {
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Укажите хотя бы один контакт: телефон, email или Telegram",
+      });
     }
 
     const toNull = (v: string | undefined) =>

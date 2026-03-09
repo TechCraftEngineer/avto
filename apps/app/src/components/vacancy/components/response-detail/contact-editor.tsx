@@ -109,7 +109,13 @@ export function ContactEditor({ response, workspaceId }: ContactEditorProps) {
   };
 
   return (
-    <Collapsible open={open} onOpenChange={setOpen}>
+    <Collapsible
+      open={open}
+      onOpenChange={(value) => {
+        if (updateMutation.isPending) return;
+        setOpen(value);
+      }}
+    >
       <div className="flex flex-wrap items-center gap-3 mt-2">
         {response.phone && <ContactItem type="phone" value={response.phone} />}
         {response.telegramUsername && (
@@ -117,12 +123,13 @@ export function ContactEditor({ response, workspaceId }: ContactEditorProps) {
         )}
         {response.email && <ContactItem type="email" value={response.email} />}
 
-        <CollapsibleTrigger asChild>
+        <CollapsibleTrigger asChild disabled={updateMutation.isPending}>
           <Button
             type="button"
             variant="ghost"
             size="sm"
             className="h-8 gap-1.5 text-muted-foreground hover:text-foreground"
+            disabled={updateMutation.isPending}
           >
             {hasContacts ? (
               <>
