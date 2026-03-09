@@ -73,8 +73,11 @@ export function ContactItem({ type, value }: ContactItemProps) {
   }
 
   if (type === "telegram") {
-    const displayValue = value.startsWith("@") ? value : `@${value}`;
-    const telegramUrl = `https://t.me/${value.replace(/^@/, "")}`;
+    const cleanedUsername = value.trim().replace(/^@+/, "");
+    if (!cleanedUsername) return null;
+
+    const displayValue = `@${cleanedUsername}`;
+    const telegramUrl = `https://t.me/${encodeURIComponent(cleanedUsername)}`;
 
     return (
       <DropdownMenu>
