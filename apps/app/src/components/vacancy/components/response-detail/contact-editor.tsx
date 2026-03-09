@@ -32,18 +32,29 @@ import { useORPC } from "~/orpc/react";
 import { ContactItem } from "./contact-item";
 import type { VacancyResponse } from "./types";
 
-const contactFormSchema = z.object({
-  phone: z.string().max(50).optional(),
-  email: z
-    .string()
-    .max(255)
-    .optional()
-    .refine(
-      (v) => !v || v.trim() === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
-      "Некорректный email",
-    ),
-  telegramUsername: z.string().max(100).optional(),
-});
+const contactFormSchema = z
+  .object({
+    phone: z.string().max(50).optional(),
+    email: z
+      .string()
+      .max(255)
+      .optional()
+      .refine(
+        (v) => !v || v.trim() === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+        "Некорректный email",
+      ),
+    telegramUsername: z.string().max(100).optional(),
+  })
+  .refine(
+    (data) =>
+      Boolean(
+        (typeof data.phone === "string" && data.phone.trim() !== "") ||
+          (typeof data.email === "string" && data.email.trim() !== "") ||
+          (typeof data.telegramUsername === "string" &&
+            data.telegramUsername.trim() !== ""),
+      ),
+    { message: "Укажите хотя бы один контакт: телефон, email или Telegram" },
+  );
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
 

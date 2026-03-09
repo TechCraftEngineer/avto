@@ -94,18 +94,25 @@ test.describe("Доступность форм авторизации", () => {
     }
   });
 
-  test("OTP форма - sr-only label", async ({ page, context }) => {
+  test("OTP форма — label виден и связан с полем", async ({
+    page,
+    context,
+  }) => {
     await context.addInitScript(() => {
       localStorage.setItem("otp_email", "test@example.com");
     });
 
     await page.goto("/auth/otp");
 
-    // Проверяем, что label с sr-only существует
-    const srOnlyLabel = page
-      .locator("label.sr-only")
+    // Label виден — важно для пользователей (не sr-only)
+    const label = page
+      .locator("label")
       .filter({ hasText: "Код подтверждения" });
-    await expect(srOnlyLabel).toHaveClass(/sr-only/);
+    await expect(label).toBeVisible();
+
+    // Связь label-input даёт доступное имя для скринридеров
+    const otpInput = page.getByRole("textbox", { name: "Код подтверждения" });
+    await expect(otpInput).toBeVisible();
   });
 
   test("проверка контраста текста", async ({ page }) => {

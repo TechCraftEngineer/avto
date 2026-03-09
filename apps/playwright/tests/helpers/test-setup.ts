@@ -1,7 +1,7 @@
-import { createORPCClient, httpBatchLink } from "@orpc/client";
+import { createORPCClient } from "@orpc/client";
+import { RPCLink } from "@orpc/client/fetch";
 import type { Page } from "@playwright/test";
 import type { AppRouter } from "@qbs-autonaim/api";
-import superjson from "superjson";
 
 export interface TestUser {
   email: string;
@@ -28,14 +28,10 @@ export interface TestUser {
  * Создание oRPC клиента для тестов
  */
 function createTestORPCClient(baseURL: string) {
-  return createORPCClient<AppRouter>({
-    links: [
-      httpBatchLink({
-        url: `${baseURL}/api/orpc`,
-        transformer: superjson,
-      }),
-    ],
+  const link = new RPCLink({
+    url: `${baseURL}/api/orpc`,
   });
+  return createORPCClient<AppRouter>(link);
 }
 
 /**
@@ -69,7 +65,7 @@ export async function createTestUser(
       // Если пользователь уже существует, сначала удаляем его
       if (lastError?.message?.includes("User already exists")) {
         try {
-          await orpc.test?.cleanup.mutate({ email });
+          await orpc.test.cleanup({ email });
           // Ждем немного после удаления
           await new Promise((resolve) => setTimeout(resolve, 500));
         } catch (cleanupError) {
@@ -78,7 +74,7 @@ export async function createTestUser(
         }
       }
 
-      const result = await orpc.test?.setup.mutate({
+      const result = await orpc.test.setup({
         email,
         password,
         name: options?.name,
@@ -133,7 +129,7 @@ export async function createArchivedVacancy(
   title?: string,
 ): Promise<ArchivedVacancy> {
   const orpc = createTestORPCClient(baseURL);
-  const result = await orpc.test.createArchivedVacancy.mutate({
+  const result = await orpc.test.createArchivedVacancy({
     workspaceId: testUser.workspace.id,
     createdBy: testUser.user.id,
     title,
@@ -156,7 +152,7 @@ export async function deleteTestUser(
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      await orpc.test?.cleanup.mutate({ email });
+      await orpc.test.cleanup({ email });
       return; // Успешно удалили
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));

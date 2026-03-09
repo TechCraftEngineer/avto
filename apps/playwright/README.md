@@ -60,6 +60,10 @@ bun test:ci
 
 ```env
 BASE_URL=http://localhost:3000
+
+# Для E2E тестов с авторизацией (account, workspace и др.)
+# — при запуске с reuseExistingServer нужен dev-сервер с этой переменной
+E2E_TEST_ENABLED=1
 ```
 
 ## Создание тестов
@@ -187,11 +191,12 @@ npx playwright show-trace test-results/.../trace.zip
 rm apps/playwright/test-results.json
 ```
 
-### Тесты падают с FORBIDDEN ошибками
+### Тесты падают с FORBIDDEN или «тестовые эндпоинты недоступны»
 Проверьте, что:
 1. Приложение запущено (`cd apps/app && bun dev`)
-2. База данных настроена
-3. TRPC API доступен
+2. Для E2E тестов: добавьте `E2E_TEST_ENABLED=1` в `.env` и перезапустите dev-сервер
+3. База данных настроена
+4. oRPC API доступен
 
 ### Тесты медленные
 1. Используйте `test:fast` для быстрых тестов

@@ -108,8 +108,8 @@ test.describe("OTP верификация", () => {
     await page.waitForURL("/auth/signin");
   });
 
-  test("проверка aria-label для полей OTP", async ({ page }) => {
-    // Проверяем, что input связан с label "Код подтверждения"
+  test("поле OTP имеет доступное имя от label", async ({ page }) => {
+    // Input связан с label — getByRole по имени работает через accessibility tree
     const otpInput = page.getByRole("textbox", { name: "Код подтверждения" });
     await expect(otpInput).toBeVisible();
   });
