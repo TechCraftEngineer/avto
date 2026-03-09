@@ -21,6 +21,7 @@ import { listWorkspace } from "./list-workspace";
 import { removeTag } from "./remove-tag";
 import { sendByUsername } from "./send-by-username";
 import { sendWelcome } from "./send-welcome";
+import { updateContacts } from "./update-contacts";
 import { updateStatus } from "./update-status";
 
 export const responsesRouter = {
@@ -43,6 +44,7 @@ export const responsesRouter = {
   analyzeSingle,
   getInterviewLink,
   updateStatus,
+  updateContacts,
   exportPdf,
   generateWelcomeMessage: generateWelcomeMessageProcedure,
   debugList, // Временный debug endpoint
