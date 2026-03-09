@@ -38,7 +38,7 @@ export function CandidateInfo({
   const { workspaceId: contextWorkspaceId } = useWorkspaceContext();
   const workspaceId =
     workspaceIdProp ??
-    (response as { workspaceId?: string }).workspaceId ??
+    ("workspaceId" in response ? response.workspaceId : undefined) ??
     contextWorkspaceId ??
     "";
   const photoUrl = useAvatarUrl(response.photoFileId);

@@ -17,6 +17,7 @@ import type { VacancyResponse } from "./types";
 
 interface VacancyResponseHeaderCardProps {
   response: VacancyResponse;
+  workspaceId?: string;
   resumePdfUrl?: string | null;
   onAccept?: () => void;
   onReject?: () => void;
@@ -28,6 +29,7 @@ interface VacancyResponseHeaderCardProps {
 
 export function VacancyResponseHeaderCard({
   response,
+  workspaceId: workspaceIdProp,
   resumePdfUrl,
   onAccept,
   onReject,
@@ -47,6 +49,10 @@ export function VacancyResponseHeaderCard({
         <div className="flex items-start justify-between gap-4">
           <CandidateInfo
             response={response}
+            workspaceId={
+              workspaceIdProp ??
+              ("workspaceId" in response ? response.workspaceId : undefined)
+            }
             matchScore={matchScore}
             candidateRank={candidateRank}
             responseTime={responseTime}
