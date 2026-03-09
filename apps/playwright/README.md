@@ -192,11 +192,16 @@ rm apps/playwright/test-results.json
 ```
 
 ### Тесты падают с FORBIDDEN или «тестовые эндпоинты недоступны»
-Проверьте, что:
-1. Приложение запущено (`cd apps/app && bun dev`)
-2. Для E2E тестов: добавьте `E2E_TEST_ENABLED=1` в `.env` и перезапустите dev-сервер
-3. База данных настроена
-4. oRPC API доступен
+Для E2E тестов нужно:
+1. Запустить `bun dev:app` (app + app-server на 3000 и 7000)
+2. Добавить `E2E_TEST_ENABLED=1` в `.env`
+3. Проверить, что база данных настроена
+4. Playwright подхватит уже запущенный сервер (reuseExistingServer)
+
+### Internal Server Error при создании тестового пользователя
+test.setup может вернуть 500 при проблемах с БД или auth. Проверьте:
+- Доступность PostgreSQL (POSTGRES_URL в .env)
+- Что app-server запущен (порт 7000)
 
 ### Тесты медленные
 1. Используйте `test:fast` для быстрых тестов

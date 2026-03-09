@@ -4,6 +4,7 @@ import {
   safeClickByRole,
   submitSignInForm,
 } from "../helpers/auth";
+import { mockSendOTP, mockSignInWithPassword } from "../helpers/mock-api";
 
 test.describe("Авторизация", () => {
   test.beforeEach(async ({ page }) => {
@@ -74,6 +75,7 @@ test.describe("Авторизация", () => {
   });
 
   test("кнопка входа показывает состояние загрузки", async ({ page }) => {
+    await mockSignInWithPassword(page);
     await fillEmailPasswordForm(page, "test@example.com", "password123");
 
     const submitButton = page.getByRole("button", { name: "Войти" });
@@ -91,6 +93,7 @@ test.describe("Авторизация", () => {
   });
 
   test("отправка OTP кода через email", async ({ page }) => {
+    await mockSendOTP(page);
     await safeClickByRole(page, "tab", { name: "Код на email" });
     await page.getByRole("textbox", { name: "Email" }).fill("test@example.com");
 

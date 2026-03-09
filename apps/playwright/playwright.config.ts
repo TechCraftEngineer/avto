@@ -66,6 +66,7 @@ export default defineConfig({
   ],
 
   webServer: {
+    // Для e2e нужен dev:app (app + app-server). ui-fast — только app
     command: "cd ../app && bun run dev",
     url: baseURL,
     reuseExistingServer: true,

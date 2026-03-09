@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { safeClickByRole } from "../helpers/auth";
-import { mockOTPResend } from "../helpers/mock-api";
+import { mockOTPResend, mockVerifyOTP } from "../helpers/mock-api";
 
 test.describe("OTP верификация", () => {
   test.beforeEach(async ({ page, context }) => {
@@ -69,6 +69,7 @@ test.describe("OTP верификация", () => {
   });
 
   test("автоматическая отправка при вводе 6 цифр", async ({ page }) => {
+    await mockVerifyOTP(page);
     const otpInput = page.getByRole("textbox", { name: "Код подтверждения" });
     await otpInput.click();
 
