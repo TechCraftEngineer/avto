@@ -91,6 +91,9 @@ export function VacancyResponseDetailCard({
       {/* Header Card */}
       <VacancyResponseHeaderCard
         response={response}
+        workspaceId={
+          "workspaceId" in response ? response.workspaceId : undefined
+        }
         resumePdfUrl={resumePdfData?.url}
         onAccept={onAccept}
         onReject={onReject}

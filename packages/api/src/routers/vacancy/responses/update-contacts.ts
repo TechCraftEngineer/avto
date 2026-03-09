@@ -45,37 +45,41 @@ export const updateContacts = protectedProcedure
     }
 
     const vacancy = await context.db.query.vacancy.findFirst({
-      where: eq(vacancyTable.id, response.entityId),
-      columns: { workspaceId: true },
+      where: and(
+        eq(vacancyTable.id, response.entityId),
+        eq(vacancyTable.workspaceId, input.workspaceId),
+      ),
+      columns: { id: true },
     });
 
     if (!vacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
-    }
-
-    if (vacancy.workspaceId !== input.workspaceId) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Нет доступа к этому отклику",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден" });
     }
 
     const toNull = (v: string | undefined) =>
       v == null || String(v).trim() === "" ? null : String(v).trim();
 
-    const phoneRaw = toNull(input.phone);
-    const phone = phoneRaw ? normalizePhone(phoneRaw) : null;
-    const email = toNull(input.email);
-    const telegramUsername =
-      toNull(input.telegramUsername)?.replace(/^@/, "") ?? null;
+    const setValues: {
+      updatedAt: Date;
+      phone?: string | null;
+      email?: string | null;
+      telegramUsername?: string | null;
+    } = { updatedAt: new Date() };
+    if ("phone" in input) {
+      const phoneRaw = toNull(input.phone);
+      setValues.phone = phoneRaw ? normalizePhone(phoneRaw) : null;
+    }
+    if ("email" in input) {
+      setValues.email = toNull(input.email);
+    }
+    if ("telegramUsername" in input) {
+      setValues.telegramUsername =
+        toNull(input.telegramUsername)?.replace(/^@/, "") ?? null;
+    }
 
     const [updated] = await context.db
       .update(responseTable)
-      .set({
-        phone,
-        email,
-        telegramUsername,
-        updatedAt: new Date(),
-      })
+      .set(setValues)
       .where(eq(responseTable.id, input.responseId))
       .returning();
 

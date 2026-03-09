@@ -166,6 +166,7 @@ export function ContactEditor({ response, workspaceId }: ContactEditorProps) {
                 type="tel"
                 placeholder="+7 999 123-45-67"
                 className="h-9"
+                disabled={updateMutation.isPending}
               />
               <FieldError
                 errors={
@@ -192,6 +193,7 @@ export function ContactEditor({ response, workspaceId }: ContactEditorProps) {
                 type="text"
                 placeholder="@username"
                 className="h-9"
+                disabled={updateMutation.isPending}
               />
               <FieldError
                 errors={
@@ -218,6 +220,7 @@ export function ContactEditor({ response, workspaceId }: ContactEditorProps) {
                 type="email"
                 placeholder="example@mail.ru"
                 className="h-9"
+                disabled={updateMutation.isPending}
               />
               <FieldError
                 errors={
@@ -240,7 +243,10 @@ export function ContactEditor({ response, workspaceId }: ContactEditorProps) {
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => setOpen(false)}
+              disabled={updateMutation.isPending}
+              onClick={() => {
+                if (!updateMutation.isPending) setOpen(false);
+              }}
             >
               Отмена
             </Button>
