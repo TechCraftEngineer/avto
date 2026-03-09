@@ -21,13 +21,27 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+const ALLOWED_HOSTNAMES = [
+  "kwork.ru",
+  "fl.ru",
+  "freelance.ru",
+  "hh.ru",
+] as const;
+
 const platformProfileUrlSchema = z
   .string()
   .min(1, "URL профиля обязателен")
-  .regex(
-    /(kwork\.ru|fl\.ru|freelance\.ru|hh\.ru)/i,
-    "Некорректный URL профиля платформы",
-  );
+  .refine((val) => {
+    try {
+      const url = new URL(val);
+      const hostname = url.hostname.toLowerCase();
+      return ALLOWED_HOSTNAMES.some(
+        (allowed) => hostname === allowed || hostname.endsWith(`.${allowed}`),
+      );
+    } catch {
+      return false;
+    }
+  }, "Некорректный URL профиля платформы");
 
 const freelancerInfoSchema = z.object({
   name: z.string().min(1, "Имя обязательно").max(500, "Имя слишком длинное"),
@@ -38,11 +52,10 @@ const freelancerInfoSchema = z.object({
     .string()
     .max(255)
     .optional()
-    .refine(
-      (val) =>
-        !val || val.trim() === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
-      "Некорректный email",
-    )
+    .refine((val) => {
+      const trimmed = val?.trim() ?? "";
+      return !trimmed || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+    }, "Некорректный email")
     .transform((val) => val?.trim() || undefined),
   telegram: z
     .string()
@@ -52,6 +65,15 @@ const freelancerInfoSchema = z.object({
 });
 
 type FreelancerInfo = z.infer<typeof freelancerInfoSchema>;
+
+/** Form values: все поля строки (включая пустые для опциональных контактов) */
+type FreelancerInfoFormValues = {
+  name: string;
+  platformProfileUrl: string;
+  phone: string;
+  email: string;
+  telegram: string;
+};
 
 interface InterviewLandingFormProps {
   token: string;
@@ -97,8 +119,8 @@ export function InterviewLandingForm({
     handleSubmit,
     formState: { errors },
     setError,
-  } = useForm<FreelancerInfo>({
-    resolver: zodResolver(freelancerInfoSchema),
+  } = useForm<FreelancerInfoFormValues>({
+    resolver: zodResolver(freelancerInfoSchema) as never,
     mode: "onSubmit",
     defaultValues: {
       name: "",
@@ -145,9 +167,14 @@ export function InterviewLandingForm({
         ...trimmedData,
         platformProfileUrl: trimmedData.platformProfileUrl,
       });
-      router.push(
-        `/interview/${token}/chat?sessionId=${result.interviewSessionId}`,
-      );
+      if (result.interviewSessionId) {
+        router.push(
+          `/interview/${token}/chat?sessionId=${result.interviewSessionId}`,
+        );
+      } else {
+        setIsSubmitting(false);
+        // Без sessionId (напр. вакансия закрыта) — страница обновится после invalidateQueries
+      }
     } catch (error: unknown) {
       setIsSubmitting(false);
       const duplicateMessage =
