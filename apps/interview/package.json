@@ -29,6 +29,7 @@
     "@qbs-autonaim/server-utils": "workspace:*",
     "@qbs-autonaim/shared": "workspace:*",
     "@qbs-autonaim/ui": "workspace:*",
+    "@qbs-autonaim/validators": "workspace:*",
     "@t3-oss/env-nextjs": "0.13.10",
     "@tanstack/react-query": "5.90.21",
     "ai": "6.0.116",

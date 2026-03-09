@@ -102,11 +102,20 @@ function InterviewLandingClient({ token }: { token: string }) {
   const handleSubmit = async (formData: {
     name: string;
     platformProfileUrl: string;
+    phone?: string;
+    email?: string;
+    telegram?: string;
   }) => {
     try {
       const result = await startInterviewMutation.mutateAsync({
         token,
-        freelancerInfo: formData,
+        freelancerInfo: {
+          name: formData.name,
+          platformProfileUrl: formData.platformProfileUrl,
+          phone: formData.phone,
+          email: formData.email,
+          telegram: formData.telegram,
+        },
       });
 
       // Сохраняем responseId для отображения кнопок действий

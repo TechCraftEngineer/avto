@@ -1,7 +1,21 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@qbs-autonaim/ui/components/collapsible";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@qbs-autonaim/ui/components/field";
+import { Input } from "@qbs-autonaim/ui/components/input";
+import { phoneSchema } from "@qbs-autonaim/validators";
+import { ChevronDown, Loader2, Mail, Phone, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -11,13 +25,30 @@ const platformProfileUrlSchema = z
   .string()
   .min(1, "URL профиля обязателен")
   .regex(
-    /(kwork\.ru|fl\.ru|freelance\.ru)/i,
+    /(kwork\.ru|fl\.ru|freelance\.ru|hh\.ru)/i,
     "Некорректный URL профиля платформы",
   );
 
 const freelancerInfoSchema = z.object({
   name: z.string().min(1, "Имя обязательно").max(500, "Имя слишком длинное"),
   platformProfileUrl: platformProfileUrlSchema,
+  // Контакты — необязательные, для быстрой связи работодателя с кандидатом
+  phone: phoneSchema,
+  email: z
+    .string()
+    .max(255)
+    .optional()
+    .refine(
+      (val) =>
+        !val || val.trim() === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
+      "Некорректный email",
+    )
+    .transform((val) => val?.trim() || undefined),
+  telegram: z
+    .string()
+    .max(100)
+    .optional()
+    .transform((val) => (val?.trim() ? val.replace(/^@/, "") : undefined)),
 });
 
 type FreelancerInfo = z.infer<typeof freelancerInfoSchema>;
@@ -42,6 +73,8 @@ const getPlatformPlaceholder = (source: string): string => {
       return "https://fl.ru/users/username/…";
     case "freelance":
       return "https://freelance.ru/users/username/…";
+    case "hh":
+      return "https://hh.ru/resume/…";
     default:
       return "https://kwork.ru/user/username…";
   }
@@ -57,6 +90,7 @@ export function InterviewLandingForm({
 }: InterviewLandingFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [contactsOpen, setContactsOpen] = useState(false);
 
   const {
     register,
@@ -66,6 +100,13 @@ export function InterviewLandingForm({
   } = useForm<FreelancerInfo>({
     resolver: zodResolver(freelancerInfoSchema),
     mode: "onSubmit",
+    defaultValues: {
+      name: "",
+      platformProfileUrl: "",
+      phone: "",
+      email: "",
+      telegram: "",
+    },
   });
 
   const handleFormSubmit = async (data: FreelancerInfo) => {
@@ -74,6 +115,9 @@ export function InterviewLandingForm({
     const trimmedData = {
       name: data.name.trim(),
       platformProfileUrl: data.platformProfileUrl.trim(),
+      phone: data.phone?.trim() || undefined,
+      email: data.email?.trim() || undefined,
+      telegram: data.telegram?.trim()?.replace(/^@/, "") || undefined,
     };
 
     // Проверка дубликатов только для вакансий
@@ -97,7 +141,10 @@ export function InterviewLandingForm({
     }
 
     try {
-      const result = await onSubmit(trimmedData);
+      const result = await onSubmit({
+        ...trimmedData,
+        platformProfileUrl: trimmedData.platformProfileUrl,
+      });
       router.push(
         `/interview/${token}/chat?sessionId=${result.interviewSessionId}`,
       );
@@ -129,7 +176,7 @@ export function InterviewLandingForm({
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
       {errors.root && (
         <div
-          className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600"
+          className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive"
           role="alert"
           aria-live="polite"
         >
@@ -137,82 +184,145 @@ export function InterviewLandingForm({
         </div>
       )}
 
-      <div className="space-y-1.5">
-        <label
-          htmlFor="name"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Ваше имя
-        </label>
-        <input
-          {...register("name")}
-          id="name"
-          type="text"
-          autoComplete="name"
-          placeholder="Иван Иванов…"
-          disabled={isSubmitting}
-          aria-invalid={errors.name ? "true" : "false"}
-          aria-describedby={errors.name ? "name-error" : undefined}
-          className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
-          style={{ fontSize: "16px", touchAction: "manipulation" }}
-        />
-        {errors.name && (
-          <p
-            id="name-error"
-            className="text-sm text-red-600"
-            aria-live="polite"
-          >
-            {errors.name.message}
-          </p>
-        )}
-      </div>
+      <Field>
+        <FieldLabel htmlFor="name">Ваше имя</FieldLabel>
+        <FieldContent>
+          <Input
+            {...register("name")}
+            id="name"
+            type="text"
+            autoComplete="name"
+            placeholder="Иван Иванов"
+            disabled={isSubmitting}
+            aria-invalid={!!errors.name}
+            className="h-10"
+          />
+          <FieldError errors={errors.name ? [errors.name] : []} />
+        </FieldContent>
+      </Field>
 
-      <div className="space-y-1.5">
-        <label
-          htmlFor="platformProfileUrl"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Ссылка на профиль
-        </label>
-        <input
-          {...register("platformProfileUrl")}
-          id="platformProfileUrl"
-          type="url"
-          autoComplete="url"
-          inputMode="url"
-          spellCheck={false}
-          placeholder={getPlatformPlaceholder(platformSource)}
-          disabled={isSubmitting}
-          aria-invalid={errors.platformProfileUrl ? "true" : "false"}
-          aria-describedby={
-            errors.platformProfileUrl
-              ? "platformProfileUrl-error"
-              : "platformProfileUrl-help"
-          }
-          className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
-          style={{ fontSize: "16px", touchAction: "manipulation" }}
-        />
-        {!errors.platformProfileUrl && (
-          <p id="platformProfileUrl-help" className="text-xs text-gray-500">
-            Ваш профиль на фриланс-платформе
-          </p>
-        )}
-        {errors.platformProfileUrl && (
-          <p
-            id="platformProfileUrl-error"
-            className="text-sm text-red-600"
-            aria-live="polite"
+      <Field>
+        <FieldLabel htmlFor="platformProfileUrl">Ссылка на профиль</FieldLabel>
+        <FieldContent>
+          <Input
+            {...register("platformProfileUrl")}
+            id="platformProfileUrl"
+            type="url"
+            autoComplete="url"
+            inputMode="url"
+            spellCheck={false}
+            placeholder={getPlatformPlaceholder(platformSource)}
+            disabled={isSubmitting}
+            aria-invalid={!!errors.platformProfileUrl}
+            className="h-10"
+          />
+          <FieldDescription>Ваш профиль на фриланс-платформе</FieldDescription>
+          <FieldError
+            errors={
+              errors.platformProfileUrl ? [errors.platformProfileUrl] : []
+            }
+          />
+        </FieldContent>
+      </Field>
+
+      {/* Контакты для связи — необязательно */}
+      <Collapsible open={contactsOpen} onOpenChange={setContactsOpen}>
+        <CollapsibleTrigger asChild>
+          <button
+            type="button"
+            className="flex w-full items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-4 py-3 text-left text-sm font-medium text-foreground transition-colors hover:bg-muted/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
           >
-            {errors.platformProfileUrl.message}
-          </p>
-        )}
-      </div>
+            <span>Контакты для связи</span>
+            <span className="text-muted-foreground shrink-0 text-xs font-normal">
+              Телефон, Telegram, email
+            </span>
+            <ChevronDown
+              className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${contactsOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="mt-3 space-y-4 rounded-lg border border-border bg-muted/20 p-4">
+            <p className="text-muted-foreground text-xs">
+              Укажите, как работодатель может с вами связаться. Это ускорит
+              обратную связь.
+            </p>
+
+            <Field>
+              <FieldLabel htmlFor="phone" className="flex items-center gap-2">
+                <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                Телефон
+              </FieldLabel>
+              <FieldContent>
+                <Input
+                  {...register("phone")}
+                  id="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  inputMode="tel"
+                  placeholder="+7 999 123-45-67"
+                  disabled={isSubmitting}
+                  aria-invalid={!!errors.phone}
+                  className="h-10"
+                />
+                <FieldError errors={errors.phone ? [errors.phone] : []} />
+              </FieldContent>
+            </Field>
+
+            <Field>
+              <FieldLabel
+                htmlFor="telegram"
+                className="flex items-center gap-2"
+              >
+                <Send className="h-3.5 w-3.5 text-muted-foreground" />
+                Telegram
+              </FieldLabel>
+              <FieldContent>
+                <Input
+                  {...register("telegram")}
+                  id="telegram"
+                  type="text"
+                  autoComplete="off"
+                  placeholder="@username или username"
+                  disabled={isSubmitting}
+                  aria-invalid={!!errors.telegram}
+                  className="h-10"
+                />
+                <FieldDescription>
+                  Можно указать @username или просто username
+                </FieldDescription>
+                <FieldError errors={errors.telegram ? [errors.telegram] : []} />
+              </FieldContent>
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="email" className="flex items-center gap-2">
+                <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                Email
+              </FieldLabel>
+              <FieldContent>
+                <Input
+                  {...register("email")}
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  inputMode="email"
+                  placeholder="example@mail.ru"
+                  disabled={isSubmitting}
+                  aria-invalid={!!errors.email}
+                  className="h-10"
+                />
+                <FieldError errors={errors.email ? [errors.email] : []} />
+              </FieldContent>
+            </Field>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
 
       <button
         type="submit"
         disabled={isSubmitting}
-        className="mt-2 flex w-full min-h-[44px] items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-        style={{ touchAction: "manipulation" }}
+        className="mt-2 flex h-11 w-full min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
       >
         {isSubmitting && (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
