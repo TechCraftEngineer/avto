@@ -79,7 +79,7 @@ export class ContentScript {
   triggerImport(payload?: {
     vacancyId?: string;
     globalCandidateId?: string;
-  }): Promise<void> {
+  }): Promise<{ responseUrl?: string } | void> {
     return this.handleImport(payload);
   }
 
@@ -182,12 +182,7 @@ export class ContentScript {
       return {
         ok: true,
         duplicate: false,
-        responseUrl:
-          importResult &&
-          typeof importResult === "object" &&
-          "responseUrl" in importResult
-            ? importResult.responseUrl
-            : undefined,
+        responseUrl: importResult?.responseUrl,
       };
     } catch (error) {
       const msg =
@@ -457,18 +452,16 @@ export class ContentScript {
         linkedInSkillsHtml: linkedInSkillsHtml ?? undefined,
         linkedInContactsHtml: linkedInContactsHtml ?? undefined,
       });
-      if (
-        result &&
-        typeof result === "object" &&
-        "responseUrl" in result &&
-        result.responseUrl
-      ) {
+      if (result?.responseUrl) {
         showNotification({
           type: "success",
           message: "Кандидат успешно добавлен на вакансию",
           action: { label: "Посмотреть", url: result.responseUrl },
         });
       }
+      return result?.responseUrl
+        ? { responseUrl: result.responseUrl }
+        : undefined;
     } catch (error) {
       const msg =
         error instanceof Error ? error.message : "Не удалось импортировать";
@@ -522,8 +515,13 @@ if (typeof process === "undefined" || process.env.NODE_ENV !== "test") {
             | undefined;
 
           if (t === "IMPORT_TO_SYSTEM") {
-            await contentScript.triggerImport(payload);
-            return { ok: true as const };
+            const result = await contentScript.triggerImport(payload);
+            return {
+              ok: true as const,
+              ...(result?.responseUrl
+                ? { responseUrl: result.responseUrl }
+                : {}),
+            };
           }
           if (
             t === "CHECK_AND_IMPORT" &&

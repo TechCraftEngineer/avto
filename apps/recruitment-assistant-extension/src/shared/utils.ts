@@ -30,3 +30,14 @@ export function isMeaningfulHtml(html: string | undefined): boolean {
   if (!html || typeof html !== "string") return false;
   return !isPlaceholderHtml(html);
 }
+
+/** Проверяет, что строка — валидный http/https URL */
+export function isValidHttpUrl(value: unknown): value is string {
+  if (typeof value !== "string" || !value.trim()) return false;
+  try {
+    const u = new URL(value);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
