@@ -193,7 +193,7 @@ export function VacancyLayoutClient({
                   variant="secondary"
                   asChild
                   className={cn(
-                    "border border-border bg-white dark:bg-black text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring h-7 rounded-lg px-2.5 text-sm font-medium",
+                    "border border-border bg-white dark:bg-black text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[44px] h-auto sm:h-7 rounded-lg px-2.5 text-sm font-medium touch-manipulation",
                     getActiveTab() === "detail" && "bg-muted",
                   )}
                 >
@@ -212,7 +212,7 @@ export function VacancyLayoutClient({
                   variant="secondary"
                   asChild
                   className={cn(
-                    "border border-border bg-white dark:bg-black text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring h-7 rounded-lg px-2.5 text-sm font-medium",
+                    "border border-border bg-white dark:bg-black text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[44px] h-auto sm:h-7 rounded-lg px-2.5 text-sm font-medium touch-manipulation",
                     getActiveTab() === "responses" && "bg-muted",
                   )}
                 >
@@ -238,7 +238,7 @@ export function VacancyLayoutClient({
                   variant="secondary"
                   asChild
                   className={cn(
-                    "border border-border bg-white dark:bg-black text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring h-7 rounded-lg px-2.5 text-sm font-medium",
+                    "border border-border bg-white dark:bg-black text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[44px] h-auto sm:h-7 rounded-lg px-2.5 text-sm font-medium touch-manipulation",
                     getActiveTab() === "interview" && "bg-muted",
                   )}
                 >
@@ -262,7 +262,7 @@ export function VacancyLayoutClient({
                   variant="secondary"
                   asChild
                   className={cn(
-                    "border border-border bg-white dark:bg-black text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring h-7 rounded-lg px-2.5 text-sm font-medium",
+                    "border border-border bg-white dark:bg-black text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[44px] h-auto sm:h-7 rounded-lg px-2.5 text-sm font-medium touch-manipulation",
                     getActiveTab() === "edit" && "bg-muted",
                   )}
                 >
@@ -283,7 +283,7 @@ export function VacancyLayoutClient({
                   variant="secondary"
                   asChild
                   className={cn(
-                    "border border-border bg-white dark:bg-black text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring h-7 rounded-lg px-2.5 text-sm font-medium",
+                    "border border-border bg-white dark:bg-black text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[44px] h-auto sm:h-7 rounded-lg px-2.5 text-sm font-medium touch-manipulation",
                     getActiveTab() === "integrations" && "bg-muted",
                   )}
                 >
@@ -304,7 +304,7 @@ export function VacancyLayoutClient({
                   variant="secondary"
                   asChild
                   className={cn(
-                    "border border-border bg-white dark:bg-black text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring h-7 rounded-lg px-2.5 text-sm font-medium",
+                    "border border-border bg-white dark:bg-black text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[44px] h-auto sm:h-7 rounded-lg px-2.5 text-sm font-medium touch-manipulation",
                     getActiveTab() === "settings" && "bg-muted",
                   )}
                 >

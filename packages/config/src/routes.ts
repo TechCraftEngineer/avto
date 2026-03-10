@@ -14,6 +14,7 @@ export const ROUTE_SEGMENTS = {
     detail: "detail",
     settings: "settings",
     responses: "responses",
+    shortlist: "shortlist",
     integrations: "integrations",
     interview: "interview",
   },

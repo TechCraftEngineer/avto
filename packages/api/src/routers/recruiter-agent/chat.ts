@@ -54,7 +54,7 @@ const chatInputSchema = z.object({
   message: z.string().min(1).max(5000),
   vacancyId: z.string().optional(),
   candidateId: z.string().optional(),
-  responseId: z.string().optional(),
+  responseId: z.string().uuid().optional(),
   conversationHistory: z.array(conversationMessageSchema).max(20).default([]),
 });
 
@@ -138,7 +138,24 @@ export const chat = protectedProcedure
     // Подгружаем контекст отклика для режима интервью (responseId + vacancyId)
     let responseContext: ResponseInterviewContext | undefined;
     if (responseId && vacancyId) {
-      const [response, screening, vacancy] = await Promise.all([
+      const vacancy = await context.db.query.vacancy.findFirst({
+        where: (v, { eq, and }) =>
+          and(eq(v.id, vacancyId), eq(v.workspaceId, workspaceId)),
+        columns: {
+          id: true,
+          title: true,
+          description: true,
+          requirements: true,
+        },
+      });
+
+      if (!vacancy) {
+        throw new ORPCError("NOT_FOUND", {
+          message: "Вакансия не найдена или нет доступа",
+        });
+      }
+
+      const [response, screening] = await Promise.all([
         context.db.query.response.findFirst({
           where: (r, { eq, and }) =>
             and(
@@ -149,6 +166,7 @@ export const chat = protectedProcedure
           columns: {
             id: true,
             globalCandidateId: true,
+            candidateId: true,
             coverLetter: true,
             profileUrl: true,
             profileData: true,
@@ -158,21 +176,12 @@ export const chat = protectedProcedure
           where: (s, { eq }) => eq(s.responseId, responseId),
           columns: { overallScore: true, overallAnalysis: true },
         }),
-        context.db.query.vacancy.findFirst({
-          where: (v, { eq }) => eq(v.id, vacancyId),
-          columns: {
-            id: true,
-            title: true,
-            description: true,
-            requirements: true,
-          },
-        }),
       ]);
 
-      if (response && vacancy) {
+      if (response) {
         responseContext = {
           responseId: response.id,
-          candidateId: response.globalCandidateId ?? response.id,
+          candidateId: response.globalCandidateId ?? response.candidateId,
           vacancyId,
           candidateData: {
             resume: response.profileUrl ?? null,

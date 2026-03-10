@@ -131,7 +131,7 @@ export function InterviewPromptsPanel({
           <ol className="space-y-3">
             {questions.questions.map((q, idx) => (
               <li
-                key={`${q.purpose}-${q.question}`}
+                key={`${q.purpose}-${idx}`}
                 className="rounded-lg border bg-muted/30 p-3 text-sm"
               >
                 <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -139,7 +139,7 @@ export function InterviewPromptsPanel({
                     {idx + 1}. {q.question}
                   </span>
                   <Badge variant="outline" className="text-xs shrink-0">
-                    {PURPOSE_LABELS[q.purpose] ?? q.purpose}
+                    {PURPOSE_LABELS[q.purpose] ?? "Другое"}
                   </Badge>
                   {q.relatedRisk && (
                     <Badge variant="secondary" className="text-xs">

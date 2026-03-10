@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 
 /**
@@ -220,6 +220,20 @@ export function useRecruiterAgent({
   const responseBufferRef = useRef<string>("");
   const actionsRef = useRef<ExecutedAction[]>([]);
   const traceRef = useRef<AgentTraceEntry[]>([]);
+
+  useEffect(() => {
+    void responseId; // triggers reset when user switches candidate
+    abortControllerRef.current?.abort();
+    responseBufferRef.current = "";
+    actionsRef.current = [];
+    traceRef.current = [];
+    setHistory([]);
+    setDocument(null);
+    setCurrentAction(null);
+    setError(null);
+    setStatus("idle");
+    setVacancyId(initialVacancyId);
+  }, [responseId, initialVacancyId]);
 
   /**
    * Отправить сообщение агенту

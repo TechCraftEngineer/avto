@@ -32,10 +32,12 @@ export function InterviewCandidatePicker({
   placeholder = "Выберите кандидата",
   className,
 }: InterviewCandidatePickerProps) {
+  const CLEAR_VALUE = "__clear__";
+
   return (
     <Select
       value={selectedResponseId ?? ""}
-      onValueChange={(v) => onSelect(v || null)}
+      onValueChange={(v) => onSelect(v === CLEAR_VALUE || !v ? null : v)}
       disabled={isLoading || responses.length === 0}
     >
       <SelectTrigger
@@ -45,6 +47,9 @@ export function InterviewCandidatePicker({
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
+        {responses.length > 0 && (
+          <SelectItem value={CLEAR_VALUE}>Сбросить выбор</SelectItem>
+        )}
         {responses.map((r) => (
           <SelectItem key={r.id} value={r.id}>
             <div className="flex items-center gap-2">

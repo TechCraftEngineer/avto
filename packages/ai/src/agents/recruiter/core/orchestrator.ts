@@ -1231,10 +1231,16 @@ ${candidatesList}
           timestamp: new Date(),
         });
 
+        const purposeToLabel: Record<string, string> = {
+          risk_clarification: "Уточнение риска",
+          skill_verification: "Проверка навыков",
+          culture_fit: "Соответствие культуре",
+          experience_deepening: "Углубление в опыт",
+        };
         const questionsList = result.data.questions
           .map(
             (q, i) =>
-              `${i + 1}. ${q.question} (${q.purpose}${q.relatedRisk ? `, риск: ${q.relatedRisk}` : ""})`,
+              `${i + 1}. ${q.question} (${purposeToLabel[q.purpose] ?? "Другое"}${q.relatedRisk ? `, риск: ${q.relatedRisk}` : ""})`,
           )
           .join("\n");
 
