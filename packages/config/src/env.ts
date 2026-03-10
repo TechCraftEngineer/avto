@@ -13,6 +13,8 @@ export const env = createEnv({
 
     // Database
     POSTGRES_URL: z.url().optional(),
+    /** Отдельная БД для CVScore (анонимные результаты скрининга). Не задано — fallback на POSTGRES_URL */
+    CVSCORE_POSTGRES_URL: z.url().optional(),
 
     // Email
     RESEND_API_KEY: z.string().optional(),
@@ -181,6 +183,7 @@ export const env = createEnv({
     VERCEL_URL: process.env.VERCEL_URL,
     VERCEL_PROJECT_PRODUCTION_URL: process.env.VERCEL_PROJECT_PRODUCTION_URL,
     POSTGRES_URL: process.env.POSTGRES_URL,
+    CVSCORE_POSTGRES_URL: process.env.CVSCORE_POSTGRES_URL,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     EMAIL_SANDBOX_ENABLED: process.env.EMAIL_SANDBOX_ENABLED === "true",
     EMAIL_SANDBOX_HOST: process.env.EMAIL_SANDBOX_HOST,

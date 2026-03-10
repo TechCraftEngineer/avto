@@ -25,6 +25,7 @@
     "dev:jobs": "turbo watch dev --only -F @qbs-autonaim/jobs",
     "dev:webhooks": "turbo watch dev -F @qbs-autonaim/webhooks",
     "dev:interview": "turbo watch dev -F @qbs-autonaim/interview -F @qbs-autonaim/interview-server",
+    "dev:cvscore": "turbo watch dev -F @qbs-autonaim/cvscore",
     "dev:extension-api": "turbo watch dev -F @qbs-autonaim/extension-api",
     "dev:all": "concurrently \"bun run tg:dev\" \"bun run jobs:dev\" \"bun run dev:webhooks\"",
     "jobs:dev": "bun --filter @qbs-autonaim/jobs --filter @qbs-autonaim/jobs-parsers dev",

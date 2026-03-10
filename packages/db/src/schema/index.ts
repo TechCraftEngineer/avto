@@ -3,6 +3,7 @@ export * from "./auth";
 export * from "./candidate";
 export * from "./chat";
 export * from "./custom-domain";
+export * from "./cvscore";
 export * from "./file";
 export * from "./gig";
 export * from "./integration";

@@ -12,6 +12,9 @@
     "./client.ws": {
       "default": "./src/client.ws.ts"
     },
+    "./client.cvscore": {
+      "default": "./src/client.cvscore.ts"
+    },
     "./schema": {
       "default": "./src/schema/index.ts"
     }
@@ -30,6 +33,8 @@
     "studio": "bun with-env drizzle-kit studio",
     "migrate:create": "bun with-env drizzle-kit generate",
     "migrate": "bun with-env drizzle-kit migrate",
+    "migrate:cvscore": "bun with-env drizzle-kit migrate --config drizzle.cvscore.config.ts",
+    "push:cvscore": "bun with-env drizzle-kit push --config drizzle.cvscore.config.ts",
     "generate-key": "bun with-env bun src/scripts/generate-encryption-key.ts",
     "set-admin": "bun with-env bun src/scripts/set-admin-role.ts",
     "setup": "bun with-env bun src/scripts/setup-uuid-v7.ts",
