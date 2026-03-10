@@ -109,7 +109,7 @@ export default function VacancyResponseDetailPage() {
                   Назад к вакансии
                 </Link>
               </Button>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Button variant="outline" size="sm" asChild>
                   <Link
                     href={paths.workspace.vacancyResponseInterview(

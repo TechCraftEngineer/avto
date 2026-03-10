@@ -119,7 +119,10 @@ export function ProfileView({
     };
   }, [selectedWorkspaceId, authService]);
 
-  const sendToTab = async (type: string, payload?: Record<string, unknown>) => {
+  const sendToTab = async (
+    type: string,
+    payload?: Record<string, unknown>,
+  ): Promise<{ ok: boolean; error?: string; responseUrl?: string }> => {
     setError(null);
     setSuccessMessage(null);
     const [tab] = await chrome.tabs.query({
@@ -128,7 +131,11 @@ export function ProfileView({
     });
     if (!tab?.id) {
       setError("Вкладка не найдена");
-      return { ok: false as const, error: "Вкладка не найдена" };
+      return {
+        ok: false as const,
+        error: "Вкладка не найдена",
+        responseUrl: undefined,
+      };
     }
     try {
       let resp:
@@ -161,16 +168,20 @@ export function ProfileView({
           });
         } else if (isConnectionError) {
           setError("Обновите страницу и попробуйте снова");
-          return { ok: false as const, error: "Нет связи с вкладкой" };
+          return {
+            ok: false as const,
+            error: "Нет связи с вкладкой",
+            responseUrl: undefined,
+          };
         } else {
           throw e;
         }
       }
-      return resp as { ok: boolean; error?: string };
+      return resp as { ok: boolean; error?: string; responseUrl?: string };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setError(msg);
-      return { ok: false as const, error: msg };
+      return { ok: false as const, error: msg, responseUrl: undefined };
     }
   };
 
@@ -244,6 +255,7 @@ export function ProfileView({
       setError("Выберите рабочее пространство");
       return;
     }
+    setSuccessResponseUrl(null);
     setIsSavingToGlobal(true);
     setError(null);
     setSuccessMessage(null);
@@ -274,6 +286,7 @@ export function ProfileView({
 
   const handleSaveWithoutVacancy = async () => {
     if (!duplicateState || !selectedWorkspaceId) return;
+    setSuccessResponseUrl(null);
     setIsProcessing(true);
     setError(null);
     setSuccessMessage(null);
