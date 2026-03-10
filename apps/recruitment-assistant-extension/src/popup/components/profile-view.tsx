@@ -30,16 +30,6 @@ interface ProfileViewProps {
   onSettingsError: (err: string | null) => void;
 }
 
-const MessageResponseSchema = z
-  .object({
-    ok: z.boolean(),
-    error: z.string().optional(),
-    responseUrl: z.string().optional(),
-    duplicate: z.boolean().optional(),
-    existingCandidate: z.unknown().optional(),
-  })
-  .passthrough();
-
 const ExistingCandidateSchema = z.object({
   id: z.string(),
   fullName: z.string(),
@@ -52,6 +42,16 @@ const ExistingCandidateSchema = z.object({
   location: z.string().nullable().optional(),
   resumeUrl: z.string().nullable().optional(),
 });
+
+const MessageResponseSchema = z
+  .object({
+    ok: z.boolean(),
+    error: z.string().optional(),
+    responseUrl: z.string().optional(),
+    duplicate: z.boolean().optional(),
+    existingCandidate: ExistingCandidateSchema.optional(),
+  })
+  .passthrough();
 
 export function ProfileView({
   pageContext,

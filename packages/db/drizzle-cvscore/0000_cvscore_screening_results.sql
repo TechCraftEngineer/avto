@@ -30,3 +30,4 @@ CREATE TABLE "cvscore_screening_results" (
 	CONSTRAINT "cvscore_screening_results_risks_array" CHECK (jsonb_typeof("risks") = 'array'),
 	CONSTRAINT "cvscore_screening_results_interview_questions_array" CHECK (jsonb_typeof("interview_questions") = 'array')
 );
+

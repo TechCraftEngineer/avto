@@ -139,50 +139,52 @@ export default function ResponseInterviewPage() {
         </Button>
       </div>
 
-      <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[1fr_400px] lg:gap-8">
-        {/* Левая колонка: подсказки для интервью */}
-        <div className="space-y-6">
-          <section aria-label="Подготовка к интервью">
-            <h2 className="mb-4 text-xl font-semibold">
-              Подготовка к интервью
-            </h2>
-
-            <InterviewPromptsPanel
-              questions={interviewQuestions}
-              isLoading={questionsLoading}
-              onRefresh={() => refetchQuestions()}
-              isRefreshing={questionsFetching}
-              candidateName={candidateName ?? undefined}
-              className="mt-4"
+      {/* Основной контент: чат — главное, подсказки — sidebar */}
+      <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[1fr_minmax(320px,380px)] lg:gap-8">
+        {/* Главная колонка: чат */}
+        <section
+          aria-label="Помощник по интервью"
+          className="order-1 flex min-h-[420px] flex-col"
+        >
+          <h2 className="mb-4 text-xl font-semibold tracking-tight">
+            Помощник по интервью
+          </h2>
+          <Card className="flex flex-1 flex-col overflow-hidden border shadow-sm">
+            <RecruiterAgentChat
+              vacancyId={vacancyId}
+              responseId={responseId}
+              title=""
+              subtitle={
+                candidateName
+                  ? `Переделай структуру интервью, добавь вопросы для ${candidateName}`
+                  : "Контекстная помощь по интервью"
+              }
+              placeholder="Переделай структуру интервью… Добавь вопросы про soft skills…"
+              suggestionChips={[
+                "Переделай структуру интервью",
+                "Добавь вопросы про soft skills",
+                candidateName
+                  ? `Сгенерируй вопросы специально для ${candidateName}`
+                  : "Какие вопросы задать на интервью?",
+              ]}
+              className="min-h-[380px] flex-1 border-0 shadow-none"
             />
-          </section>
-        </div>
+          </Card>
+        </section>
 
-        {/* Правая колонка: чат */}
-        <div className="flex flex-col lg:min-h-[500px]">
-          <section
-            aria-label="Чат с AI-ассистентом"
-            className="flex flex-1 flex-col"
-          >
-            <h2 className="mb-4 text-xl font-semibold">Помощник по интервью</h2>
-            <Card className="flex flex-1 flex-col overflow-hidden border">
-              <div className="flex min-h-[400px] flex-1 flex-col">
-                <RecruiterAgentChat
-                  vacancyId={vacancyId}
-                  responseId={responseId}
-                  title=""
-                  subtitle={
-                    candidateName
-                      ? `Переделай структуру интервью, добавь вопросы для ${candidateName}`
-                      : "Контекстная помощь по интервью"
-                  }
-                  placeholder="Переделай структуру интервью… Добавь вопросы про soft skills…"
-                  className="min-h-0 flex-1"
-                />
-              </div>
-            </Card>
-          </section>
-        </div>
+        {/* Боковая колонка: подсказки */}
+        <aside
+          aria-label="Подсказки для интервью"
+          className="order-2 lg:sticky lg:top-6 lg:self-start"
+        >
+          <InterviewPromptsPanel
+            questions={interviewQuestions}
+            isLoading={questionsLoading}
+            onRefresh={() => refetchQuestions()}
+            isRefreshing={questionsFetching}
+            candidateName={candidateName ?? undefined}
+          />
+        </aside>
       </div>
     </div>
   );

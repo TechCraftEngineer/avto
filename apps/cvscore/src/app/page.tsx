@@ -43,6 +43,9 @@ export default function CvScorePage() {
     setState("loading");
     setError(null);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30_000);
+
     try {
       const res = await fetch("/api/screen", {
         method: "POST",
@@ -51,7 +54,10 @@ export default function CvScorePage() {
           resume: resume.trim(),
           vacancy: vacancy.trim(),
         }),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       const data = await res.json();
 
@@ -69,8 +75,13 @@ export default function CvScorePage() {
       }
       setResult(parsed.data);
       setState("success");
-    } catch {
-      setError("Ошибка сети. Проверьте подключение и попробуйте снова.");
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err instanceof Error && err.name === "AbortError") {
+        setError("Превышено время ожидания. Попробуйте ещё раз.");
+      } else {
+        setError("Ошибка сети. Проверьте подключение и попробуйте снова.");
+      }
       setState("error");
     } finally {
       submittingRef.current = false;

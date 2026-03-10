@@ -4,6 +4,14 @@
  * NEXT_PUBLIC_SITE_URL — базовый URL для canonical, OG (например https://cvscore.example.com)
  */
 
+export type BenefitIcon = "clock" | "eye" | "message";
+
+export interface BenefitItem {
+  icon: BenefitIcon;
+  title: string;
+  text: string;
+}
+
 export const SITE_CONFIG = {
   name: "CVScore",
   url:
@@ -91,6 +99,6 @@ export const COPY = {
         title: "Готовые вопросы",
         text: "Персонализированные вопросы для интервью на основе анализа резюме.",
       },
-    ],
+    ] satisfies BenefitItem[],
   },
 } as const;
