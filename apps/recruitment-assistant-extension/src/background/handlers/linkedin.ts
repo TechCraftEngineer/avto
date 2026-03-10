@@ -59,6 +59,8 @@ function extractFromTab(
         if (id !== tabId || info.status !== "complete") return;
         clearTimeout(timeoutId);
         chrome.tabs.onUpdated.removeListener(onUpdated);
+        // Уменьшенная задержка: скрипт внутри опрашивает контент до 8 сек.
+        const effectiveDelay = Math.min(delayMs, 800);
         setTimeout(() => {
           chrome.scripting
             .executeScript({
@@ -126,7 +128,7 @@ function extractFromTab(
             .catch((err) => {
               cleanup(reject, err);
             });
-        }, delayMs);
+        }, effectiveDelay);
       };
       chrome.tabs.onUpdated.addListener(onUpdated);
     });
@@ -171,7 +173,7 @@ export async function handleFetchLinkedInDetails(
             '[data-view-name="profile-contact-info-details-view"]', // fallback если не div
           ],
           {
-            delayMs: 3500, // React-страница overlay дольше рендерит
+            delayMs: 1500, // overlay рендерит дольше; polling дополняет ожидание
             minContentLength: 15, // блок контактов может быть небольшим
           },
         ),

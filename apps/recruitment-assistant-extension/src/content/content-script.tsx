@@ -155,7 +155,7 @@ export class ContentScript {
   async checkAndImport(payload: {
     vacancyId: string;
   }): Promise<
-    | { ok: true; duplicate: false }
+    | { ok: true; duplicate: false; responseUrl?: string }
     | { ok: true; duplicate: true; existingCandidate: unknown }
     | { ok: false; error: string }
   > {
@@ -174,12 +174,21 @@ export class ContentScript {
       contactsHtml: linkedInContactsHtml,
     } = this.getSanitizedLinkedInHtml();
     try {
-      await importCandidateData(sanitizedData, {
+      const importResult = await importCandidateData(sanitizedData, {
         vacancyId: payload.vacancyId,
         linkedInSkillsHtml: linkedInSkillsHtml ?? undefined,
         linkedInContactsHtml: linkedInContactsHtml ?? undefined,
       });
-      return { ok: true, duplicate: false };
+      return {
+        ok: true,
+        duplicate: false,
+        responseUrl:
+          importResult &&
+          typeof importResult === "object" &&
+          "responseUrl" in importResult
+            ? importResult.responseUrl
+            : undefined,
+      };
     } catch (error) {
       const msg =
         error instanceof Error ? error.message : "Не удалось импортировать";
@@ -191,7 +200,7 @@ export class ContentScript {
   async triggerImportToVacancyExisting(payload: {
     vacancyId: string;
     globalCandidateId: string;
-  }): Promise<void> {
+  }): Promise<{ responseUrl?: string }> {
     if (this.isCacheStale()) this.invalidateProfileCache();
     let data = this.currentData;
     if (!data) {
@@ -212,7 +221,7 @@ export class ContentScript {
       skillsHtml: linkedInSkillsHtml,
       contactsHtml: linkedInContactsHtml,
     } = this.getSanitizedLinkedInHtml();
-    await importToVacancyWithExisting(data, {
+    return importToVacancyWithExisting(data, {
       ...payload,
       linkedInSkillsHtml: linkedInSkillsHtml ?? undefined,
       linkedInContactsHtml: linkedInContactsHtml ?? undefined,
@@ -403,7 +412,7 @@ export class ContentScript {
   private async handleImport(payload?: {
     vacancyId?: string;
     globalCandidateId?: string;
-  }): Promise<void> {
+  }): Promise<{ responseUrl?: string } | void> {
     if (this.isCacheStale()) this.invalidateProfileCache();
     let data = this.currentData;
     if (!data) {
@@ -442,12 +451,24 @@ export class ContentScript {
       contactsHtml: linkedInContactsHtml,
     } = this.getSanitizedLinkedInHtml();
     try {
-      await importCandidateData(data, {
+      const result = await importCandidateData(data, {
         vacancyId: payload?.vacancyId,
         globalCandidateId: payload?.globalCandidateId,
         linkedInSkillsHtml: linkedInSkillsHtml ?? undefined,
         linkedInContactsHtml: linkedInContactsHtml ?? undefined,
       });
+      if (
+        result &&
+        typeof result === "object" &&
+        "responseUrl" in result &&
+        result.responseUrl
+      ) {
+        showNotification({
+          type: "success",
+          message: "Кандидат успешно добавлен на вакансию",
+          action: { label: "Посмотреть", url: result.responseUrl },
+        });
+      }
     } catch (error) {
       const msg =
         error instanceof Error ? error.message : "Не удалось импортировать";
@@ -530,11 +551,16 @@ if (typeof process === "undefined" || process.env.NODE_ENV !== "test") {
               typeof p.vacancyId === "string" &&
               typeof p.globalCandidateId === "string"
             ) {
-              await contentScript.triggerImportToVacancyExisting({
-                vacancyId: p.vacancyId,
-                globalCandidateId: p.globalCandidateId,
-              });
-              return { ok: true as const };
+              const result = await contentScript.triggerImportToVacancyExisting(
+                {
+                  vacancyId: p.vacancyId,
+                  globalCandidateId: p.globalCandidateId,
+                },
+              );
+              return {
+                ok: true as const,
+                responseUrl: result?.responseUrl,
+              };
             }
           }
           if (

@@ -1,8 +1,12 @@
 /**
  * Импорт кандидата в вакансию (LinkedIn, HH, WEB_LINK)
+ * Возвращает URL страницы отклика при успешном импорте.
  */
 
+import { API_URL } from "../../../config";
+import { parseAbout, parseSkillsHtml } from "../../../parsers/linkedin";
 import type { CandidateData } from "../../../shared/types";
+import { isMeaningfulHtml } from "../../../shared/utils";
 import { sendExtensionApiRequest } from "./api-helpers";
 import { fetchPlatformAssets } from "./assets";
 import type { ValidPlatformSource } from "./platform";
@@ -13,16 +17,8 @@ import {
   extractTelegramFromSocialLinks,
 } from "./transformers";
 
-/** Проверяет, что HTML содержит реальный контент, а не placeholder (Load more и т.п.) */
-function isMeaningfulLinkedInHtml(html: string | undefined): boolean {
-  if (!html || typeof html !== "string") return false;
-  const textOnly = html
-    .replace(/<[^>]*>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
-  if (!textOnly) return false;
-  return !/^(load\s*more|show\s*more|see\s*more)\.?\s*$/i.test(textOnly);
+export interface ImportToVacancyResult {
+  responseUrl?: string;
 }
 
 export async function importToVacancy(
@@ -32,7 +28,7 @@ export async function importToVacancy(
   globalCandidateId?: string,
   linkedInSkillsHtml?: string,
   linkedInContactsHtml?: string,
-): Promise<void> {
+): Promise<ImportToVacancyResult> {
   const rawSource = inferRawSourceFromData(data.platform);
   const profileUrl =
     data.profileUrl ||
@@ -48,7 +44,7 @@ export async function importToVacancy(
   });
 
   if (rawSource === "LINKEDIN") {
-    await importLinkedInToVacancy({
+    return importLinkedInToVacancy({
       data,
       token,
       vacancyId,
@@ -59,11 +55,10 @@ export async function importToVacancy(
       linkedInContactsHtml,
       ...assets,
     });
-    return;
   }
 
   const responseText = buildResponseText(data, rawSource);
-  await importGenericToVacancy({
+  return importGenericToVacancy({
     data,
     token,
     vacancyId,
@@ -106,9 +101,6 @@ async function importLinkedInToVacancy(
   let aboutMe: string | undefined;
   let skillsHtml: string | undefined = linkedInSkillsHtml ?? undefined;
   if (typeof document !== "undefined") {
-    const { parseAbout, parseSkillsHtml } = await import(
-      "../../../parsers/linkedin"
-    );
     aboutMe = parseAbout(document) || undefined;
     skillsHtml = skillsHtml ?? parseSkillsHtml(document) ?? undefined;
   }
@@ -130,16 +122,16 @@ async function importLinkedInToVacancy(
       : undefined;
 
   // Не отправлять placeholder (Load more, пустые div и т.п.)
-  const experienceHtml = isMeaningfulLinkedInHtml(rawExperienceHtml)
+  const experienceHtml = isMeaningfulHtml(rawExperienceHtml)
     ? rawExperienceHtml
     : undefined;
-  const educationHtml = isMeaningfulLinkedInHtml(rawEducationHtml)
+  const educationHtml = isMeaningfulHtml(rawEducationHtml)
     ? rawEducationHtml
     : undefined;
-  const filteredSkillsHtml = isMeaningfulLinkedInHtml(skillsHtml)
+  const filteredSkillsHtml = isMeaningfulHtml(skillsHtml)
     ? skillsHtml
     : undefined;
-  const filteredContactsHtml = isMeaningfulLinkedInHtml(linkedInContactsHtml)
+  const filteredContactsHtml = isMeaningfulHtml(linkedInContactsHtml)
     ? linkedInContactsHtml
     : undefined;
 
@@ -163,18 +155,26 @@ async function importLinkedInToVacancy(
     ...(profileUrl ? { profileUrl } : {}),
   };
 
-  try {
-    await sendExtensionApiRequest("import-resume-linkedin", {
-      method: "POST",
-      body,
-      token,
-    });
-  } catch (err) {
-    console.error("[importLinkedInToVacancy] import-resume-linkedin failed", {
-      err,
-    });
-    throw err;
-  }
+  const resp = await sendExtensionApiRequest<{
+    response?: { id: string };
+    responseUrl?: {
+      responseId: string;
+      orgSlug: string;
+      workspaceSlug: string;
+    };
+  }>("import-resume-linkedin", {
+    method: "POST",
+    body,
+    token,
+  });
+
+  const ru = resp.data?.responseUrl;
+  const responseUrl =
+    ru && typeof API_URL !== "undefined"
+      ? `${API_URL.replace(/\/$/, "")}/orgs/${ru.orgSlug}/workspaces/${ru.workspaceSlug}/responses/${ru.responseId}`
+      : undefined;
+
+  return { responseUrl };
 }
 
 interface GenericImportParams {
@@ -236,9 +236,24 @@ async function importGenericToVacancy(
   if (hasStructuredData) body.profileData = profileDataForImport;
   if (data.skills?.length) body.skills = data.skills;
 
-  await sendExtensionApiRequest("import-resume", {
+  const resp = await sendExtensionApiRequest<{
+    response?: { id: string };
+    responseUrl?: {
+      responseId: string;
+      orgSlug: string;
+      workspaceSlug: string;
+    };
+  }>("import-resume", {
     method: "POST",
     body,
     token,
   });
+
+  const ru = resp.data?.responseUrl;
+  const responseUrl =
+    ru && typeof API_URL !== "undefined"
+      ? `${API_URL.replace(/\/$/, "")}/orgs/${ru.orgSlug}/workspaces/${ru.workspaceSlug}/responses/${ru.responseId}`
+      : undefined;
+
+  return { responseUrl };
 }

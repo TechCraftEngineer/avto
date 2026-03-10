@@ -65,7 +65,7 @@ export async function importToVacancyWithExisting(
     linkedInSkillsHtml?: string | null;
     linkedInContactsHtml?: string | null;
   },
-): Promise<void> {
+): Promise<{ responseUrl?: string }> {
   const { authToken: token } = await getAuthFromStorage();
 
   if (!token) {
@@ -76,7 +76,7 @@ export async function importToVacancyWithExisting(
     throw new Error("Требуется авторизация");
   }
 
-  await importToVacancy(
+  return importToVacancy(
     data,
     token,
     options.vacancyId,
@@ -161,7 +161,7 @@ export async function importCandidateData(
     linkedInSkillsHtml?: string | null;
     linkedInContactsHtml?: string | null;
   },
-): Promise<void> {
+): Promise<{ responseUrl?: string } | void> {
   const { authToken: token, userData } = await getAuthFromStorage();
 
   if (!token || !userData?.organizationId) {
@@ -173,7 +173,7 @@ export async function importCandidateData(
   }
 
   if (options?.vacancyId) {
-    await importToVacancy(
+    return importToVacancy(
       data,
       token,
       options.vacancyId,
@@ -181,7 +181,6 @@ export async function importCandidateData(
       options.linkedInSkillsHtml ?? undefined,
       options.linkedInContactsHtml ?? undefined,
     );
-    return;
   }
 
   showNotification({ type: "info", message: "Импорт данных в систему…" });

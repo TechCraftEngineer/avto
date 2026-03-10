@@ -16,6 +16,7 @@ import type {
   EducationEntry,
   ExperienceEntry,
 } from "../../shared/types";
+import { isPlaceholderHtml } from "../../shared/utils";
 
 /** Результат парсинга work times: "Jan 2020 - Dec 2022 · 2 yrs" */
 function parseWorkTimes(
@@ -120,18 +121,21 @@ function getSectionListItems(container: Element): Element[] {
 export function scrollToLoadContent(): void {
   if (typeof window === "undefined") return;
   const scrollStep = 400;
-  const maxScrolls = 5;
+  const maxScrolls = 10;
   for (let i = 0; i < maxScrolls; i++) {
     window.scrollBy(0, scrollStep);
   }
   window.scrollTo(0, 0);
 }
 
+const SEE_MORE_DELAY_MS = 120;
+
 /**
  * Раскрывает кнопки "See more" / "Show more" для загрузки полного контента.
  * Вызывать перед парсингом для улучшения полноты данных.
+ * Пауза между итерациями даёт LinkedIn время отрендерить раскрытый контент.
  */
-export function expandSeeMoreButtons(maxAttempts = 10): number {
+export async function expandSeeMoreButtons(maxAttempts = 10): Promise<number> {
   let clicked = 0;
   const selectors = [
     'button[aria-label*="see more"]',
@@ -183,6 +187,7 @@ export function expandSeeMoreButtons(maxAttempts = 10): number {
       }
     });
     if (!found) break;
+    await new Promise((r) => setTimeout(r, SEE_MORE_DELAY_MS));
   }
   return clicked;
 }
@@ -446,16 +451,6 @@ function sanitizeHtmlForStorage(dirty: string): string {
     ALLOWED_ATTR: [],
     ALLOW_DATA_ATTR: false,
   });
-}
-
-/** Проверяет, что HTML — placeholder (Load more, пустые обёртки) */
-function isPlaceholderHtml(html: string): boolean {
-  const text = html
-    .replace(/<[^>]*>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  if (!text) return true;
-  return /^(load\s*more|show\s*more|see\s*more)\.?\s*$/i.test(text);
 }
 
 /** Убирает атрибуты с элемента и санитизирует HTML перед сохранением */
