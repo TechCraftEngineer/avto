@@ -170,6 +170,17 @@ const CORS_HEADERS = {
   "Access-Control-Max-Age": "86400",
 };
 
+function jsonResponse(
+  body: unknown,
+  status: number,
+  extraHeaders?: Record<string, string>,
+) {
+  return NextResponse.json(body, {
+    status,
+    headers: { ...CORS_HEADERS, ...extraHeaders },
+  });
+}
+
 /** OPTIONS для CORS preflight */
 export async function OPTIONS() {
   return new NextResponse(null, {
@@ -185,28 +196,23 @@ export async function POST(request: Request) {
   const contentLength = request.headers.get("content-length");
   if (contentLength && parseInt(contentLength, 10) > MAX_PAYLOAD_SIZE) {
     logSuspiciousActivity(ip, "Payload too large", { size: contentLength });
-    return NextResponse.json(
-      { error: "Слишком большой запрос" },
-      { status: 413 },
-    );
+    return jsonResponse({ error: "Слишком большой запрос" }, 413);
   }
 
   // Rate limiting
   const rateResult = checkRateLimitMemory(ip);
   if (!rateResult.allowed) {
     logSuspiciousActivity(ip, "Rate limit exceeded");
-    return NextResponse.json(
+    return jsonResponse(
       {
         error: "Превышен лимит запросов",
         message: `Попробуйте снова через ${rateResult.retryAfter} секунд`,
       },
+      429,
       {
-        status: 429,
-        headers: {
-          "Retry-After": String(rateResult.retryAfter ?? 60),
-          "X-RateLimit-Limit": String(RATE_LIMIT_MAX),
-          "X-RateLimit-Remaining": "0",
-        },
+        "Retry-After": String(rateResult.retryAfter ?? 60),
+        "X-RateLimit-Limit": String(RATE_LIMIT_MAX),
+        "X-RateLimit-Remaining": "0",
       },
     );
   }
@@ -219,15 +225,12 @@ export async function POST(request: Request) {
       logSuspiciousActivity(ip, "Text payload too large", {
         size: text.length,
       });
-      return NextResponse.json(
-        { error: "Слишком большой запрос" },
-        { status: 413 },
-      );
+      return jsonResponse({ error: "Слишком большой запрос" }, 413);
     }
     body = JSON.parse(text);
   } catch (error) {
     logSuspiciousActivity(ip, "Invalid JSON", { error });
-    return NextResponse.json({ error: "Некорректный JSON" }, { status: 400 });
+    return jsonResponse({ error: "Некорректный JSON" }, 400);
   }
 
   // Валидация входных данных
@@ -237,12 +240,12 @@ export async function POST(request: Request) {
     logSuspiciousActivity(ip, "Validation failed", {
       error: firstError?.message,
     });
-    return NextResponse.json(
+    return jsonResponse(
       {
         error: "Ошибка валидации",
         message: firstError?.message ?? "Проверьте введённые данные",
       },
-      { status: 400 },
+      400,
     );
   }
 
@@ -251,23 +254,14 @@ export async function POST(request: Request) {
   try {
     const prompt = buildScreeningPrompt(resume, vacancy);
 
-    // AI запрос с таймаутом
-    const aiPromise = generateObject({
+    const { object } = await generateObject({
       model: undefined,
       prompt,
       schema: screeningOutputSchema,
       generationName: "cvscore-screening",
       metadata: { source: "cvscore", ip },
+      abortSignal: AbortSignal.timeout(AI_REQUEST_TIMEOUT_MS),
     });
-
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(
-        () => reject(new Error("AI request timeout")),
-        AI_REQUEST_TIMEOUT_MS,
-      ),
-    );
-
-    const { object } = await Promise.race([aiPromise, timeoutPromise]);
 
     // Дополнительная валидация результата AI
     if (
@@ -290,23 +284,30 @@ export async function POST(request: Request) {
       ? sanitizeText(vacancy.slice(0, VACANCY_MAX_CHARS))
       : "[описание вакансии не сохранено — нет согласия]";
 
+    const strengthsToStore = consentToStore
+      ? object.strengths.map((s) => sanitizeText(s))
+      : [];
+    const risksToStore = consentToStore
+      ? object.risks.map((r) => sanitizeText(r))
+      : [];
+    const questionsToStore = consentToStore
+      ? object.interviewQuestions.map((q) => sanitizeText(q))
+      : [];
+
     await cvscoreDb.insert(cvscoreScreeningResult).values({
       resumeText: resumeToStore,
       vacancyText: vacancyToStore,
-      score: Math.round(object.score), // Округляем для консистентности
-      strengths: object.strengths.map((s) => sanitizeText(s)),
-      risks: object.risks.map((r) => sanitizeText(r)),
-      interviewQuestions: object.interviewQuestions.map((q) => sanitizeText(q)),
+      score: Math.round(object.score),
+      strengths: strengthsToStore,
+      risks: risksToStore,
+      interviewQuestions: questionsToStore,
     });
 
-    return NextResponse.json(object, {
-      headers: {
-        ...CORS_HEADERS,
-        "X-RateLimit-Limit": String(RATE_LIMIT_MAX),
-        "X-RateLimit-Remaining": String(
-          Math.max(0, RATE_LIMIT_MAX - (rateLimitMap.get(ip)?.count ?? 0)),
-        ),
-      },
+    return jsonResponse(object, 200, {
+      "X-RateLimit-Limit": String(RATE_LIMIT_MAX),
+      "X-RateLimit-Remaining": String(
+        Math.max(0, RATE_LIMIT_MAX - (rateLimitMap.get(ip)?.count ?? 0)),
+      ),
     });
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
@@ -316,23 +317,23 @@ export async function POST(request: Request) {
       timestamp: new Date().toISOString(),
     });
 
-    if (errorMessage.includes("timeout")) {
-      return NextResponse.json(
+    if (errorMessage.includes("timeout") || errorMessage.includes("aborted")) {
+      return jsonResponse(
         {
           error: "Превышено время ожидания",
           message:
             "Запрос занял слишком много времени. Попробуйте сократить текст.",
         },
-        { status: 504 },
+        504,
       );
     }
 
-    return NextResponse.json(
+    return jsonResponse(
       {
         error: "Ошибка обработки",
         message: "Сервис временно недоступен. Попробуйте позже.",
       },
-      { status: 500 },
+      500,
     );
   }
 }
