@@ -14,7 +14,6 @@ export default async function createNextConfig(): Promise<NextConfig> {
       optimizeCss: true,
     },
     transpilePackages: ["@qbs-autonaim/ui"],
-    typescript: { ignoreBuildErrors: true },
     compress: true,
     poweredByHeader: false,
     async headers() {

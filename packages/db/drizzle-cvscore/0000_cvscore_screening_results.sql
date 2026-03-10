@@ -24,5 +24,9 @@ CREATE TABLE "cvscore_screening_results" (
 	"strengths" jsonb NOT NULL,
 	"risks" jsonb NOT NULL,
 	"interview_questions" jsonb NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "cvscore_screening_results_score_range" CHECK ("score" BETWEEN 0 AND 100),
+	CONSTRAINT "cvscore_screening_results_strengths_array" CHECK (jsonb_typeof("strengths") = 'array'),
+	CONSTRAINT "cvscore_screening_results_risks_array" CHECK (jsonb_typeof("risks") = 'array'),
+	CONSTRAINT "cvscore_screening_results_interview_questions_array" CHECK (jsonb_typeof("interview_questions") = 'array')
 );

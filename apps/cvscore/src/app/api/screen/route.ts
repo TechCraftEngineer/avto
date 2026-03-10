@@ -19,14 +19,21 @@ const requestSchema = z.object({
       RESUME_MIN_CHARS,
       `Резюме должно содержать минимум ${RESUME_MIN_CHARS} символов`,
     )
-    .max(RESUME_MAX_CHARS),
+    .max(
+      RESUME_MAX_CHARS,
+      `Резюме должно содержать не более ${RESUME_MAX_CHARS} символов`,
+    ),
   vacancy: z
     .string()
     .min(
       VACANCY_MIN_CHARS,
       `Вакансия должна содержать минимум ${VACANCY_MIN_CHARS} символов`,
     )
-    .max(VACANCY_MAX_CHARS),
+    .max(
+      VACANCY_MAX_CHARS,
+      `Вакансия должна содержать не более ${VACANCY_MAX_CHARS} символов`,
+    ),
+  consentToStore: z.boolean().optional().default(false),
 });
 
 /** Простой in-memory rate limit: IP -> { count, resetAt } */
@@ -42,7 +49,18 @@ function getClientIp(request: Request): string {
   );
 }
 
+/** Удаляет устаревшие записи из rateLimitMap для предотвращения утечки памяти */
+function pruneExpiredRateLimits(): void {
+  const now = Date.now();
+  for (const [key, entry] of rateLimitMap.entries()) {
+    if (now > entry.resetAt) {
+      rateLimitMap.delete(key);
+    }
+  }
+}
+
 function checkRateLimit(ip: string): { allowed: boolean; retryAfter?: number } {
+  pruneExpiredRateLimits();
   const now = Date.now();
   const entry = rateLimitMap.get(ip);
 
@@ -108,7 +126,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { resume, vacancy } = parsed.data;
+  const { resume, vacancy, consentToStore } = parsed.data;
 
   try {
     const prompt = buildScreeningPrompt(resume, vacancy);
@@ -121,9 +139,16 @@ export async function POST(request: Request) {
       metadata: { source: "cvscore" },
     });
 
+    const resumeToStore = consentToStore
+      ? resume.slice(0, RESUME_MAX_CHARS)
+      : "[скрининг без сохранения резюме — нет согласия]";
+    const vacancyToStore = consentToStore
+      ? vacancy.slice(0, VACANCY_MAX_CHARS)
+      : "[описание вакансии не сохранено — нет согласия]";
+
     await cvscoreDb.insert(cvscoreScreeningResult).values({
-      resumeText: resume.slice(0, RESUME_MAX_CHARS),
-      vacancyText: vacancy.slice(0, VACANCY_MAX_CHARS),
+      resumeText: resumeToStore,
+      vacancyText: vacancyToStore,
       score: object.score,
       strengths: object.strengths,
       risks: object.risks,

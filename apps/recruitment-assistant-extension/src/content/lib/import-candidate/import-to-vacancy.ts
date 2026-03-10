@@ -23,14 +23,21 @@ export interface ImportToVacancyResult {
 }
 
 const ResponseUrlSchema = z.object({
-  responseId: z.string(),
-  orgSlug: z.string(),
-  workspaceSlug: z.string(),
+  responseId: z.string().min(1),
+  orgSlug: z.string().min(1),
+  workspaceSlug: z.string().min(1),
 });
 
 function buildResponseUrlFromData(raw: unknown): string | undefined {
   const parsed = ResponseUrlSchema.safeParse(raw);
-  if (!parsed.success || typeof API_URL === "undefined") return undefined;
+  if (!parsed.success) {
+    console.warn(
+      "[import-to-vacancy] ResponseUrlSchema validation failed:",
+      parsed.error,
+    );
+    return undefined;
+  }
+  if (typeof API_URL === "undefined") return undefined;
   const ru = parsed.data;
   return `${API_URL.replace(/\/$/, "")}/orgs/${ru.orgSlug}/workspaces/${ru.workspaceSlug}/responses/${ru.responseId}`;
 }
