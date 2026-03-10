@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 
 /**
@@ -162,6 +162,7 @@ export interface StreamEvent {
 
 interface UseRecruiterAgentOptions {
   vacancyId?: string;
+  responseId?: string;
   onMessage?: (document: RecruiterAgentDocument) => void;
   onError?: (error: Error) => void;
   onFinish?: (document: RecruiterAgentDocument) => void;
@@ -194,6 +195,7 @@ const MAX_HISTORY_LENGTH = 20;
  */
 export function useRecruiterAgent({
   vacancyId: initialVacancyId,
+  responseId,
   onMessage,
   onError,
   onFinish,
@@ -218,6 +220,20 @@ export function useRecruiterAgent({
   const responseBufferRef = useRef<string>("");
   const actionsRef = useRef<ExecutedAction[]>([]);
   const traceRef = useRef<AgentTraceEntry[]>([]);
+
+  useEffect(() => {
+    void responseId; // triggers reset when user switches candidate
+    abortControllerRef.current?.abort();
+    responseBufferRef.current = "";
+    actionsRef.current = [];
+    traceRef.current = [];
+    setHistory([]);
+    setDocument(null);
+    setCurrentAction(null);
+    setError(null);
+    setStatus("idle");
+    setVacancyId(initialVacancyId);
+  }, [responseId, initialVacancyId]);
 
   /**
    * Отправить сообщение агенту
@@ -266,6 +282,7 @@ export function useRecruiterAgent({
               workspaceId,
               message: content,
               vacancyId,
+              responseId: responseId ?? undefined,
               conversationHistory: priorHistory,
             },
           }),
@@ -447,6 +464,7 @@ export function useRecruiterAgent({
     [
       workspaceId,
       vacancyId,
+      responseId,
       history,
       maxHistoryLength,
       onMessage,
