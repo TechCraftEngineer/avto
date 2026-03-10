@@ -9,14 +9,23 @@ import {
   CardTitle,
 } from "@qbs-autonaim/ui/components/card";
 import { Clock, Eye, MessageSquare } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { HeroBackground } from "@/components/hero-background";
 import { ScreeningCta } from "@/components/screening-cta";
 import { ScreeningForm } from "@/components/screening-form";
 import { ScreeningResult } from "@/components/screening-result";
 import { env } from "@/env";
-import type { ScreeningOutput } from "@/lib/screening-prompt";
+import {
+  type ScreeningOutput,
+  screeningOutputSchema,
+} from "@/lib/screening-prompt";
 import { COPY } from "@/lib/seo";
+
+const BENEFIT_ICON_MAP = {
+  clock: Clock,
+  eye: Eye,
+  message: MessageSquare,
+} as const;
 
 type State = "idle" | "loading" | "success" | "error";
 
@@ -26,8 +35,11 @@ export default function CvScorePage() {
   const [state, setState] = useState<State>("idle");
   const [result, setResult] = useState<ScreeningOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const submittingRef = useRef(false);
 
   async function handleSubmit() {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setState("loading");
     setError(null);
 
@@ -49,11 +61,19 @@ export default function CvScorePage() {
         return;
       }
 
-      setResult(data);
+      const parsed = screeningOutputSchema.safeParse(data);
+      if (!parsed.success) {
+        setError("Некорректный ответ сервера. Попробуйте ещё раз.");
+        setState("error");
+        return;
+      }
+      setResult(parsed.data);
       setState("success");
     } catch {
       setError("Ошибка сети. Проверьте подключение и попробуйте снова.");
       setState("error");
+    } finally {
+      submittingRef.current = false;
     }
   }
 
@@ -111,7 +131,9 @@ export default function CvScorePage() {
                   </CardContent>
                 </Card>
 
-                <ScreeningCta appUrl={env.NEXT_PUBLIC_APP_URL} />
+                <ScreeningCta
+                  signupUrl={`${env.NEXT_PUBLIC_APP_URL}/auth/signup?redirect=/onboarding`}
+                />
               </>
             )}
           </div>
@@ -123,26 +145,25 @@ export default function CvScorePage() {
         <div className="container mx-auto px-4">
           <h2 className="sr-only">{COPY.benefits.title}</h2>
           <div className="max-w-3xl mx-auto grid sm:grid-cols-3 gap-6">
-            {COPY.benefits.items.map((item, i) => (
-              <div
-                key={item.title}
-                className="rounded-xl border bg-card p-5 text-center sm:text-left transition-shadow hover:shadow-sm"
-              >
-                <div className="mx-auto mb-3 flex size-10 items-center justify-center rounded-lg bg-muted sm:mx-0">
-                  {i === 0 ? (
-                    <Clock className="size-5 text-muted-foreground" />
-                  ) : i === 1 ? (
-                    <Eye className="size-5 text-muted-foreground" />
-                  ) : (
-                    <MessageSquare className="size-5 text-muted-foreground" />
-                  )}
+            {COPY.benefits.items.map((item) => {
+              const IconComponent =
+                BENEFIT_ICON_MAP[item.icon as keyof typeof BENEFIT_ICON_MAP] ??
+                MessageSquare;
+              return (
+                <div
+                  key={item.title}
+                  className="rounded-xl border bg-card p-5 text-center sm:text-left transition-shadow hover:shadow-sm"
+                >
+                  <div className="mx-auto mb-3 flex size-10 items-center justify-center rounded-lg bg-muted sm:mx-0">
+                    <IconComponent className="size-5 text-muted-foreground" />
+                  </div>
+                  <h3 className="font-medium text-foreground mb-1.5">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">{item.text}</p>
                 </div>
-                <h3 className="font-medium text-foreground mb-1.5">
-                  {item.title}
-                </h3>
-                <p className="text-sm text-muted-foreground">{item.text}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

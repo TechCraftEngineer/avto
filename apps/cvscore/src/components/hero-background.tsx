@@ -1,3 +1,6 @@
+const CONIC_GRADIENT =
+  "conic-gradient(from 90deg,#F00 5deg,#EAB308 63deg,#5CFF80 115deg,#1E00FF 170deg,#855AFC 220deg,#3A8BFD 286deg,#F00 360deg)";
+
 export function HeroBackground() {
   return (
     <div className="pointer-events-none absolute inset-0 isolate overflow-hidden bg-background">
@@ -34,19 +37,13 @@ export function HeroBackground() {
       <div className="absolute left-1/2 top-6 size-[80px] -translate-x-1/2 -translate-y-1/2 scale-x-[1.6] mix-blend-overlay">
         <div
           className="absolute -inset-16 blur-[50px] saturate-[2] mix-blend-overlay"
-          style={{
-            background:
-              "conic-gradient(from 90deg,#F00 5deg,#EAB308 63deg,#5CFF80 115deg,#1E00FF 170deg,#855AFC 220deg,#3A8BFD 286deg,#F00 360deg)",
-          }}
+          style={{ background: CONIC_GRADIENT }}
         />
       </div>
       <div className="absolute left-1/2 top-6 size-[80px] -translate-x-1/2 -translate-y-1/2 scale-x-[1.6] opacity-10">
         <div
           className="absolute -inset-16 blur-[50px] saturate-[2] mix-blend-overlay"
-          style={{
-            background:
-              "conic-gradient(from 90deg,#F00 5deg,#EAB308 63deg,#5CFF80 115deg,#1E00FF 170deg,#855AFC 220deg,#3A8BFD 286deg,#F00 360deg)",
-          }}
+          style={{ background: CONIC_GRADIENT }}
         />
       </div>
     </div>

@@ -30,6 +30,16 @@ interface ProfileViewProps {
   onSettingsError: (err: string | null) => void;
 }
 
+const MessageResponseSchema = z
+  .object({
+    ok: z.boolean(),
+    error: z.string().optional(),
+    responseUrl: z.string().optional(),
+    duplicate: z.boolean().optional(),
+    existingCandidate: z.unknown().optional(),
+  })
+  .passthrough();
+
 const ExistingCandidateSchema = z.object({
   id: z.string(),
   fullName: z.string(),
@@ -132,7 +142,7 @@ export function ProfileView({
     if (!tab?.id) {
       setError("Вкладка не найдена");
       return {
-        ok: false as const,
+        ok: false,
         error: "Вкладка не найдена",
         responseUrl: undefined,
       };
@@ -169,7 +179,7 @@ export function ProfileView({
         } else if (isConnectionError) {
           setError("Обновите страницу и попробуйте снова");
           return {
-            ok: false as const,
+            ok: false,
             error: "Нет связи с вкладкой",
             responseUrl: undefined,
           };
@@ -177,11 +187,21 @@ export function ProfileView({
           throw e;
         }
       }
-      return resp as { ok: boolean; error?: string; responseUrl?: string };
+      const parsed = MessageResponseSchema.safeParse(resp);
+      if (parsed.success) return parsed.data;
+      console.warn(
+        "[profile-view] Message response validation failed:",
+        parsed.error,
+      );
+      return {
+        ok: false,
+        error: "Некорректный ответ",
+        responseUrl: undefined,
+      };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setError(msg);
-      return { ok: false as const, error: msg, responseUrl: undefined };
+      return { ok: false, error: msg, responseUrl: undefined };
     }
   };
 

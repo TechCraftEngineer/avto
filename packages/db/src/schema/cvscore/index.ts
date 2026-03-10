@@ -1,5 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
+  check,
+  index,
   integer,
   jsonb,
   pgTable,
@@ -12,28 +14,42 @@ import {
  * Результаты AI-скрининга из приложения cvscore.
  * Отдельная таблица для хранения бесплатных скринингов (lead generation).
  */
-export const cvscoreScreeningResult = pgTable("cvscore_screening_results", {
-  id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
+export const cvscoreScreeningResult = pgTable(
+  "cvscore_screening_results",
+  {
+    id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
 
-  /** Текст резюме (обрезка до 15k при сохранении) */
-  resumeText: text("resume_text").notNull(),
+    /** Текст резюме (обрезка до 15k при сохранении) */
+    resumeText: text("resume_text").notNull(),
 
-  /** Текст вакансии (обрезка до 5k при сохранении) */
-  vacancyText: text("vacancy_text").notNull(),
+    /** Текст вакансии (обрезка до 5k при сохранении) */
+    vacancyText: text("vacancy_text").notNull(),
 
-  /** Оценка 0–100 */
-  score: integer("score").notNull(),
+    /** Оценка 0–100 */
+    score: integer("score").notNull(),
 
-  /** Сильные стороны */
-  strengths: jsonb("strengths").$type<string[]>().notNull(),
+    /** Сильные стороны */
+    strengths: jsonb("strengths").$type<string[]>().notNull(),
 
-  /** Риски */
-  risks: jsonb("risks").$type<string[]>().notNull(),
+    /** Риски */
+    risks: jsonb("risks").$type<string[]>().notNull(),
 
-  /** Вопросы для интервью */
-  interviewQuestions: jsonb("interview_questions").$type<string[]>().notNull(),
+    /** Вопросы для интервью */
+    interviewQuestions: jsonb("interview_questions")
+      .$type<string[]>()
+      .notNull(),
 
-  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
-    .defaultNow()
-    .notNull(),
-});
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    scoreRangeCheck: check(
+      "cvscore_screening_results_score_range",
+      sql`${table.score} >= 0 AND ${table.score} <= 100`,
+    ),
+    createdAtIdx: index("idx_cvscore_screening_results_created_at").on(
+      table.createdAt,
+    ),
+  }),
+);
