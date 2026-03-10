@@ -12,6 +12,13 @@ export const VACANCY_MIN_CHARS = 30;
 /** Макс. символов для вакансии */
 export const VACANCY_MAX_CHARS = 5_000;
 
+/**
+ * Макс. символов резюме и вакансии в промпте для AI (ограничение контекста модели).
+ * Итоговый промпт = инструкции (~3.5k) + resume + vacancy. Ориентир на 8k-16k токенов.
+ */
+export const RESUME_PROMPT_MAX_CHARS = 10_000;
+export const VACANCY_PROMPT_MAX_CHARS = 3_000;
+
 export const screeningOutputSchema = z.object({
   score: z.number().min(0).max(100),
   strengths: z.array(z.string().max(300)).min(1).max(8),
@@ -21,19 +28,27 @@ export const screeningOutputSchema = z.object({
 
 export type ScreeningOutput = z.infer<typeof screeningOutputSchema>;
 
+/**
+ * Строит промпт для AI-скрининга. Детерминированно обрезает resume и vacancy
+ * до RESUME_PROMPT_MAX_CHARS и VACANCY_PROMPT_MAX_CHARS, чтобы не превысить
+ * лимит контекста модели.
+ */
 export function buildScreeningPrompt(
   resumeText: string,
   vacancyText: string,
 ): string {
+  const resumeForPrompt = resumeText.slice(0, RESUME_PROMPT_MAX_CHARS);
+  const vacancyForPrompt = vacancyText.slice(0, VACANCY_PROMPT_MAX_CHARS);
+
   return `Ты опытный технический рекрутер. Твоя задача — тщательно проанализировать резюме кандидата и оценить соответствие вакансии.
 
 ═══════════════════════════════════════════════════════════════════════════════
 ВАКАНСИЯ:
-${vacancyText}
+${vacancyForPrompt}
 
 ═══════════════════════════════════════════════════════════════════════════════
 РЕЗЮМЕ КАНДИДАТА:
-${resumeText}
+${resumeForPrompt}
 
 ═══════════════════════════════════════════════════════════════════════════════
 
