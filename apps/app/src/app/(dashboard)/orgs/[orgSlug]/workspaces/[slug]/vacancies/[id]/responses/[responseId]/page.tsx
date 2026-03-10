@@ -4,7 +4,7 @@ import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, MessageSquare, Microphone } from "lucide-react";
+import { ArrowLeft, MessageSquare, Mic } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ResponseDetailCard } from "~/components/vacancy/components";
@@ -119,7 +119,7 @@ export default function VacancyResponseDetailPage() {
                       responseId,
                     )}
                   >
-                    <Microphone className="mr-2 h-4 w-4" />
+                    <Mic className="mr-2 h-4 w-4" />
                     Подготовка к интервью
                   </Link>
                 </Button>
