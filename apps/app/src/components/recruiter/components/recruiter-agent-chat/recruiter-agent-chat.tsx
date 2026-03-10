@@ -17,6 +17,8 @@ interface RecruiterAgentChatProps {
   title?: string;
   subtitle?: string;
   placeholder?: string;
+  /** Подсказки для пустого состояния (контекстно-зависимые) */
+  suggestionChips?: string[];
   className?: string;
   onMessage?: (document: RecruiterAgentDocument) => void;
   onError?: (error: Error) => void;
@@ -38,6 +40,7 @@ const RecruiterAgentChat = memo(function RecruiterAgentChat({
   title = "AI-ассистент рекрутера",
   subtitle,
   placeholder = "Спросите что-нибудь…",
+  suggestionChips,
   className,
   onMessage,
   onError,
@@ -138,6 +141,7 @@ const RecruiterAgentChat = memo(function RecruiterAgentChat({
             status={status}
             currentAction={currentAction}
             sendMessage={sendMessage}
+            suggestionChips={suggestionChips}
           />
 
           {/* Ввод */}

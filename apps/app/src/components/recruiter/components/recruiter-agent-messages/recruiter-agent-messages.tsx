@@ -10,11 +10,18 @@ import type {
 import { RecruiterAgentMessage } from "../recruiter-agent-message";
 import { SuggestionChip } from "../suggestion-chip";
 
+const DEFAULT_SUGGESTIONS = [
+  "Найди 5 кандидатов, готовых выйти за 2 недели",
+  "Почему у вакансии мало откликов?",
+  "Напиши приглашение на интервью",
+];
+
 interface RecruiterAgentMessagesProps {
   history: ConversationMessage[];
   status: RecruiterAgentStatus;
   currentAction: { id: string; type: string; progress: number } | null;
   sendMessage?: (message: string) => Promise<void>;
+  suggestionChips?: string[];
 }
 
 const RecruiterAgentMessages = memo(function RecruiterAgentMessages({
@@ -22,6 +29,7 @@ const RecruiterAgentMessages = memo(function RecruiterAgentMessages({
   status,
   currentAction,
   sendMessage,
+  suggestionChips = DEFAULT_SUGGESTIONS,
 }: RecruiterAgentMessagesProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const isStreaming = status === "streaming" || status === "submitted";
@@ -57,33 +65,13 @@ const RecruiterAgentMessages = memo(function RecruiterAgentMessages({
             описание или написать сообщение кандидату. Просто спросите!
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
-            <SuggestionChip
-              text="Найди 5 кандидатов, готовых выйти за 2 недели"
-              onClick={
-                sendMessage
-                  ? () =>
-                      sendMessage(
-                        "Найди 5 кандидатов, готовых выйти за 2 недели",
-                      )
-                  : undefined
-              }
-            />
-            <SuggestionChip
-              text="Почему у вакансии мало откликов?"
-              onClick={
-                sendMessage
-                  ? () => sendMessage("Почему у вакансии мало откликов?")
-                  : undefined
-              }
-            />
-            <SuggestionChip
-              text="Напиши приглашение на интервью"
-              onClick={
-                sendMessage
-                  ? () => sendMessage("Напиши приглашение на интервью")
-                  : undefined
-              }
-            />
+            {suggestionChips.map((text) => (
+              <SuggestionChip
+                key={text}
+                text={text}
+                onClick={sendMessage ? () => sendMessage(text) : undefined}
+              />
+            ))}
           </div>
         </div>
       ) : (

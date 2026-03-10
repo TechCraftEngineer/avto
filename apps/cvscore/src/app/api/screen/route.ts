@@ -15,25 +15,27 @@ import {
 const requestSchema = z.object({
   resume: z
     .string()
-    .min(
-      RESUME_MIN_CHARS,
+    .transform((s) => s.trim())
+    .refine(
+      (s) => s.length >= RESUME_MIN_CHARS,
       `Резюме должно содержать минимум ${RESUME_MIN_CHARS} символов`,
     )
-    .max(
-      RESUME_MAX_CHARS,
+    .refine(
+      (s) => s.length <= RESUME_MAX_CHARS,
       `Резюме должно содержать не более ${RESUME_MAX_CHARS} символов`,
     ),
   vacancy: z
     .string()
-    .min(
-      VACANCY_MIN_CHARS,
+    .transform((s) => s.trim())
+    .refine(
+      (s) => s.length >= VACANCY_MIN_CHARS,
       `Вакансия должна содержать минимум ${VACANCY_MIN_CHARS} символов`,
     )
-    .max(
-      VACANCY_MAX_CHARS,
+    .refine(
+      (s) => s.length <= VACANCY_MAX_CHARS,
       `Вакансия должна содержать не более ${VACANCY_MAX_CHARS} символов`,
     ),
-  consentToStore: z.boolean().optional().default(false),
+  consentToStore: z.boolean().optional().default(true),
 });
 
 /** Простой in-memory rate limit: IP -> { count, resetAt } */

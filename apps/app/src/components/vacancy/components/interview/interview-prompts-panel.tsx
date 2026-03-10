@@ -123,21 +123,24 @@ export function InterviewPromptsPanel({
       </CardHeader>
       <CardContent className="space-y-4">
         {questions.explanation && (
-          <p className="text-sm text-muted-foreground border-l-2 border-primary/30 pl-3">
+          <p className="text-sm text-muted-foreground border-l-2 border-primary/30 pl-4 py-2 whitespace-pre-wrap leading-relaxed">
             {questions.explanation}
           </p>
         )}
-        <ScrollArea className="h-[300px] pr-4">
+        <ScrollArea className="h-[min(520px,70vh)] pr-4">
           <ol className="space-y-3">
             {questions.questions.map((q, idx) => (
               <li
-                key={`${q.purpose}-${idx}`}
-                className="rounded-lg border bg-muted/30 p-3 text-sm"
+                key={`${q.question}-${q.purpose}-${q.relatedRisk ?? ""}`}
+                className="rounded-lg border bg-muted/30 p-4 text-sm space-y-2 transition-colors hover:bg-muted/50"
               >
-                <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <span className="font-medium text-foreground">
-                    {idx + 1}. {q.question}
-                  </span>
+                <p className="font-medium text-foreground leading-relaxed">
+                  <span className="text-primary font-semibold tabular-nums">
+                    {idx + 1}.
+                  </span>{" "}
+                  {q.question}
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline" className="text-xs shrink-0">
                     {PURPOSE_LABELS[q.purpose] ?? "Другое"}
                   </Badge>
