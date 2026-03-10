@@ -22,6 +22,7 @@ import {
 import { normalizePlatformProfileUrl, parseFullName } from "@qbs-autonaim/lib";
 import type { Context } from "hono";
 import { z } from "zod";
+import { buildResponseUrl } from "../utils/response-url";
 import { processPdfUpload } from "./hh-import/utils/pdf";
 import { processPhotoUpload } from "./hh-import/utils/photo";
 import { processResumeText } from "./hh-import/utils/resume-text";
@@ -374,14 +375,11 @@ export async function handleImportResume(c: Context) {
     failureCount: 0,
   });
 
-  const responseUrl =
-    orgData?.slug && workspaceData.slug
-      ? {
-          responseId: targetResponse.id,
-          orgSlug: orgData.slug,
-          workspaceSlug: workspaceData.slug,
-        }
-      : undefined;
+  const responseUrl = buildResponseUrl(
+    targetResponse.id,
+    orgData?.slug,
+    workspaceData.slug,
+  );
 
   return c.json({
     response: targetResponse,

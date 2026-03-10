@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { z } from "zod";
 import { getExtensionApiUrl } from "../../config";
 import type { AuthService } from "../../core/auth-service";
+import { isValidHttpUrl } from "../../shared/utils";
 import type {
   ExistingCandidateInfo,
   Organization,
@@ -130,7 +131,9 @@ export function ProfileView({
       return { ok: false as const, error: "Вкладка не найдена" };
     }
     try {
-      let resp: { ok?: boolean; error?: string } | undefined;
+      let resp:
+        | { ok?: boolean; error?: string; responseUrl?: string }
+        | undefined;
       try {
         resp = await chrome.tabs.sendMessage(tab.id, { type, payload });
       } catch (e) {
@@ -208,9 +211,7 @@ export function ProfileView({
     } else if (resp?.ok === true) {
       setSuccessMessage("Резюме успешно добавлено в вакансию");
       setSuccessResponseUrl(
-        "responseUrl" in resp && typeof resp.responseUrl === "string"
-          ? resp.responseUrl
-          : null,
+        isValidHttpUrl(resp?.responseUrl) ? resp.responseUrl : null,
       );
     }
     setIsImporting(false);
@@ -231,9 +232,7 @@ export function ProfileView({
     } else {
       setSuccessMessage("Кандидат добавлен на вакансию");
       setSuccessResponseUrl(
-        "responseUrl" in resp && typeof resp.responseUrl === "string"
-          ? resp.responseUrl
-          : null,
+        isValidHttpUrl(resp?.responseUrl) ? resp.responseUrl : null,
       );
       setDuplicateState(null);
     }

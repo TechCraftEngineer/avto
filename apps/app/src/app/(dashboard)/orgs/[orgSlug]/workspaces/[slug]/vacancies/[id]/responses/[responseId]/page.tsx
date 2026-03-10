@@ -4,7 +4,7 @@ import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, MessageSquare } from "lucide-react";
+import { ArrowLeft, MessageSquare, Microphone } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ResponseDetailCard } from "~/components/vacancy/components";
@@ -95,7 +95,7 @@ export default function VacancyResponseDetailPage() {
       <div className="@container/main flex flex-1 flex-col">
         <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
           <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8">
-            <div className="mb-6 flex items-center justify-between gap-4">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <Button variant="ghost" size="sm" asChild>
                 <Link
                   href={paths.workspace.vacancies(
@@ -109,20 +109,35 @@ export default function VacancyResponseDetailPage() {
                   Назад к вакансии
                 </Link>
               </Button>
-              {responseData.interviewSession ? (
-                <Button variant="default" size="sm" asChild>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" asChild>
                   <Link
-                    href={paths.workspace.chat(
+                    href={paths.workspace.vacancyResponseInterview(
                       orgSlug,
                       workspaceSlug,
-                      responseData.candidateId,
+                      vacancyId,
+                      responseId,
                     )}
                   >
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    Открыть чат
+                    <Microphone className="mr-2 h-4 w-4" />
+                    Подготовка к интервью
                   </Link>
                 </Button>
-              ) : null}
+                {responseData.interviewSession ? (
+                  <Button variant="default" size="sm" asChild>
+                    <Link
+                      href={paths.workspace.chat(
+                        orgSlug,
+                        workspaceSlug,
+                        responseData.candidateId,
+                      )}
+                    >
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      Открыть чат
+                    </Link>
+                  </Button>
+                ) : null}
+              </div>
             </div>
 
             <ResponseDetailCard

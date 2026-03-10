@@ -85,7 +85,7 @@ interface LinkedInImportParams {
 
 async function importLinkedInToVacancy(
   params: LinkedInImportParams,
-): Promise<void> {
+): Promise<ImportToVacancyResult> {
   const {
     data,
     token,
@@ -193,7 +193,7 @@ interface GenericImportParams {
 
 async function importGenericToVacancy(
   params: GenericImportParams,
-): Promise<void> {
+): Promise<ImportToVacancyResult> {
   const {
     data,
     token,

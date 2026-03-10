@@ -16,7 +16,6 @@ export const ROUTE_SEGMENTS = {
     responses: "responses",
     shortlist: "shortlist",
     integrations: "integrations",
-    interview: "interview",
   },
   gig: {
     edit: "edit",
@@ -77,8 +76,7 @@ export const paths = {
         | "responses"
         | "edit"
         | "integrations"
-        | "shortlist"
-        | "interview",
+        | "shortlist",
     ) => {
       const base = `/orgs/${orgSlug}/workspaces/${slug}/vacancies`;
       if (!vacancyId) return base;
@@ -94,6 +92,13 @@ export const paths = {
       responseId: string,
     ) =>
       `/orgs/${orgSlug}/workspaces/${slug}/vacancies/${vacancyId}/responses/${responseId}`,
+    vacancyResponseInterview: (
+      orgSlug: string,
+      slug: string,
+      vacancyId: string,
+      responseId: string,
+    ) =>
+      `/orgs/${orgSlug}/workspaces/${slug}/vacancies/${vacancyId}/responses/${responseId}/interview`,
     gigs: (
       orgSlug: string,
       slug: string,
