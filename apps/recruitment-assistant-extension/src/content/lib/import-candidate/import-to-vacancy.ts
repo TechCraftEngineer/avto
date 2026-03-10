@@ -3,6 +3,7 @@
  * Возвращает URL страницы отклика при успешном импорте.
  */
 
+import { z } from "zod";
 import { API_URL } from "../../../config";
 import { parseAbout, parseSkillsHtml } from "../../../parsers/linkedin";
 import type { CandidateData } from "../../../shared/types";
@@ -19,6 +20,19 @@ import {
 
 export interface ImportToVacancyResult {
   responseUrl?: string;
+}
+
+const ResponseUrlSchema = z.object({
+  responseId: z.string(),
+  orgSlug: z.string(),
+  workspaceSlug: z.string(),
+});
+
+function buildResponseUrlFromData(raw: unknown): string | undefined {
+  const parsed = ResponseUrlSchema.safeParse(raw);
+  if (!parsed.success || typeof API_URL === "undefined") return undefined;
+  const ru = parsed.data;
+  return `${API_URL.replace(/\/$/, "")}/orgs/${ru.orgSlug}/workspaces/${ru.workspaceSlug}/responses/${ru.responseId}`;
 }
 
 export async function importToVacancy(
@@ -157,22 +171,14 @@ async function importLinkedInToVacancy(
 
   const resp = await sendExtensionApiRequest<{
     response?: { id: string };
-    responseUrl?: {
-      responseId: string;
-      orgSlug: string;
-      workspaceSlug: string;
-    };
+    responseUrl?: unknown;
   }>("import-resume-linkedin", {
     method: "POST",
     body,
     token,
   });
 
-  const ru = resp.data?.responseUrl;
-  const responseUrl =
-    ru && typeof API_URL !== "undefined"
-      ? `${API_URL.replace(/\/$/, "")}/orgs/${ru.orgSlug}/workspaces/${ru.workspaceSlug}/responses/${ru.responseId}`
-      : undefined;
+  const responseUrl = buildResponseUrlFromData(resp.data?.responseUrl);
 
   return { responseUrl };
 }
@@ -238,22 +244,14 @@ async function importGenericToVacancy(
 
   const resp = await sendExtensionApiRequest<{
     response?: { id: string };
-    responseUrl?: {
-      responseId: string;
-      orgSlug: string;
-      workspaceSlug: string;
-    };
+    responseUrl?: unknown;
   }>("import-resume", {
     method: "POST",
     body,
     token,
   });
 
-  const ru = resp.data?.responseUrl;
-  const responseUrl =
-    ru && typeof API_URL !== "undefined"
-      ? `${API_URL.replace(/\/$/, "")}/orgs/${ru.orgSlug}/workspaces/${ru.workspaceSlug}/responses/${ru.responseId}`
-      : undefined;
+  const responseUrl = buildResponseUrlFromData(resp.data?.responseUrl);
 
   return { responseUrl };
 }

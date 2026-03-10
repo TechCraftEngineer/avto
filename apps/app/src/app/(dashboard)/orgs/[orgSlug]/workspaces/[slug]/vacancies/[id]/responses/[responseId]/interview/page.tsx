@@ -3,7 +3,7 @@
 import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { Card } from "@qbs-autonaim/ui/components/card";
-import { useQuery } from "@tanstack/react-query";
+import { skipToken, useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -24,35 +24,99 @@ export default function ResponseInterviewPage() {
   const orpc = useORPC();
   const { workspaceId } = useWorkspaceContext();
 
-  const { data: responseData } = useQuery({
-    ...orpc.vacancy.responses.get.queryOptions({
-      input: { id: responseId, workspaceId: workspaceId ?? "" },
-    }),
-    enabled: Boolean(workspaceId) && Boolean(responseId),
-  });
+  const responseCanFetch = Boolean(workspaceId) && Boolean(responseId);
+  const questionsCanFetch =
+    Boolean(workspaceId) && Boolean(vacancyId) && Boolean(responseId);
+
+  const {
+    data: responseData,
+    isError: responseError,
+    error: responseErrorObj,
+    refetch: refetchResponse,
+    isFetching: responseFetching,
+  } = useQuery(
+    responseCanFetch && workspaceId
+      ? orpc.vacancy.responses.get.queryOptions({
+          input: { id: responseId, workspaceId },
+        })
+      : skipToken,
+  );
 
   const {
     data: interviewQuestions,
     isLoading: questionsLoading,
     isFetching: questionsFetching,
+    isError: questionsError,
+    error: questionsErrorObj,
     refetch: refetchQuestions,
-  } = useQuery({
-    ...orpc.recruiterAgent.getInterviewQuestions.queryOptions({
-      input: {
-        workspaceId: workspaceId ?? "",
-        vacancyId,
-        responseId,
-      },
-    }),
-    enabled: Boolean(workspaceId) && Boolean(vacancyId) && Boolean(responseId),
-  });
+  } = useQuery(
+    questionsCanFetch && workspaceId
+      ? orpc.recruiterAgent.getInterviewQuestions.queryOptions({
+          input: {
+            workspaceId,
+            vacancyId,
+            responseId,
+          },
+        })
+      : skipToken,
+  );
 
   const candidateName = responseData?.candidateName;
+
+  const isInitialLoading =
+    (responseCanFetch && !responseError && !responseData) ||
+    (questionsCanFetch && !questionsError && !interviewQuestions);
+  const isFetching = responseFetching || questionsLoading || questionsFetching;
+  const isLoading = isInitialLoading && isFetching;
 
   if (!workspaceId) {
     return (
       <div className="flex flex-1 items-center justify-center p-6">
         <p className="text-muted-foreground">Загрузка рабочего пространства…</p>
+      </div>
+    );
+  }
+
+  if (responseError || questionsError) {
+    const msg =
+      responseError && questionsError
+        ? "Ошибка загрузки данных"
+        : responseError
+          ? (responseErrorObj?.message ?? "Ошибка загрузки отклика")
+          : (questionsErrorObj?.message ?? "Ошибка загрузки вопросов");
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
+        <p className="text-muted-foreground text-center">{msg}</p>
+        <div className="flex gap-2">
+          {responseError && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refetchResponse()}
+              disabled={responseFetching}
+            >
+              {responseFetching ? "Повтор…" : "Повторить (отклик)"}
+            </Button>
+          )}
+          {questionsError && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refetchQuestions()}
+              disabled={questionsFetching}
+            >
+              {questionsFetching ? "Повтор…" : "Повторить (вопросы)"}
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading && !responseData && !interviewQuestions) {
+    return (
+      <div className="flex flex-1 items-center justify-center p-6">
+        <p className="text-muted-foreground">Загрузка…</p>
       </div>
     );
   }
