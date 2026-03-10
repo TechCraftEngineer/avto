@@ -8,8 +8,8 @@ RUN npm install -g bun
 # Set working directory
 WORKDIR /app
 # Install turbo globally
-# Using stable version 2.8.12 for consistency with other services
-RUN npm install -g turbo@2.8.12
+# Using stable version 2.8.15 for consistency with other services
+RUN npm install -g turbo@2.8.15
 COPY . .
 
 # Generate a partial monorepo with a pruned lockfile for a target workspace.

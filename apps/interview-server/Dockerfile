@@ -8,7 +8,7 @@ RUN npm install -g bun@1.3.10
 # Set working directory
 WORKDIR /app
 # Install turbo globally
-RUN npm install -g turbo@2.8.12
+RUN npm install -g turbo@2.8.15
 COPY . .
 
 # Generate a partial monorepo with a pruned lockfile for a target workspace

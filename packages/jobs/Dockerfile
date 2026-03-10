@@ -6,7 +6,7 @@ WORKDIR /app
 
 FROM base AS prepare
 # Install turbo globally
-RUN bun add -g turbo@2.8.12
+RUN bun add -g turbo@2.8.15
 COPY . .
 # Generate a partial monorepo with a pruned lockfile for @qbs-autonaim/jobs workspace
 RUN turbo prune @qbs-autonaim/jobs --docker
