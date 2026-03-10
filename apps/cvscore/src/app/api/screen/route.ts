@@ -35,7 +35,7 @@ const requestSchema = z.object({
       (s) => s.length <= VACANCY_MAX_CHARS,
       `Вакансия должна содержать не более ${VACANCY_MAX_CHARS} символов`,
     ),
-  consentToStore: z.boolean().optional().default(true),
+  consentToStore: z.boolean().optional().default(false),
 });
 
 /** Простой in-memory rate limit: IP -> { count, resetAt } */

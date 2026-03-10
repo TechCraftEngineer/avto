@@ -83,29 +83,56 @@
 }
 
 @layer utilities {
+  /* Тонкая сетка линий вместо точек */
   .bg-dub-grid {
-    background-color: oklch(0.985 0 0);
+    background-color: oklch(0.99 0 0);
     background-image:
-      radial-gradient(circle at 1px 1px, oklch(0.88 0 0) 1px, transparent 0);
-    background-size: 24px 24px;
+      linear-gradient(
+        to right,
+        oklch(0.92 0 0 / 0.5) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        oklch(0.92 0 0 / 0.5) 1px,
+        transparent 1px
+      );
+    background-size: 32px 32px;
     background-position: -1px -1px;
   }
 
   .bg-dub-glow-top {
     background:
-      radial-gradient(ellipse 100% 80% at 50% -20%, oklch(0.95 0 0 / 0.15) 0%, transparent 50%),
+      radial-gradient(
+        ellipse 100% 80% at 50% -20%,
+        oklch(0.95 0 0 / 0.15) 0%,
+        transparent 50%
+      ),
       var(--background);
   }
 
   .dark .bg-dub-grid {
-    background-color: oklch(0.12 0 0);
+    background-color: oklch(0.11 0 0);
     background-image:
-      radial-gradient(circle at 1px 1px, oklch(0.25 0 0) 1px, transparent 0);
+      linear-gradient(
+        to right,
+        oklch(0.25 0 0 / 0.4) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        oklch(0.25 0 0 / 0.4) 1px,
+        transparent 1px
+      );
   }
 
   .dark .bg-dub-glow-top {
     background:
-      radial-gradient(ellipse 100% 80% at 50% -20%, oklch(0.2 0 0 / 0.2) 0%, transparent 50%),
+      radial-gradient(
+        ellipse 100% 80% at 50% -20%,
+        oklch(0.2 0 0 / 0.2) 0%,
+        transparent 50%
+      ),
       var(--background);
   }
 }

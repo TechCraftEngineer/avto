@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@qbs-autonaim/ui/components/card";
 import { Clock, Eye, MessageSquare } from "lucide-react";
+import { motion } from "motion/react";
 import { useRef, useState } from "react";
 import { HeroBackground } from "@/components/hero-background";
 import { ScreeningCta } from "@/components/screening-cta";
@@ -27,11 +28,33 @@ const BENEFIT_ICON_MAP = {
   message: MessageSquare,
 } as const;
 
+const BENEFIT_STYLES = [
+  {
+    iconBg: "bg-emerald-500/15",
+    iconColor: "text-emerald-600 dark:text-emerald-400",
+    statBg: "bg-emerald-500/10",
+    statColor: "text-emerald-700 dark:text-emerald-300",
+  },
+  {
+    iconBg: "bg-blue-500/15",
+    iconColor: "text-blue-600 dark:text-blue-400",
+    statBg: "bg-blue-500/10",
+    statColor: "text-blue-700 dark:text-blue-300",
+  },
+  {
+    iconBg: "bg-amber-500/15",
+    iconColor: "text-amber-600 dark:text-amber-400",
+    statBg: "bg-amber-500/10",
+    statColor: "text-amber-700 dark:text-amber-300",
+  },
+] as const;
+
 type State = "idle" | "loading" | "success" | "error";
 
 export default function CvScorePage() {
   const [resume, setResume] = useState("");
   const [vacancy, setVacancy] = useState("");
+  const [consentToStore, setConsentToStore] = useState(false);
   const [state, setState] = useState<State>("idle");
   const [result, setResult] = useState<ScreeningOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +76,7 @@ export default function CvScorePage() {
         body: JSON.stringify({
           resume: resume.trim(),
           vacancy: vacancy.trim(),
+          consentToStore,
         }),
         signal: controller.signal,
       });
@@ -121,10 +145,12 @@ export default function CvScorePage() {
                 <ScreeningForm
                   resume={resume}
                   vacancy={vacancy}
+                  consentToStore={consentToStore}
                   loading={state === "loading"}
                   error={error}
                   onResumeChange={setResume}
                   onVacancyChange={setVacancy}
+                  onConsentChange={setConsentToStore}
                   onSubmit={handleSubmit}
                 />
               </CardContent>
@@ -152,27 +178,45 @@ export default function CvScorePage() {
       </section>
 
       {/* Benefits — SEO и конверсия */}
-      <section className="py-12 md:py-16 border-t bg-muted/30">
+      <section className="py-16 md:py-24 border-t bg-muted/30">
         <div className="container mx-auto px-4">
           <h2 className="sr-only">{COPY.benefits.title}</h2>
-          <div className="max-w-3xl mx-auto grid sm:grid-cols-3 gap-6">
-            {COPY.benefits.items.map((item) => {
+          <div className="max-w-4xl mx-auto grid sm:grid-cols-3 gap-8">
+            {COPY.benefits.items.map((item, index) => {
               const IconComponent =
                 BENEFIT_ICON_MAP[item.icon as keyof typeof BENEFIT_ICON_MAP] ??
                 MessageSquare;
+              const style = BENEFIT_STYLES[index] ?? BENEFIT_STYLES[0];
               return (
-                <div
+                <motion.div
                   key={item.title}
-                  className="rounded-xl border bg-card p-5 text-center sm:text-left transition-shadow hover:shadow-sm"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                  className="group relative overflow-hidden rounded-2xl border border-border/80 bg-card p-6 text-center sm:text-left shadow-sm transition-all duration-300 hover:border-primary/20 hover:shadow-md"
                 >
-                  <div className="mx-auto mb-3 flex size-10 items-center justify-center rounded-lg bg-muted sm:mx-0">
-                    <IconComponent className="size-5 text-muted-foreground" />
+                  <div
+                    className={`mx-auto mb-4 flex size-12 items-center justify-center rounded-xl ${style.iconBg} sm:mx-0`}
+                  >
+                    <IconComponent
+                      className={`size-6 ${style.iconColor} transition-transform duration-300 group-hover:scale-110`}
+                    />
                   </div>
-                  <h3 className="font-medium text-foreground mb-1.5">
+                  {item.stat && (
+                    <span
+                      className={`mb-3 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${style.statBg} ${style.statColor}`}
+                    >
+                      {item.stat}
+                    </span>
+                  )}
+                  <h3 className="font-semibold text-foreground mb-2 text-base">
                     {item.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground">{item.text}</p>
-                </div>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {item.text}
+                  </p>
+                </motion.div>
               );
             })}
           </div>
@@ -181,10 +225,27 @@ export default function CvScorePage() {
 
       {/* Footer */}
       <footer className="py-8 border-t">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <Button variant="link" asChild className="text-muted-foreground">
-            <a href={env.NEXT_PUBLIC_APP_URL}>{COPY.footer.back}</a>
-          </Button>
+        <div className="container mx-auto px-4 flex flex-col items-center gap-3 text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 sm:gap-x-6">
+            <Button variant="link" asChild className="text-muted-foreground">
+              <a href={env.NEXT_PUBLIC_APP_URL}>{COPY.footer.back}</a>
+            </Button>
+            <span className="hidden sm:inline">·</span>
+            <a
+              href="/privacy"
+              className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+            >
+              Политика конфиденциальности
+            </a>
+            <span className="hidden sm:inline">·</span>
+            <a
+              href="/terms"
+              className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+            >
+              Условия использования
+            </a>
+          </div>
+          <p className="text-xs">{COPY.footer.poweredBy}</p>
         </div>
       </footer>
     </div>
