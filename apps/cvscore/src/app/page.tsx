@@ -10,6 +10,7 @@ import {
 } from "@qbs-autonaim/ui/components/card";
 import { Clock, Eye, MessageSquare } from "lucide-react";
 import { motion } from "motion/react";
+import Link from "next/link";
 import { useRef, useState } from "react";
 import { HeroBackground } from "@/components/hero-background";
 import { ScreeningCta } from "@/components/screening-cta";
@@ -244,19 +245,19 @@ export default function CvScorePage() {
               <a href={env.NEXT_PUBLIC_APP_URL}>{COPY.footer.back}</a>
             </Button>
             <span className="hidden sm:inline">·</span>
-            <a
+            <Link
               href="/privacy"
               className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline text-sm"
             >
               Политика конфиденциальности
-            </a>
+            </Link>
             <span className="hidden sm:inline">·</span>
-            <a
+            <Link
               href="/terms"
               className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline text-sm"
             >
               Условия использования
-            </a>
+            </Link>
           </div>
           <p className="text-xs text-center">{COPY.footer.poweredBy}</p>
         </div>

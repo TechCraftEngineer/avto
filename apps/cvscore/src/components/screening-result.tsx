@@ -16,7 +16,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ScreeningOutput } from "@/lib/screening-prompt";
 
 interface ScreeningResultProps {
@@ -104,12 +104,24 @@ function getScoreVariant(score: number): {
 
 function CopyQuestionButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    },
+    [],
+  );
 
   const handleCopy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(text);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      timeoutRef.current = setTimeout(() => {
+        timeoutRef.current = null;
+        setCopied(false);
+      }, 1500);
     } catch {
       setCopied(false);
     }
