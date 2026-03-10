@@ -8,6 +8,7 @@ import {
   IconEdit,
   IconEye,
   IconMessage,
+  IconMicrophone,
   IconPlug,
   IconSettings,
 } from "@tabler/icons-react";
@@ -69,6 +70,7 @@ export function VacancyLayoutClient({
     if (pathname.endsWith("/responses")) return "responses";
     if (pathname.endsWith("/edit")) return "edit";
     if (pathname.endsWith("/integrations")) return "integrations";
+    if (pathname.endsWith("/interview")) return "interview";
     return "detail";
   };
 
@@ -230,6 +232,30 @@ export function VacancyLayoutClient({
                       Отклики ({responsesCount?.total ?? 0})
                     </span>
                     <span className="sm:hidden">Отклики</span>
+                  </Link>
+                </Button>
+                <Button
+                  variant="secondary"
+                  asChild
+                  className={cn(
+                    "border border-border bg-white dark:bg-black text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring h-7 rounded-lg px-2.5 text-sm font-medium",
+                    getActiveTab() === "interview" && "bg-muted",
+                  )}
+                >
+                  <Link
+                    href={paths.workspace.vacancies(
+                      orgSlug,
+                      workspaceSlug,
+                      vacancyId,
+                      "interview",
+                    )}
+                  >
+                    <IconMicrophone
+                      className="size-4 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span className="hidden sm:inline">Интервью</span>
+                    <span className="sm:hidden">Интервью</span>
                   </Link>
                 </Button>
                 <Button

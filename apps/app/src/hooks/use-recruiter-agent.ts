@@ -162,6 +162,7 @@ export interface StreamEvent {
 
 interface UseRecruiterAgentOptions {
   vacancyId?: string;
+  responseId?: string;
   onMessage?: (document: RecruiterAgentDocument) => void;
   onError?: (error: Error) => void;
   onFinish?: (document: RecruiterAgentDocument) => void;
@@ -194,6 +195,7 @@ const MAX_HISTORY_LENGTH = 20;
  */
 export function useRecruiterAgent({
   vacancyId: initialVacancyId,
+  responseId,
   onMessage,
   onError,
   onFinish,
@@ -266,6 +268,7 @@ export function useRecruiterAgent({
               workspaceId,
               message: content,
               vacancyId,
+              responseId: responseId ?? undefined,
               conversationHistory: priorHistory,
             },
           }),
@@ -447,6 +450,7 @@ export function useRecruiterAgent({
     [
       workspaceId,
       vacancyId,
+      responseId,
       history,
       maxHistoryLength,
       onMessage,

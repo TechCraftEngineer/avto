@@ -11,8 +11,10 @@ import {
   mapDBSettingsToRecruiterSettings,
   RecruiterAgentOrchestrator,
   type RecruiterStreamEvent,
+  type ResponseInterviewContext,
 } from "@qbs-autonaim/ai";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
+import { formatExperienceText } from "@qbs-autonaim/shared";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
@@ -52,6 +54,7 @@ const chatInputSchema = z.object({
   message: z.string().min(1).max(5000),
   vacancyId: z.string().optional(),
   candidateId: z.string().optional(),
+  responseId: z.string().optional(),
   conversationHistory: z.array(conversationMessageSchema).max(20).default([]),
 });
 
@@ -66,6 +69,7 @@ export const chat = protectedProcedure
       message,
       vacancyId,
       candidateId,
+      responseId,
       conversationHistory,
     } = input;
 
@@ -131,6 +135,68 @@ export const chat = protectedProcedure
       metadata: msg.metadata,
     }));
 
+    // Подгружаем контекст отклика для режима интервью (responseId + vacancyId)
+    let responseContext: ResponseInterviewContext | undefined;
+    if (responseId && vacancyId) {
+      const [response, screening, vacancy] = await Promise.all([
+        context.db.query.response.findFirst({
+          where: (r, { eq, and }) =>
+            and(
+              eq(r.id, responseId),
+              eq(r.entityType, "vacancy"),
+              eq(r.entityId, vacancyId),
+            ),
+          columns: {
+            id: true,
+            globalCandidateId: true,
+            coverLetter: true,
+            profileUrl: true,
+            profileData: true,
+          },
+        }),
+        context.db.query.responseScreening.findFirst({
+          where: (s, { eq }) => eq(s.responseId, responseId),
+          columns: { overallScore: true, overallAnalysis: true },
+        }),
+        context.db.query.vacancy.findFirst({
+          where: (v, { eq }) => eq(v.id, vacancyId),
+          columns: {
+            id: true,
+            title: true,
+            description: true,
+            requirements: true,
+          },
+        }),
+      ]);
+
+      if (response && vacancy) {
+        responseContext = {
+          responseId: response.id,
+          candidateId: response.globalCandidateId ?? response.id,
+          vacancyId,
+          candidateData: {
+            resume: response.profileUrl ?? null,
+            experience: formatExperienceText(response.profileData) ?? null,
+            coverLetter: response.coverLetter ?? null,
+            riskFactors: [],
+            screening: screening
+              ? {
+                  score: screening.overallScore ?? undefined,
+                  analysis: screening.overallAnalysis ?? undefined,
+                }
+              : undefined,
+          },
+          vacancyData: {
+            title: vacancy.title,
+            requirements: vacancy.requirements
+              ? JSON.stringify(vacancy.requirements)
+              : null,
+            description: vacancy.description ?? null,
+          },
+        };
+      }
+    }
+
     // Выполняем запрос с streaming в реальном времени
     // Используем async queue для передачи событий из callback в generator
     const eventQueue: RecruiterStreamEvent[] = [];
@@ -175,6 +241,8 @@ export const chat = protectedProcedure
           workspaceId,
           vacancyId,
           candidateId,
+          responseId,
+          responseContext,
           conversationHistory: history,
         },
         recruiterbotSettings,

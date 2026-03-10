@@ -11,6 +11,7 @@ import { CommunicationAgent } from "../actions/communication";
 import { ContentGeneratorAgent } from "../actions/content-generator";
 import { VacancyAnalyticsAgent } from "../analytics/vacancy-analytics";
 import { IntentClassifierAgent } from "../classification/intent-classifier";
+import { InterviewQuestionsAgent } from "../interview/interview-questions-agent";
 import { CandidateSearchAgent } from "../search/candidate-search";
 import type { RecruiterStreamEvent as StreamEvent } from "./streaming";
 import type {
@@ -1196,7 +1197,7 @@ ${candidatesList}
   private async handleGetInterviewQuestions(
     input: RecruiterOrchestratorInput,
     context: RecruiterAgentContext,
-    _traceId: string | undefined,
+    traceId: string | undefined,
     agentTrace: AgentTraceEntry[],
     _actions: ExecutedAction[],
   ): Promise<string> {
@@ -1206,7 +1207,41 @@ ${candidatesList}
       timestamp: new Date(),
     });
 
-    // Определяем ID вакансии и кандидата
+    const responseContext = input.responseContext;
+
+    if (responseContext) {
+      const questionsAgent = new InterviewQuestionsAgent(
+        this.getAgentConfig(traceId),
+      );
+
+      const agentInput = {
+        candidateId: responseContext.candidateId,
+        responseId: responseContext.responseId,
+        vacancyId: responseContext.vacancyId,
+        candidateData: responseContext.candidateData,
+        vacancyData: responseContext.vacancyData,
+      };
+
+      const result = await questionsAgent.execute(agentInput, context);
+
+      if (result.success && result.data) {
+        agentTrace.push({
+          agent: "InterviewQuestionsAgent",
+          decision: `generated ${result.data.questions.length} questions`,
+          timestamp: new Date(),
+        });
+
+        const questionsList = result.data.questions
+          .map(
+            (q, i) =>
+              `${i + 1}. ${q.question} (${q.purpose}${q.relatedRisk ? `, риск: ${q.relatedRisk}` : ""})`,
+          )
+          .join("\n");
+
+        return `${result.data.explanation}\n\n**Вопросы для интервью:**\n\n${questionsList}\n\nХотите переделать структуру или добавить вопросы?`;
+      }
+    }
+
     const vacancyId = input.vacancyId || context.currentVacancyId;
     const candidateId = input.candidateId || context.candidateId;
 
@@ -1217,37 +1252,20 @@ ${candidatesList}
         timestamp: new Date(),
       });
 
-      return "Для генерации вопросов необходимо указать вакансию. Пожалуйста, выберите вакансию или укажите её в запросе.";
+      return "Для генерации вопросов необходимо указать вакансию. Выберите кандидата в разделе «Интервью» или укажите вакансию в запросе.";
     }
 
-    if (!candidateId) {
+    if (!responseContext && !candidateId) {
       agentTrace.push({
         agent: "InterviewQuestionsAgent",
-        decision: "no candidate ID provided",
+        decision: "no candidate/response context - need to select candidate",
         timestamp: new Date(),
       });
 
-      return "Для генерации персонализированных вопросов необходимо указать кандидата. Пожалуйста, выберите кандидата из списка откликов или укажите его в запросе.";
+      return "Для персонализированных вопросов выберите кандидата в разделе «Интервью». Я сгенерирую вопросы на основе резюме, требований вакансии и результатов скрининга.";
     }
 
-    // TODO: Получить данные кандидата и вакансии из БД через API
-    // Пока возвращаем сообщение о необходимости интеграции
-    agentTrace.push({
-      agent: "InterviewQuestionsAgent",
-      decision: "requires DB integration - returning placeholder",
-      timestamp: new Date(),
-    });
-
-    return `Для генерации персонализированных вопросов для интервью с кандидатом ${candidateId} по вакансии ${vacancyId} мне нужен доступ к данным кандидата и вакансии.
-
-Эта функция будет доступна после интеграции с API. 
-
-Общие рекомендации по вопросам:
-1. **Для уточнения рисков** — задавайте вопросы о выявленных проблемах (доступность, опыт, ожидания)
-2. **Для проверки навыков** — вопросы о конкретных технологиях из требований вакансии
-3. **Для оценки культуры** — вопросы о формате работы, командной работе, мотивации
-
-Хотите получить общий список вопросов для этой вакансии?`;
+    return "Не удалось сгенерировать вопросы. Выберите кандидата и попробуйте снова.";
   }
 
   /**

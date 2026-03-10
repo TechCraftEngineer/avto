@@ -100,6 +100,34 @@ export interface RecruiterFeedbackHistory {
 }
 
 /**
+ * Контекст отклика для режима интервью (подгружается API при наличии responseId)
+ */
+export interface ResponseInterviewContext {
+  responseId: string;
+  candidateId: string;
+  vacancyId: string;
+  candidateData: {
+    resume?: string | null;
+    experience?: string | null;
+    coverLetter?: string | null;
+    riskFactors: Array<{
+      type: string;
+      description: string;
+      severity: "low" | "medium" | "high";
+    }>;
+    screening?: {
+      score?: number;
+      analysis?: string | null;
+    };
+  };
+  vacancyData: {
+    title: string;
+    requirements?: string | null;
+    description?: string | null;
+  };
+}
+
+/**
  * Вход для оркестратора рекрутера
  */
 export interface RecruiterOrchestratorInput {
@@ -107,6 +135,9 @@ export interface RecruiterOrchestratorInput {
   workspaceId: string;
   vacancyId?: string;
   candidateId?: string;
+  responseId?: string;
+  /** Контекст отклика для режима интервью (подгружается API) */
+  responseContext?: ResponseInterviewContext;
   conversationHistory: ConversationMessage[];
 }
 

@@ -13,6 +13,7 @@ import { RecruiterAgentMessages } from "../recruiter-agent-messages";
 
 interface RecruiterAgentChatProps {
   vacancyId?: string;
+  responseId?: string;
   title?: string;
   subtitle?: string;
   placeholder?: string;
@@ -33,6 +34,7 @@ interface RecruiterAgentChatProps {
  */
 const RecruiterAgentChat = memo(function RecruiterAgentChat({
   vacancyId,
+  responseId,
   title = "AI-ассистент рекрутера",
   subtitle,
   placeholder = "Спросите что-нибудь…",
@@ -52,6 +54,7 @@ const RecruiterAgentChat = memo(function RecruiterAgentChat({
     clearHistory,
   } = useRecruiterAgent({
     vacancyId,
+    responseId,
     onMessage,
     onError,
   });
