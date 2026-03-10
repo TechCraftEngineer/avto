@@ -122,9 +122,11 @@ export interface Notification {
   type: "success" | "error" | "warning" | "info";
   /** Текст сообщения */
   message: string;
-  /** Действие, которое может выполнить пользователь */
+  /** Действие: callback или URL для открытия в новой вкладке */
   action?: {
     label: string;
-    callback: () => void;
+    callback?: () => void;
+    /** URL для кнопки «Посмотреть» — открывается в новой вкладке */
+    url?: string;
   };
 }

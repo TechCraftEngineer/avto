@@ -120,7 +120,8 @@ export async function fetchLinkedInDetails(
     }
 
     return result;
-  } catch {
+  } catch (err) {
+    console.error("[fetchLinkedInDetails] Ошибка загрузки details:", err);
     return null;
   }
 }

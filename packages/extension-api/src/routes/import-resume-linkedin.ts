@@ -151,11 +151,16 @@ export async function handleImportResumeLinkedIn(c: Context) {
 
   const workspaceData = await db.query.workspace.findFirst({
     where: (ws, { eq }) => eq(ws.id, vacancy.workspaceId),
-    columns: { organizationId: true },
+    columns: { organizationId: true, slug: true },
   });
   if (!workspaceData) {
     return c.json({ error: "Рабочее пространство не найдено" }, 404);
   }
+
+  const orgData = await db.query.organization.findFirst({
+    where: (o, { eq }) => eq(o.id, workspaceData.organizationId),
+    columns: { slug: true },
+  });
 
   const rawProfileUrl =
     input.contactInfo?.platformProfileUrl ?? input.profileUrl;
@@ -352,5 +357,18 @@ export async function handleImportResumeLinkedIn(c: Context) {
     }
   }
 
-  return c.json({ response: targetResponse, success: true });
+  const responseUrl =
+    orgData?.slug && workspaceData.slug
+      ? {
+          responseId: targetResponse.id,
+          orgSlug: orgData.slug,
+          workspaceSlug: workspaceData.slug,
+        }
+      : undefined;
+
+  return c.json({
+    response: targetResponse,
+    success: true,
+    ...(responseUrl ? { responseUrl } : {}),
+  });
 }

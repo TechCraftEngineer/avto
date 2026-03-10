@@ -60,6 +60,9 @@ export function ProfileView({
 }: ProfileViewProps) {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [successResponseUrl, setSuccessResponseUrl] = useState<string | null>(
+    null,
+  );
   const [isImporting, setIsImporting] = useState(false);
   const [duplicateState, setDuplicateState] = useState<{
     existingCandidate: ExistingCandidateInfo;
@@ -182,6 +185,7 @@ export function ProfileView({
     setIsImporting(true);
     setError(null);
     setSuccessMessage(null);
+    setSuccessResponseUrl(null);
     setDuplicateState(null);
     const resp = await sendToTab("CHECK_AND_IMPORT", {
       vacancyId: selectedVacancyId,
@@ -203,6 +207,11 @@ export function ProfileView({
       setError(resp.error ?? "Ошибка импорта");
     } else if (resp?.ok === true) {
       setSuccessMessage("Резюме успешно добавлено в вакансию");
+      setSuccessResponseUrl(
+        "responseUrl" in resp && typeof resp.responseUrl === "string"
+          ? resp.responseUrl
+          : null,
+      );
     }
     setIsImporting(false);
   };
@@ -212,6 +221,7 @@ export function ProfileView({
     setIsProcessing(true);
     setError(null);
     setSuccessMessage(null);
+    setSuccessResponseUrl(null);
     const resp = await sendToTab("IMPORT_TO_VACANCY_EXISTING", {
       vacancyId: selectedVacancyId,
       globalCandidateId: duplicateState.existingCandidate.id,
@@ -220,6 +230,11 @@ export function ProfileView({
       setError(resp.error ?? "Ошибка");
     } else {
       setSuccessMessage("Кандидат добавлен на вакансию");
+      setSuccessResponseUrl(
+        "responseUrl" in resp && typeof resp.responseUrl === "string"
+          ? resp.responseUrl
+          : null,
+      );
       setDuplicateState(null);
     }
     setIsProcessing(false);
@@ -403,7 +418,16 @@ export function ProfileView({
         )}
         {successMessage && (
           <Alert variant="success" role="status" aria-live="polite">
-            {successMessage}
+            <span className="block mb-2">{successMessage}</span>
+            {successResponseUrl && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => chrome.tabs.create({ url: successResponseUrl })}
+              >
+                Посмотреть
+              </Button>
+            )}
           </Alert>
         )}
       </div>

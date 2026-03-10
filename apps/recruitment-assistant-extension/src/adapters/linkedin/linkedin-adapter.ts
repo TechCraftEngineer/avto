@@ -127,11 +127,13 @@ export class LinkedInAdapter extends PlatformAdapter {
 
   /**
    * Открывает модальное окно контактов (overlay/contact-info).
-   * Загружает details-страницы (experience, education, skills) для полных данных.
+   * Раскрывает "See more", загружает details-страницы (experience, education, skills).
    */
   override async prepareForExtraction(): Promise<void> {
     this.overlayContactsFromDialog = null;
     this.fetchedDetails = null;
+
+    await expandSeeMoreButtons(5);
 
     const overlayOpened = await openContactInfoOverlay(document);
     // Извлекаем контакты сразу из открытого overlay (до scroll — он может закрыть модал)
@@ -165,12 +167,11 @@ export class LinkedInAdapter extends PlatformAdapter {
 
   /**
    * Извлекает все данные профиля с предварительной загрузкой контента.
-   * linkedin_scraper: scroll + expand see more перед парсингом.
+   * expandSeeMoreButtons вызывается в prepareForExtraction (async).
    */
   override extractAll() {
     const savedScrollY = window.scrollY ?? document.documentElement.scrollTop;
     scrollToLoadContent();
-    expandSeeMoreButtons(5);
     try {
       return super.extractAll();
     } finally {

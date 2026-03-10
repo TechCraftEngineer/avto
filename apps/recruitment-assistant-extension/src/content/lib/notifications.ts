@@ -119,11 +119,40 @@ export function showNotification(n: Notification): void {
     border: 1px solid ${borderColor};
     color: ${textColor};
     font-family: ${NOTIFICATION_STYLES.font};
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   `;
-  element.textContent = n.message;
+
+  const messageEl = document.createElement("span");
+  messageEl.textContent = n.message;
+  element.appendChild(messageEl);
+
+  if (n.action) {
+    const btn = document.createElement("button");
+    btn.textContent = n.action.label;
+    btn.style.cssText = `
+      align-self: flex-start;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid ${borderColor};
+      background: transparent;
+      color: ${textColor};
+      font-size: 13px;
+      cursor: pointer;
+    `;
+    btn.addEventListener("click", () => {
+      if (n.action?.url) {
+        window.open(n.action.url, "_blank", "noopener,noreferrer");
+      } else if (n.action?.callback) {
+        n.action.callback();
+      }
+    });
+    element.appendChild(btn);
+  }
 
   document.body.appendChild(element);
   setTimeout(() => {
     if (element.parentNode) element.remove();
-  }, 5000);
+  }, 8000);
 }
