@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@qbs-autonaim/ui/components/button";
+import { Checkbox } from "@qbs-autonaim/ui/components/checkbox";
 import { Label } from "@qbs-autonaim/ui/components/label";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { Check, Loader2, Sparkles, X } from "lucide-react";
@@ -15,20 +16,24 @@ import { COPY } from "@/lib/seo";
 interface ScreeningFormProps {
   resume: string;
   vacancy: string;
+  consentToStore: boolean;
   loading: boolean;
   error: string | null;
   onResumeChange: (value: string) => void;
   onVacancyChange: (value: string) => void;
+  onConsentChange: (value: boolean) => void;
   onSubmit: () => void;
 }
 
 export function ScreeningForm({
   resume,
   vacancy,
+  consentToStore,
   loading,
   error,
   onResumeChange,
   onVacancyChange,
+  onConsentChange,
   onSubmit,
 }: ScreeningFormProps) {
   const resumeOk = resume.length >= RESUME_MIN_CHARS;
@@ -37,6 +42,9 @@ export function ScreeningForm({
 
   const resumeNeed = Math.max(0, RESUME_MIN_CHARS - resume.length);
   const vacancyNeed = Math.max(0, VACANCY_MIN_CHARS - vacancy.length);
+  const [consentBefore, consentAfter] = COPY.form.consentLabel.split(
+    COPY.form.consentLinkText,
+  );
 
   return (
     <div className="space-y-6">
@@ -130,6 +138,42 @@ export function ScreeningForm({
             </span>
           )}
         </div>
+      </div>
+
+      <div className="rounded-xl border border-border/80 bg-muted/40 p-4">
+        <Label
+          htmlFor="consent"
+          className="flex cursor-pointer items-start gap-3 text-sm font-normal leading-relaxed"
+          id="consent-desc"
+        >
+          <Checkbox
+            id="consent"
+            checked={consentToStore}
+            onCheckedChange={(checked) => onConsentChange(checked === true)}
+            disabled={loading}
+            aria-describedby="consent-desc consent-hint"
+            className="mt-0.5 shrink-0"
+          />
+          <span className="min-w-0 flex-1">
+            {consentBefore}
+            <a
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-primary underline underline-offset-2 hover:no-underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {COPY.form.consentLinkText}
+            </a>
+            {consentAfter}
+            <span
+              id="consent-hint"
+              className="mt-2 block text-xs text-muted-foreground"
+            >
+              {COPY.form.consentHint}
+            </span>
+          </span>
+        </Label>
       </div>
 
       {error && (

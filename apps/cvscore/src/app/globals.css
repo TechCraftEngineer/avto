@@ -83,29 +83,140 @@
 }
 
 @layer utilities {
+  /* Премиальный фон с многослойными эффектами */
   .bg-dub-grid {
-    background-color: oklch(0.985 0 0);
+    position: relative;
+    background-color: oklch(0.99 0 0);
     background-image:
-      radial-gradient(circle at 1px 1px, oklch(0.88 0 0) 1px, transparent 0);
-    background-size: 24px 24px;
-    background-position: -1px -1px;
+      /* Тонкая сетка */
+      linear-gradient(
+        to right,
+        oklch(0.94 0 0 / 0.3) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        oklch(0.94 0 0 / 0.3) 1px,
+        transparent 1px
+      ),
+      /* Диагональные линии для текстуры */
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 60px,
+        oklch(0.96 0 0 / 0.4) 60px,
+        oklch(0.96 0 0 / 0.4) 61px
+      );
+    background-size: 40px 40px, 40px 40px, 120px 120px;
+    background-position: -1px -1px, -1px -1px, 0 0;
+  }
+
+  .bg-dub-grid::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      /* Верхнее свечение */
+      radial-gradient(
+        ellipse 80% 50% at 50% 0%,
+        oklch(0.96 0 0 / 0.6) 0%,
+        transparent 60%
+      ),
+      /* Боковые акценты */
+      radial-gradient(
+        ellipse 30% 50% at 0% 50%,
+        oklch(0.97 0 0 / 0.3) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        ellipse 30% 50% at 100% 50%,
+        oklch(0.97 0 0 / 0.3) 0%,
+        transparent 50%
+      );
+    pointer-events: none;
+  }
+
+  .bg-dub-grid::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      /* Шум для премиальной текстуры */
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    opacity: 0.5;
+    mix-blend-mode: overlay;
+    pointer-events: none;
   }
 
   .bg-dub-glow-top {
     background:
-      radial-gradient(ellipse 100% 80% at 50% -20%, oklch(0.95 0 0 / 0.15) 0%, transparent 50%),
+      radial-gradient(
+        ellipse 100% 80% at 50% -20%,
+        oklch(0.95 0 0 / 0.15) 0%,
+        transparent 50%
+      ),
       var(--background);
   }
 
   .dark .bg-dub-grid {
-    background-color: oklch(0.12 0 0);
+    background-color: oklch(0.11 0 0);
     background-image:
-      radial-gradient(circle at 1px 1px, oklch(0.25 0 0) 1px, transparent 0);
+      /* Тонкая сетка */
+      linear-gradient(
+        to right,
+        oklch(0.2 0 0 / 0.5) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        oklch(0.2 0 0 / 0.5) 1px,
+        transparent 1px
+      ),
+      /* Диагональные линии */
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 60px,
+        oklch(0.16 0 0 / 0.6) 60px,
+        oklch(0.16 0 0 / 0.6) 61px
+      );
+    background-size: 40px 40px, 40px 40px, 120px 120px;
+  }
+
+  .dark .bg-dub-grid::before {
+    background:
+      /* Верхнее свечение */
+      radial-gradient(
+        ellipse 80% 50% at 50% 0%,
+        oklch(0.16 0 0 / 0.5) 0%,
+        transparent 60%
+      ),
+      /* Боковые акценты */
+      radial-gradient(
+        ellipse 30% 50% at 0% 50%,
+        oklch(0.14 0 0 / 0.4) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        ellipse 30% 50% at 100% 50%,
+        oklch(0.14 0 0 / 0.4) 0%,
+        transparent 50%
+      );
+  }
+
+  .dark .bg-dub-grid::after {
+    background-image:
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+    opacity: 0.4;
   }
 
   .dark .bg-dub-glow-top {
     background:
-      radial-gradient(ellipse 100% 80% at 50% -20%, oklch(0.2 0 0 / 0.2) 0%, transparent 50%),
+      radial-gradient(
+        ellipse 100% 80% at 50% -20%,
+        oklch(0.2 0 0 / 0.2) 0%,
+        transparent 50%
+      ),
       var(--background);
   }
 }

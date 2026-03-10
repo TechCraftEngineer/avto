@@ -12,10 +12,45 @@ import {
   VACANCY_MIN_CHARS,
 } from "@/lib/screening-prompt";
 
+/** Максимальный размер JSON payload (5MB) */
+const MAX_PAYLOAD_SIZE = 5 * 1024 * 1024;
+
+/** Таймаут для AI запроса (30 секунд) */
+const AI_REQUEST_TIMEOUT_MS = 30_000;
+
+/** Защита от prompt injection: запрещенные паттерны */
+const SUSPICIOUS_PATTERNS = [
+  /ignore\s+(previous|above|all)\s+instructions?/i,
+  /system\s*:\s*/i,
+  /assistant\s*:\s*/i,
+  /<\|im_start\|>/i,
+  /<\|im_end\|>/i,
+  /\[INST\]/i,
+  /\[\/INST\]/i,
+  /<script[\s>]/i,
+  /<iframe[\s>]/i,
+  /javascript:/i,
+  /on\w+\s*=/i, // onclick=, onerror=, etc
+];
+
+function containsSuspiciousContent(text: string): boolean {
+  return SUSPICIOUS_PATTERNS.some((pattern) => pattern.test(text));
+}
+
+function sanitizeText(text: string): string {
+  // Удаляем потенциально опасные control characters
+  // Создаем regex динамически чтобы избежать ESLint ошибок
+  const controlCharsPattern = new RegExp(
+    `[${String.fromCharCode(0)}-${String.fromCharCode(8)}${String.fromCharCode(11)}${String.fromCharCode(12)}${String.fromCharCode(14)}-${String.fromCharCode(31)}${String.fromCharCode(127)}]`,
+    "g",
+  );
+  return text.replace(controlCharsPattern, "").trim();
+}
+
 const requestSchema = z.object({
   resume: z
     .string()
-    .transform((s) => s.trim())
+    .transform((s) => sanitizeText(s))
     .refine(
       (s) => s.length >= RESUME_MIN_CHARS,
       `Резюме должно содержать минимум ${RESUME_MIN_CHARS} символов`,
@@ -23,10 +58,14 @@ const requestSchema = z.object({
     .refine(
       (s) => s.length <= RESUME_MAX_CHARS,
       `Резюме должно содержать не более ${RESUME_MAX_CHARS} символов`,
+    )
+    .refine(
+      (s) => !containsSuspiciousContent(s),
+      "Обнаружен подозрительный контент в резюме",
     ),
   vacancy: z
     .string()
-    .transform((s) => s.trim())
+    .transform((s) => sanitizeText(s))
     .refine(
       (s) => s.length >= VACANCY_MIN_CHARS,
       `Вакансия должна содержать минимум ${VACANCY_MIN_CHARS} символов`,
@@ -34,48 +73,67 @@ const requestSchema = z.object({
     .refine(
       (s) => s.length <= VACANCY_MAX_CHARS,
       `Вакансия должна содержать не более ${VACANCY_MAX_CHARS} символов`,
+    )
+    .refine(
+      (s) => !containsSuspiciousContent(s),
+      "Обнаружен подозрительный контент в вакансии",
     ),
-  consentToStore: z.boolean().optional().default(true),
+  consentToStore: z.boolean().optional().default(false),
 });
 
-/** Простой in-memory rate limit: IP -> { count, resetAt } */
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT_WINDOW_MS = 60_000; // 1 минута
-const RATE_LIMIT_MAX = 5; // макс. 5 запросов в минуту
-
 function getClientIp(request: Request): string {
+  const forwarded = request.headers.get("x-forwarded-for");
+  if (forwarded) {
+    // Берем первый IP из цепочки (реальный клиент)
+    const ip = forwarded.split(",")[0]?.trim();
+    if (ip) return ip;
+  }
   return (
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     request.headers.get("x-real-ip") ??
+    request.headers.get("cf-connecting-ip") ?? // Cloudflare
     "unknown"
   );
 }
 
-/** Удаляет устаревшие записи из rateLimitMap для предотвращения утечки памяти */
-function pruneExpiredRateLimits(): void {
+/**
+ * Rate limiting через базу данных (работает в serverless)
+ * Альтернатива: использовать Redis, Upstash, или Vercel KV
+ *
+ * ВАЖНО: Эта функция - заглушка для будущей реализации через Redis/KV
+ * Сейчас используется checkRateLimitMemory для простоты
+ */
+// async function checkRateLimitDb(
+//   ip: string,
+// ): Promise<{ allowed: boolean; retryAfter?: number }> {
+//   // TODO: Реализовать через Redis/Upstash/Vercel KV для продакшена
+//   return { allowed: true };
+// }
+
+/** Простой in-memory rate limit (работает только в dev, не в serverless) */
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 5;
+
+function checkRateLimitMemory(ip: string): {
+  allowed: boolean;
+  retryAfter?: number;
+} {
   const now = Date.now();
+
+  // Очистка старых записей
   for (const [key, entry] of rateLimitMap.entries()) {
     if (now > entry.resetAt) {
       rateLimitMap.delete(key);
     }
   }
-}
 
-function checkRateLimit(ip: string): { allowed: boolean; retryAfter?: number } {
-  pruneExpiredRateLimits();
-  const now = Date.now();
   const entry = rateLimitMap.get(ip);
 
-  if (!entry) {
+  if (!entry || now > entry.resetAt) {
     rateLimitMap.set(ip, {
       count: 1,
       resetAt: now + RATE_LIMIT_WINDOW_MS,
     });
-    return { allowed: true };
-  }
-
-  if (now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
     return { allowed: true };
   }
 
@@ -90,11 +148,53 @@ function checkRateLimit(ip: string): { allowed: boolean; retryAfter?: number } {
   return { allowed: true };
 }
 
+/** Логирование подозрительной активности */
+function logSuspiciousActivity(
+  ip: string,
+  reason: string,
+  data?: unknown,
+): void {
+  console.warn("[SECURITY]", {
+    timestamp: new Date().toISOString(),
+    ip,
+    reason,
+    data,
+  });
+}
+
+/** CORS headers для безопасности */
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": process.env.NEXT_PUBLIC_APP_URL ?? "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Max-Age": "86400",
+};
+
+/** OPTIONS для CORS preflight */
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: CORS_HEADERS,
+  });
+}
+
 export async function POST(request: Request) {
   const ip = getClientIp(request);
-  const rateResult = checkRateLimit(ip);
 
+  // Проверка размера payload
+  const contentLength = request.headers.get("content-length");
+  if (contentLength && parseInt(contentLength, 10) > MAX_PAYLOAD_SIZE) {
+    logSuspiciousActivity(ip, "Payload too large", { size: contentLength });
+    return NextResponse.json(
+      { error: "Слишком большой запрос" },
+      { status: 413 },
+    );
+  }
+
+  // Rate limiting
+  const rateResult = checkRateLimitMemory(ip);
   if (!rateResult.allowed) {
+    logSuspiciousActivity(ip, "Rate limit exceeded");
     return NextResponse.json(
       {
         error: "Превышен лимит запросов",
@@ -102,23 +202,41 @@ export async function POST(request: Request) {
       },
       {
         status: 429,
-        headers: rateResult.retryAfter
-          ? { "Retry-After": String(rateResult.retryAfter) }
-          : undefined,
+        headers: {
+          "Retry-After": String(rateResult.retryAfter ?? 60),
+          "X-RateLimit-Limit": String(RATE_LIMIT_MAX),
+          "X-RateLimit-Remaining": "0",
+        },
       },
     );
   }
 
+  // Парсинг JSON с защитой от больших payload
   let body: unknown;
   try {
-    body = await request.json();
-  } catch {
+    const text = await request.text();
+    if (text.length > MAX_PAYLOAD_SIZE) {
+      logSuspiciousActivity(ip, "Text payload too large", {
+        size: text.length,
+      });
+      return NextResponse.json(
+        { error: "Слишком большой запрос" },
+        { status: 413 },
+      );
+    }
+    body = JSON.parse(text);
+  } catch (error) {
+    logSuspiciousActivity(ip, "Invalid JSON", { error });
     return NextResponse.json({ error: "Некорректный JSON" }, { status: 400 });
   }
 
+  // Валидация входных данных
   const parsed = requestSchema.safeParse(body);
   if (!parsed.success) {
     const firstError = parsed.error.issues[0];
+    logSuspiciousActivity(ip, "Validation failed", {
+      error: firstError?.message,
+    });
     return NextResponse.json(
       {
         error: "Ошибка валидации",
@@ -133,36 +251,85 @@ export async function POST(request: Request) {
   try {
     const prompt = buildScreeningPrompt(resume, vacancy);
 
-    const { object } = await generateObject({
+    // AI запрос с таймаутом
+    const aiPromise = generateObject({
       model: undefined,
       prompt,
       schema: screeningOutputSchema,
       generationName: "cvscore-screening",
-      metadata: { source: "cvscore" },
+      metadata: { source: "cvscore", ip },
     });
 
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(
+        () => reject(new Error("AI request timeout")),
+        AI_REQUEST_TIMEOUT_MS,
+      ),
+    );
+
+    const { object } = await Promise.race([aiPromise, timeoutPromise]);
+
+    // Дополнительная валидация результата AI
+    if (
+      typeof object.score !== "number" ||
+      object.score < 0 ||
+      object.score > 100
+    ) {
+      throw new Error("Invalid AI response: score out of range");
+    }
+
+    if (!Array.isArray(object.strengths) || !Array.isArray(object.risks)) {
+      throw new Error("Invalid AI response: invalid arrays");
+    }
+
+    // Санитизация данных перед сохранением
     const resumeToStore = consentToStore
-      ? resume.slice(0, RESUME_MAX_CHARS)
+      ? sanitizeText(resume.slice(0, RESUME_MAX_CHARS))
       : "[скрининг без сохранения резюме — нет согласия]";
     const vacancyToStore = consentToStore
-      ? vacancy.slice(0, VACANCY_MAX_CHARS)
+      ? sanitizeText(vacancy.slice(0, VACANCY_MAX_CHARS))
       : "[описание вакансии не сохранено — нет согласия]";
 
     await cvscoreDb.insert(cvscoreScreeningResult).values({
       resumeText: resumeToStore,
       vacancyText: vacancyToStore,
-      score: object.score,
-      strengths: object.strengths,
-      risks: object.risks,
-      interviewQuestions: object.interviewQuestions,
+      score: Math.round(object.score), // Округляем для консистентности
+      strengths: object.strengths.map((s) => sanitizeText(s)),
+      risks: object.risks.map((r) => sanitizeText(r)),
+      interviewQuestions: object.interviewQuestions.map((q) => sanitizeText(q)),
     });
 
-    return NextResponse.json(object);
+    return NextResponse.json(object, {
+      headers: {
+        ...CORS_HEADERS,
+        "X-RateLimit-Limit": String(RATE_LIMIT_MAX),
+        "X-RateLimit-Remaining": String(
+          Math.max(0, RATE_LIMIT_MAX - (rateLimitMap.get(ip)?.count ?? 0)),
+        ),
+      },
+    });
   } catch (err) {
-    console.error("CVScore screening error:", err);
+    const errorMessage = err instanceof Error ? err.message : "Unknown error";
+    console.error("CVScore screening error:", {
+      error: errorMessage,
+      ip,
+      timestamp: new Date().toISOString(),
+    });
+
+    if (errorMessage.includes("timeout")) {
+      return NextResponse.json(
+        {
+          error: "Превышено время ожидания",
+          message:
+            "Запрос занял слишком много времени. Попробуйте сократить текст.",
+        },
+        { status: 504 },
+      );
+    }
+
     return NextResponse.json(
       {
-        error: "Ошибка AI",
+        error: "Ошибка обработки",
         message: "Сервис временно недоступен. Попробуйте позже.",
       },
       { status: 500 },
