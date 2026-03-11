@@ -31,8 +31,11 @@ RUN bun install
 COPY --from=builder /app/out/full/ .
 ARG NEXT_PUBLIC_APP_URL
 ARG NEXT_PUBLIC_SITE_URL
+# Placeholder for build — DB не подключается при сборке, реальный URL задаётся в k8s
+ARG POSTGRES_URL=postgresql://localhost:5432/cvscore
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+ENV POSTGRES_URL=$POSTGRES_URL
 ENV CI=true
 RUN bun turbo run build --filter=@qbs-autonaim/cvscore
 
