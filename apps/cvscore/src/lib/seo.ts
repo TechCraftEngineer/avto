@@ -17,7 +17,7 @@ export const SITE_CONFIG = {
   name: "CVScore",
   url:
     (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_SITE_URL) ||
-    "https://cvscore.avtonaim.qbsoft.ru",
+    "https://cvscore.autonaim.qbsoft.ru",
   description:
     "Бесплатная AI-оценка кандидата по резюме. За 30 секунд получите: score соответствия вакансии, сильные стороны, риски и вопросы для собеседования. Без регистрации.",
   shortDescription:

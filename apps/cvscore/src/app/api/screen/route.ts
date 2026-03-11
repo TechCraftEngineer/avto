@@ -311,13 +311,22 @@ export async function POST(request: Request) {
     });
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
+    const errorName = err instanceof Error ? err.name : undefined;
     console.error("CVScore screening error:", {
       error: errorMessage,
       ip,
       timestamp: new Date().toISOString(),
     });
 
-    if (errorMessage.includes("timeout") || errorMessage.includes("aborted")) {
+    const isTimeout =
+      (err instanceof Error &&
+        (errorName === "AbortError" ||
+          errorName === "TimeoutError" ||
+          errorMessage.includes("timeout") ||
+          errorMessage.includes("aborted"))) ||
+      false;
+
+    if (isTimeout) {
       return jsonResponse(
         {
           error: "Превышено время ожидания",

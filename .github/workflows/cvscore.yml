@@ -1,0 +1,58 @@
+name: Deploy Cvscore
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/cvscore/**"
+      - "packages/db/**"
+      - "packages/lib/**"
+      - "packages/ui/**"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CR_REGISTRY: crpg4slqh0n5tf7gqq65
+  CR_REPOSITORY: cvscore
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Login to Yandex Cloud Container Registry
+        id: login-cr
+        uses: yc-actions/yc-cr-login@v2
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS_QBSOFT }}
+      - name: Build, tag, and push image
+        env:
+          NEXT_PUBLIC_APP_URL: ${{ secrets.CVSCORE_NEXT_PUBLIC_APP_URL || 'https://app.avtonaim.qbsoft.ru' }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.CVSCORE_NEXT_PUBLIC_SITE_URL || 'https://cvscore.autonaim.qbsoft.ru' }}
+        run: |
+          docker build -f apps/cvscore/Dockerfile \
+            --build-arg NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL \
+            --build-arg NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL \
+            -t cr.yandex/${{ env.CR_REGISTRY }}/${{ env.CR_REPOSITORY }}:${{ env.IMAGE_TAG }} \
+            -t cr.yandex/${{ env.CR_REGISTRY }}/${{ env.CR_REPOSITORY }}:latest .
+          docker push cr.yandex/${{ env.CR_REGISTRY }}/${{ env.CR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker push cr.yandex/${{ env.CR_REGISTRY }}/${{ env.CR_REPOSITORY }}:latest
+      - name: Deploy To Cluster
+        uses: kodermax/kubectl-aws-eks@main
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA_QBSOFT }}
+        with:
+          args: set image deployment/${{ env.CR_REPOSITORY }} ${{ env.CR_REPOSITORY }}=cr.yandex/${{ env.CR_REGISTRY }}/${{ env.CR_REPOSITORY }}:${{ env.IMAGE_TAG }} -n qbsoft
+      - name: Verify Deployment
+        uses: kodermax/kubectl-aws-eks@main
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA_QBSOFT }}
+        with:
+          args: rollout status deployment/${{ env.CR_REPOSITORY }} -n qbsoft
