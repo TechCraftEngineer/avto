@@ -15,7 +15,7 @@ export const env = createEnv({
     NEXT_PUBLIC_SITE_URL: z
       .string()
       .url()
-      .default("https://cvscore.avtonaim.qbsoft.ru"),
+      .default("https://cvscore.autonaim.qbsoft.ru"),
   },
   experimental__runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
