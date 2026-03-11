@@ -15,8 +15,11 @@ import {
 /** Максимальный размер JSON payload (5MB) */
 const MAX_PAYLOAD_SIZE = 5 * 1024 * 1024;
 
-/** Таймаут для AI запроса (30 секунд) */
-const AI_REQUEST_TIMEOUT_MS = 30_000;
+/** Таймаут для AI запроса (60 секунд — скрининг объёмного резюме может занимать время) */
+const AI_REQUEST_TIMEOUT_MS = 60_000;
+
+/** Лимит выполнения роута для Next.js (секунды) — должен быть ≥ AI timeout */
+export const maxDuration = 70;
 
 /** Защита от prompt injection: запрещенные паттерны */
 const SUSPICIOUS_PATTERNS = [
@@ -312,8 +315,13 @@ export async function POST(request: Request) {
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
     const errorName = err instanceof Error ? err.name : undefined;
+    const causeMessage =
+      err instanceof Error && err.cause instanceof Error
+        ? err.cause.message
+        : undefined;
     console.error("CVScore screening error:", {
       error: errorMessage,
+      cause: causeMessage,
       ip,
       timestamp: new Date().toISOString(),
     });
@@ -334,6 +342,23 @@ export async function POST(request: Request) {
             "Запрос занял слишком много времени. Попробуйте сократить текст.",
         },
         504,
+      );
+    }
+
+    const isDbSchemaError =
+      errorMessage.includes("does not exist") ||
+      errorMessage.includes("relation") ||
+      errorMessage.includes("uuid_generate_v7");
+    if (isDbSchemaError) {
+      console.error(
+        "[CVScore] Миграции не применены. Выполните: cd packages/db && bun run migrate:cvscore",
+      );
+      return jsonResponse(
+        {
+          error: "Ошибка базы данных",
+          message: "Сервис временно недоступен. Обратитесь к администратору.",
+        },
+        503,
       );
     }
 
