@@ -68,7 +68,8 @@ export default function CvScorePage() {
     setError(null);
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30_000);
+    /** Согласовано с maxDuration (70 сек) в /api/screen/route.ts */
+    const timeoutId = setTimeout(() => controller.abort(), 75_000);
 
     try {
       const res = await fetch("/api/screen", {

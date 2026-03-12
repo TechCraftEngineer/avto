@@ -75,7 +75,7 @@ import {
   completeInterviewFunction,
   notifyTelegramAuthErrorFunction,
   processIncomingMessageFunction,
-  processPersonalIncomingMessageFunction,
+  // processPersonalIncomingMessageFunction, // Отключено — слишком много событий
   sendNextQuestionFunction,
   sendTelegramMessageByUsernameFunction,
   sendTelegramMessageFunction,
@@ -155,7 +155,7 @@ export const inngestFunctions: any[] = [
   completeInterviewFunction,
   notifyTelegramAuthErrorFunction,
   processIncomingMessageFunction,
-  processPersonalIncomingMessageFunction,
+  // processPersonalIncomingMessageFunction, // Отключено — слишком много событий
   sendNextQuestionFunction,
   sendTelegramMessageFunction,
   sendTelegramMessageByUsernameFunction,
