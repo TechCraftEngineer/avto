@@ -35,6 +35,9 @@ export const processPersonalIncomingMessageFunction = inngest.createFunction(
   },
   { event: "telegram/personal.message.received" },
   async ({ event, step }) => {
+    // Заглушка — обработка отключена
+    return { skipped: true, reason: "stub: processing disabled" };
+
     const { userId, messageData } = event.data as PersonalMessagePayload;
 
     if (messageData.isOutgoing) {
